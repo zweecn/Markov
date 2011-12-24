@@ -26,6 +26,15 @@ public class ServiceFlow {
 		readBlindService();
 	}
 	
+	public Activity getActivity(int number) {
+		for (int i = 0; i < activities.size(); i++) {
+			if (activities.get(i).getNumber() == number) {
+				return activities.get(i);
+			}
+		}
+		return null;
+	}
+	
 	private void readCandidateServices() {
 		services = new ArrayList<AtomService>();
 		try {
@@ -88,7 +97,7 @@ public class ServiceFlow {
 			for (int i = 0; i < activityCount; i++) {
 				int activityNumber = scanner.nextInt();
 				Activity activity = new Activity();
-				activity.setActivityNumber(activityNumber);
+				activity.setNumber(activityNumber);
 				activities.add(activity);
 			}
 
@@ -130,7 +139,7 @@ public class ServiceFlow {
 		System.out.println();
 		
 		for (int i = 0; i < activityCount; i++) {
-			System.out.println("Activity " + activities.get(i).getActivityNumber() 
+			System.out.println("Activity " + activities.get(i).getNumber() 
 					+ " blind service " + activities.get(i).getBlindService().getNumber());
 		}
 		System.out.println();

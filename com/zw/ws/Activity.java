@@ -5,7 +5,7 @@ public class Activity {
 		super();
 	}
 	public Activity(int activityNumber) {
-		this.activityNumber = activityNumber;
+		this.number = activityNumber;
 	}
 	
 	public Activity(AtomService blindService) {
@@ -14,33 +14,19 @@ public class Activity {
 	}
 	
 	private AtomService blindService;
-	private ServiceQoS expectQoS;
-	private ServiceQoS currentQoS;
-	private int activityNumber;
+	private int number;
 	
 	public AtomService getBlindService() {
 		return blindService;
 	}
 	public void setBlindService(AtomService blindService) {
 		this.blindService = blindService;
-		this.currentQoS = this.blindService.getQos();
 	}
-	public ServiceQoS getExpectQoS() {
-		return expectQoS;
+	
+	public int getNumber() {
+		return number;
 	}
-	public void setExpectQoS(ServiceQoS expectQoS) {
-		this.expectQoS = expectQoS;
-	}
-	public ServiceQoS getCurrentQoS() {
-		return currentQoS;
-	}
-	public void setCurrentQoS(ServiceQoS currentQoS) {
-		this.currentQoS = currentQoS;
-	}
-	public int getActivityNumber() {
-		return activityNumber;
-	}
-	public void setActivityNumber(int activityNumber) {
-		this.activityNumber = activityNumber;
+	public void setNumber(int activityNumber) {
+		this.number = activityNumber;
 	}
 }
