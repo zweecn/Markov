@@ -1,54 +1,33 @@
 package com.zw.markov;
 
-import java.util.Set;
+import com.zw.ws.ServiceFlow;
 
-public class MarkovState {
-	private Set<ActivityState> activityStates;
-
-	public Set<ActivityState> getActivityStates() {
-		return activityStates;
-	}
-
-	public void setActivityStates(Set<ActivityState> activityStates) {
-		this.activityStates = activityStates;
+public class MarkovState extends ServiceFlow {
+	//private Set<ActivityState> activityStates;
+	//private ActivityState[]  activityStates;
+	//private ServiceFlow flow;
+	private boolean finished;
+	
+	public MarkovState () {
+		//this.flow = flow;
+		//activityStates = new ActivityState[flow.getActivitySize()];
+		finished = false;
 	}
 	
-	public void addActivityState(ActivityState activityState) {
-		activityStates.add(activityState);
-	}
-	
-	public void removeActivityState(ActivityState activityState) {
-		activityStates.remove(activityState);
-	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((activityStates == null) ? 0 : activityStates.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
+	public boolean isFinished() {
+		if (finished) {
 			return true;
 		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof MarkovState)) {
-			return false;
-		}
-		MarkovState other = (MarkovState) obj;
-		if (activityStates == null) {
-			if (other.activityStates != null) {
-				return false;
-			}
-		} else if (!activityStates.equals(other.activityStates)) {
-			return false;
-		}
-		return true;
+		return false;
+	}
+	
+	public MarkovState clone() {
+		MarkovState state = new MarkovState();
+		
+		
+		
+		
+		return state;
 	}
 }

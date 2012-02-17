@@ -14,11 +14,11 @@ public class ServiceFlow {
 	private final static String candidateServiceFileName = "E:\\markov_output\\wsinfo.txt";
 	private final static String blindFileName = "E:\\markov_output\\blind.txt";
 	private final static String graphFileName = "E:\\markov_output\\graph.txt";
-	private int activityCount;
-	private List<Activity> activities;
-	private List<AtomService> services;
+	private int activitySize;
+	protected List<Activity> activities;
+	protected List<AtomService> services;
 	private int[][] graph;
-
+	
 	public ServiceFlow() {
 		readCandidateServices();
 		//readActivityInfo();
@@ -58,16 +58,16 @@ public class ServiceFlow {
 		try {
 			BufferedReader bf = new BufferedReader(new FileReader(graphFileName));
 			String line = bf.readLine();
-			activityCount = new Integer(line.trim());
-			graph = new int[activityCount][activityCount];
-			activities = new ArrayList<Activity>(activityCount);
-			for (int i = 0; i < activityCount; i++) {
+			activitySize = new Integer(line.trim());
+			graph = new int[activitySize][activitySize];
+			activities = new ArrayList<Activity>(activitySize);
+			for (int i = 0; i < activitySize; i++) {
 				Activity activity = new Activity(i);
 				activities.add(activity);
 			}
 			
-			for (int i = 0; i < activityCount; i++) {
-				for (int j = 0; j < activityCount; j++) {
+			for (int i = 0; i < activitySize; i++) {
+				for (int j = 0; j < activitySize; j++) {
 					graph[i][j] = 0;
 				}
 			}
@@ -92,19 +92,19 @@ public class ServiceFlow {
 	private void readActivityInfo() {
 		try {
 			Scanner scanner = new Scanner(new File(flowInfoFileName));
-			activityCount = scanner.nextInt();
-			activities = new ArrayList<Activity>(activityCount);
-			for (int i = 0; i < activityCount; i++) {
+			activitySize = scanner.nextInt();
+			activities = new ArrayList<Activity>(activitySize);
+			for (int i = 0; i < activitySize; i++) {
 				int activityNumber = scanner.nextInt();
 				Activity activity = new Activity();
 				activity.setNumber(activityNumber);
 				activities.add(activity);
 			}
 
-			graph = new int[activityCount][activityCount];
-			for (int i = 0; i < activityCount; i++) {
+			graph = new int[activitySize][activitySize];
+			for (int i = 0; i < activitySize; i++) {
 				scanner.nextInt();
-				for (int j = 0; j < activityCount; j++) {
+				for (int j = 0; j < activitySize; j++) {
 					graph[i][j] = scanner.nextInt();
 				}
 			}
@@ -113,7 +113,7 @@ public class ServiceFlow {
 			e.printStackTrace();
 		}
 	}
-
+	
 	private void readBlindService() {
 		try {
 			Scanner scanner = new Scanner(new File(blindFileName));
@@ -138,19 +138,31 @@ public class ServiceFlow {
 		}
 		System.out.println();
 		
-		for (int i = 0; i < activityCount; i++) {
+		for (int i = 0; i < activitySize; i++) {
 			System.out.println("Activity " + activities.get(i).getNumber() 
 					+ " blind service " + activities.get(i).getBlindService().getNumber());
 		}
 		System.out.println();
 		
-		for (int i = 0; i < activityCount; i++) {
-			for (int j = 0; j < activityCount; j++) {
+		for (int i = 0; i < activitySize; i++) {
+			for (int j = 0; j < activitySize; j++) {
 				if (graph[i][j] == 1) {
 					System.out.println("" + i + " -> " + j);
 				}
 			}
 		}
 	}
+	
+	public int getActivitySize() {
+		return activities.size();
+	}
+	
+	public boolean hasEdge(int i, int j) {
+		try {
+			return (graph[i][j] == 1);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
 }
-
