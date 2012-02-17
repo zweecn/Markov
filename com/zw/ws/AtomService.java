@@ -11,6 +11,11 @@ public class AtomService{
 	private int number;
 	private ServiceQoS qos;
 
+	public AtomService clone() {
+		AtomService serviceTemp = new AtomService(number, qos.clone());
+		return serviceTemp;
+	}
+	
 	public int getNumber() {
 		return number;
 	}

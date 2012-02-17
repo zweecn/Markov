@@ -14,8 +14,7 @@ public class Activity {
 	
 	private AtomService blindService;
 	private int number;
-	private int serviceState;
-	private int beforeOrAfter;
+	private double x;
 	
 	public AtomService getBlindService() {
 		return blindService;
@@ -30,16 +29,18 @@ public class Activity {
 	public void setNumber(int activityNumber) {
 		this.number = activityNumber;
 	}
-	public int getServiceState() {
-		return serviceState;
+	public double getX() {
+		return x;
 	}
-	public void setServiceState(int serviceState) {
-		this.serviceState = serviceState;
+	public void setX(double x) {
+		this.x = x;
 	}
-	public int getBeforeOrAfter() {
-		return beforeOrAfter;
-	}
-	public void setBeforeOrAfter(int beforeOrAfter) {
-		this.beforeOrAfter = beforeOrAfter;
+	
+	public Activity clone() {
+		Activity activityTemp = new Activity();
+		activityTemp.setX(x);
+		activityTemp.setBlindService(blindService.clone()); /////
+		activityTemp.setNumber(number);
+		return activityTemp;
 	}
 }

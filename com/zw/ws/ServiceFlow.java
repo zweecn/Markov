@@ -6,7 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 public class ServiceFlow {
@@ -15,14 +17,19 @@ public class ServiceFlow {
 	private final static String blindFileName = "E:\\markov_output\\blind.txt";
 	private final static String graphFileName = "E:\\markov_output\\graph.txt";
 	private int activitySize;
+	
 	protected List<Activity> activities;
 	protected List<AtomService> services;
-	private int[][] graph;
+	protected int[][] graph;
+	
+	private Map<Integer, List<Integer>> prefixMap;
+	private Map<Integer, List<Integer>> suffixMap;
 	
 	public ServiceFlow() {
 		readCandidateServices();
 		//readActivityInfo();
 		readGraphInfo();
+		initPrefixSuffix();
 		readBlindService();
 	}
 	
@@ -71,14 +78,16 @@ public class ServiceFlow {
 					graph[i][j] = 0;
 				}
 			}
+			
 			while ((line = bf.readLine()) != null) {
 				String[] temp = line.split("->");
 				if (temp.length != 2) {
 					continue;
 				}
 				int prefix = new Integer(temp[0].trim());
-				int end = new Integer(temp[1].trim());
-				graph[prefix][end] = 1;
+				int suffix = new Integer(temp[1].trim());
+				graph[prefix][suffix] = 1;
+				
 			}
 			bf.close();
 		} catch (FileNotFoundException e) {
@@ -86,6 +95,26 @@ public class ServiceFlow {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private void initPrefixSuffix() {
+		prefixMap = new HashMap<Integer, List<Integer>>();
+		suffixMap = new HashMap<Integer, List<Integer>>();
+		for (int i = 0; i < graph.length; i++) {
+			List<Integer> prefixTempList = new ArrayList<Integer>();
+			List<Integer> suffixTempList = new ArrayList<Integer>();
+			for (int j = 0; j < graph[i].length; j++) {
+				if (graph[i][j] == 1) {
+					suffixTempList.add(j);
+				}
+				if (graph[j][i] == 1) {
+					prefixTempList.add(j);
+				}
+			}
+			suffixMap.put(new Integer(i), suffixTempList);
+			prefixMap.put(new Integer(i), prefixTempList);
+		}
+		
 	}
 	
 	@SuppressWarnings("unused")
@@ -164,5 +193,13 @@ public class ServiceFlow {
 			e.printStackTrace();
 			return false;
 		}
+	}
+	
+	public List<Integer> getPrefixActivityNumbers(int i){
+		return prefixMap.get(i);
+	}
+	
+	public List<Integer> getSuffixActivityNumbers(int i){		
+		return suffixMap.get(i);
 	}
 }

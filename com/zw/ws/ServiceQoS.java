@@ -12,6 +12,10 @@ public class ServiceQoS {
 	private double reliability;
 	private int execTime;
 	
+	public ServiceQoS clone() {
+		ServiceQoS qoS = new ServiceQoS(price, reliability, execTime);
+		return qoS;
+	}
 
 	public double getPrice() {
 		return price;
