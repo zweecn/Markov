@@ -15,6 +15,7 @@ public class MarkovState extends ServiceFlow {
 	
 	public MarkovState() {
 		super();
+		//System.out.println("MarkovState constructor.");
 		nextStep();
 	}
 	
@@ -87,6 +88,7 @@ public class MarkovState extends ServiceFlow {
 	private void nextStep() {
 		failed = false;
 		for (int i = 0; i < super.activities.size(); i++) {
+			//System.out.println("nextStep, activity.getX:" + super.activities.get(i).getX());
 			if (super.activities.get(i).getX() < 0) {
 				failed = true;
 				nextToDoActivity = super.activities.get(i);
@@ -98,11 +100,14 @@ public class MarkovState extends ServiceFlow {
 		nextTimeCost = Double.MAX_VALUE;
 		for (int i = 0; i < super.activities.size(); i++) {
 			double xTemp = super.activities.get(i).getX();
-			if (xTemp < 1 && xTemp > 0) {
-				double timeCostTemp = xTemp * super.activities.get(i).getBlindService().getQos().getExecTime();
+			//System.out.println("MarkovState, xTemp: " + xTemp);
+			if (xTemp < 1 && xTemp >= 0) {
+				double timeCostTemp = (1-xTemp) * super.activities.get(i).getBlindService().getQos().getExecTime();
 				if (nextTimeCost > timeCostTemp) {
+					//System.out.println("nextTimeCost:" + nextTimeCost + " timeCostTemp:" + timeCostTemp);
 					nextTimeCost = timeCostTemp;
 					nextToDoActivity = super.activities.get(i);
+					//System.out.println("MarkovState, if, nextToDoActivity:" + nextToDoActivity.getNumber());
 				}
 			}
 		}
@@ -122,6 +127,59 @@ public class MarkovState extends ServiceFlow {
 	
 	public Activity getFailedActivity() {
 		return nextToDoActivity;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		long temp;
+		temp = Double.doubleToLongBits(currentTimeCost);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime * result + (failed ? 1231 : 1237);
+		result = prime * result + globalState;
+		temp = Double.doubleToLongBits(nextTimeCost);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime
+				* result
+				+ ((nextToDoActivity == null) ? 0 : nextToDoActivity.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof MarkovState)) {
+			return false;
+		}
+		MarkovState other = (MarkovState) obj;
+		if (Double.doubleToLongBits(currentTimeCost) != Double
+				.doubleToLongBits(other.currentTimeCost)) {
+			return false;
+		}
+		if (failed != other.failed) {
+			return false;
+		}
+		if (globalState != other.globalState) {
+			return false;
+		}
+		if (Double.doubleToLongBits(nextTimeCost) != Double
+				.doubleToLongBits(other.nextTimeCost)) {
+			return false;
+		}
+		if (nextToDoActivity == null) {
+			if (other.nextToDoActivity != null) {
+				return false;
+			}
+		} else if (!nextToDoActivity.equals(other.nextToDoActivity)) {
+			return false;
+		}
+		return true;
 	}
 	
 }

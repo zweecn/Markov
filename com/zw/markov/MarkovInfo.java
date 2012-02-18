@@ -19,6 +19,11 @@ public final class MarkovInfo extends Object{
 	public static final int A_RE_COMPOSITE = 110;
 
 	public static List<MarkovRecord> ignore(MarkovState state) {
+		if (state.getNextToDoActivity() == null) {
+			System.out.println("Ignore, Next to do activity is null.");
+			return null;
+		}
+		
 		List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 		if (state.isFailed()) {
 			MarkovState stateAfter = state.clone();
@@ -42,20 +47,27 @@ public final class MarkovInfo extends Object{
 			MarkovState stateAfter = state.clone();
 			double nextTimeCost = state.getNextTimeCost();
 			
-			Activity finishedActivity = null;
-			for (int i = 0; i < stateAfter.getActivitySize(); i++) {
-				for (int j = 0; j < stateAfter.getActivitySize(); j++) {
-					Activity ai = stateAfter.getActivity(i);
-					Activity aj = stateAfter.getActivity(j);				
-					if (ai.getX() == 1 && aj.getX() < 1) {
-						double xTemp = aj.getX() + (nextTimeCost/aj.getBlindService().getQos().getExecTime());
-						if (Math.abs(xTemp - 1) < EXP ) {
-							aj.setX(1);
-							finishedActivity = aj;
-						} else {
-							aj.setX(xTemp);
-						}
+			if (state.getNextToDoActivity().getNumber() == 0) {
+				stateAfter.getNextToDoActivity().setX(1);
+				//System.out.println("stateAfter.getNextToDoActivity.getX: " + stateAfter.getNextToDoActivity().getX());
+			} else {
+				//Activity finishedActivity = null;
+				for (int i = 0; i < stateAfter.getActivitySize(); i++) {
+					for (int j = 0; j < stateAfter.getActivitySize(); j++) {
+						Activity ai = stateAfter.getActivity(i);
+						Activity aj = stateAfter.getActivity(j);
+						//System.out.println("ai.getX:" +ai.getX() + " aj.getX:" + aj.getX());
+						if (ai.getX() == 1 && aj.getX() < 1) {
+							System.out.println("ignore.if");
+							double xTemp = aj.getX() + (nextTimeCost/aj.getBlindService().getQos().getExecTime());
+							if (Math.abs(xTemp - 1) < EXP ) {
+								aj.setX(1);
+								//finishedActivity = aj;
+							} else {
+								aj.setX(xTemp);
+							}
 
+						}
 					}
 				}
 			}
@@ -68,15 +80,17 @@ public final class MarkovInfo extends Object{
 			record.setStateBefore(state);
 			record.setAction(action);
 			record.setStateAfter(stateAfter);
-			record.setPosibility(finishedActivity.getBlindService().getQos().getReliability());
+			record.setPosibility(state.getNextToDoActivity().getBlindService().getQos().getReliability());
 			record.setPriceCost(0); // ?
 			record.setTimeCost(0);  // ?
-
+			
+			System.out.println("stateBefore:" + record.getStateBefore().getNextToDoActivity().getNumber() 
+					+ " stateAfter:" + record.getStateAfter().getNextToDoActivity().getNumber());
 			records.add(record);
 
-			finishedActivity.setX(-1);
 			stateAfter = stateAfter.clone();
-			stateAfter.setActivity(finishedActivity);
+			stateAfter.getNextToDoActivity().setX(-1); //Maybe some errors
+			stateAfter.setActivity(stateAfter.getNextToDoActivity());
 			stateAfter.setGlobalState(S_FAILED);
 			stateAfter.setCurrentTimeCost(nextTimeCost+state.getCurrentTimeCost());
 			
@@ -84,7 +98,7 @@ public final class MarkovInfo extends Object{
 			record.setStateBefore(state);
 			record.setAction(action);
 			record.setStateAfter(stateAfter);
-			record.setPosibility(1 - finishedActivity.getBlindService().getQos().getReliability());
+			record.setPosibility(1 - state.getNextToDoActivity().getBlindService().getQos().getReliability());
 			record.setPriceCost(0); // ?
 			record.setTimeCost(0);  // ?
 
@@ -96,6 +110,11 @@ public final class MarkovInfo extends Object{
 	}
 	
 	public static List<MarkovRecord> terminal(MarkovState state) {
+		if (state.getNextToDoActivity() == null) {
+			System.out.println("Terminal, Next to do activity is null.");
+			return null;
+		}
+		
 		List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 		
 		MarkovState stateAfter = state.clone();
@@ -115,6 +134,5 @@ public final class MarkovInfo extends Object{
 		records.add(record);
 
 		return records;
-		
 	}
 }
