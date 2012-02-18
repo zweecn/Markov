@@ -9,8 +9,13 @@ public class MarkovState extends ServiceFlow {
 	private int globalState;
 	private double currentTimeCost; 
 	
+	private double nextTimeCost;
+	private Activity nextToDoActivity;
+	private boolean failed;
+	
 	public MarkovState() {
 		super();
+		nextStep();
 	}
 	
 	public int getGlobalState() {
@@ -79,36 +84,44 @@ public class MarkovState extends ServiceFlow {
 		this.currentTimeCost = currentTimeCost;
 	}
 	
-	public double nextStateTimeCost() {
-		double timeCost = Double.MAX_VALUE;
+	private void nextStep() {
+		failed = false;
+		for (int i = 0; i < super.activities.size(); i++) {
+			if (super.activities.get(i).getX() < 0) {
+				failed = true;
+				nextToDoActivity = super.activities.get(i);
+				nextTimeCost = 0;
+				return;
+			}
+		}
+		
+		nextTimeCost = Double.MAX_VALUE;
 		for (int i = 0; i < super.activities.size(); i++) {
 			double xTemp = super.activities.get(i).getX();
 			if (xTemp < 1 && xTemp > 0) {
 				double timeCostTemp = xTemp * super.activities.get(i).getBlindService().getQos().getExecTime();
-				if (timeCost > timeCostTemp) {
-					timeCost = timeCostTemp;
+				if (nextTimeCost > timeCostTemp) {
+					nextTimeCost = timeCostTemp;
+					nextToDoActivity = super.activities.get(i);
 				}
 			}
 		}
-		return timeCost;
+	}
+	
+	public double getNextTimeCost() {
+		return nextTimeCost;
+	}
+	
+	public Activity getNextToDoActivity() {
+		return nextToDoActivity;
 	}
 	
 	public boolean isFailed() {
-		for (int i = 0; i < super.activities.size(); i++) {
-			if (super.activities.get(i).getX() < 0) {
-				return true;
-			}
-		}
-		return false;
+		return failed;
 	}
 	
 	public Activity getFailedActivity() {
-		for (int i = 0; i < super.activities.size(); i++) {
-			if (super.activities.get(i).getX() < 0) {
-				return super.activities.get(i);
-			}
-		}
-		return null;
+		return nextToDoActivity;
 	}
 	
 }
