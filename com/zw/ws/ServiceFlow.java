@@ -34,6 +34,10 @@ public class ServiceFlow {
 	}
 	
 	public Activity getActivity(int number) {
+		if (number < activitySize && activities.get(number).getNumber() == number) {
+			return activities.get(number);
+		}
+		
 		for (int i = 0; i < activities.size(); i++) {
 			if (activities.get(i).getNumber() == number) {
 				return activities.get(i);

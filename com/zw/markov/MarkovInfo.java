@@ -24,6 +24,12 @@ public final class MarkovInfo extends Object{
 			return null;
 		}
 		
+		if (state.isFinished()) {
+			System.out.println("Ignore, Finished.");
+			return null;
+		}
+		//System.out.println("MarkovInfo, ignore");
+		
 		List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 		if (state.isFailed()) {
 			MarkovState stateAfter = state.clone();
@@ -44,37 +50,37 @@ public final class MarkovInfo extends Object{
 
 			return records;
 		} else {
-			MarkovState stateAfter = state.clone();
-			double nextTimeCost = state.getNextTimeCost();
+			MarkovState stateAfter = state.normalNextState();
+//			double nextTimeCost = state.getNextTimeCost();
 			
-			if (state.getNextToDoActivity().getNumber() == 0) {
-				stateAfter.getNextToDoActivity().setX(1);
-				//System.out.println("stateAfter.getNextToDoActivity.getX: " + stateAfter.getNextToDoActivity().getX());
-			} else {
-				//Activity finishedActivity = null;
-				for (int i = 0; i < stateAfter.getActivitySize(); i++) {
-					for (int j = 0; j < stateAfter.getActivitySize(); j++) {
-						Activity ai = stateAfter.getActivity(i);
-						Activity aj = stateAfter.getActivity(j);
-						//System.out.println("ai.getX:" +ai.getX() + " aj.getX:" + aj.getX());
-						if (ai.getX() == 1 && aj.getX() < 1) {
-							System.out.println("ignore.if");
-							double xTemp = aj.getX() + (nextTimeCost/aj.getBlindService().getQos().getExecTime());
-							if (Math.abs(xTemp - 1) < EXP ) {
-								aj.setX(1);
-								//finishedActivity = aj;
-							} else {
-								aj.setX(xTemp);
-							}
-
-						}
-					}
-				}
-			}
+//			if (state.getNextToDoActivity().getNumber() == 0) {
+//				stateAfter.getNextToDoActivity().setX(1);
+//				System.out.println("stateAfter.getNextToDoActivity.getX: " + stateAfter.getNextToDoActivity().getX());
+//			} else {
+//				//Activity finishedActivity = null;
+//				for (int i = 0; i < stateAfter.getActivitySize(); i++) {
+//					for (int j = 0; j < stateAfter.getActivitySize(); j++) {
+//						Activity ai = stateAfter.getActivity(i);
+//						Activity aj = stateAfter.getActivity(j);
+//						//System.out.println("ai.getX:" +ai.getX() + " aj.getX:" + aj.getX());
+////						if (ai.getX() == 1 && aj.getX() < 1) {
+////							System.out.println("ignore.if");
+////							double xTemp = aj.getX() + (nextTimeCost/aj.getBlindService().getQos().getExecTime());
+////							if (Math.abs(xTemp - 1) < EXP ) {
+////								aj.setX(1);
+////								//finishedActivity = aj;
+////							} else {
+////								aj.setX(xTemp);
+////							}
+////
+////						}
+//					}
+//				}
+//			}
 			MarkovAction action = new MarkovAction(state.getNextToDoActivity().getNumber(), 
 					state.getNextToDoActivity().getBlindService().getNumber(), A_IGNORE);
-			stateAfter.setGlobalState(S_UNKNOWN);
-			stateAfter.setCurrentTimeCost(nextTimeCost+state.getCurrentTimeCost());
+//			stateAfter.setGlobalState(S_UNKNOWN);
+//			stateAfter.setCurrentTimeCost(nextTimeCost+state.getCurrentTimeCost());
 			
 			MarkovRecord record = new MarkovRecord();
 			record.setStateBefore(state);
@@ -84,15 +90,15 @@ public final class MarkovInfo extends Object{
 			record.setPriceCost(0); // ?
 			record.setTimeCost(0);  // ?
 			
-			System.out.println("stateBefore:" + record.getStateBefore().getNextToDoActivity().getNumber() 
-					+ " stateAfter:" + record.getStateAfter().getNextToDoActivity().getNumber());
+//			System.out.println("stateBefore:" + record.getStateBefore().getNextToDoActivity().getNumber() 
+//					+ " stateAfter:" + record.getStateAfter().getNextToDoActivity().getNumber());
 			records.add(record);
 
-			stateAfter = stateAfter.clone();
+			stateAfter = state.normalNextState();
 			stateAfter.getNextToDoActivity().setX(-1); //Maybe some errors
-			stateAfter.setActivity(stateAfter.getNextToDoActivity());
+//			stateAfter.setActivity(stateAfter.getNextToDoActivity());
 			stateAfter.setGlobalState(S_FAILED);
-			stateAfter.setCurrentTimeCost(nextTimeCost+state.getCurrentTimeCost());
+//			stateAfter.setCurrentTimeCost(nextTimeCost+state.getCurrentTimeCost());
 			
 			record = new MarkovRecord();
 			record.setStateBefore(state);

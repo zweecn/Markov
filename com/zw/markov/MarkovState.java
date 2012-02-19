@@ -8,17 +8,19 @@ import com.zw.ws.ServiceFlow;
 public class MarkovState extends ServiceFlow {
 	private int globalState;
 	private double currentTimeCost; 
-	
+
 	private double nextTimeCost;
 	private Activity nextToDoActivity;
+	private List<Activity> nextToDoActivities;
 	private boolean failed;
-	
+	private boolean finished;
+
 	public MarkovState() {
 		super();
 		//System.out.println("MarkovState constructor.");
 		nextStep();
 	}
-	
+
 	public int getGlobalState() {
 		return globalState;
 	}
@@ -26,27 +28,27 @@ public class MarkovState extends ServiceFlow {
 	public void setGlobalState(int globalState) {
 		this.globalState = globalState;
 	}
-	
+
 	public int[][] getGraph() {
 		return super.graph;
 	}
-	
+
 	public void setGraph(int[][] graph) {
 		super.graph = graph;
 	}
-	
+
 	public List<Activity> getActivities() {
 		return super.activities;
 	}
-	
+
 	public void setActivities(List<Activity> activities) {
 		super.activities = activities;
 	}
-	
+
 	public Activity getActivity(int activityNumber) {
 		return super.activities.get(activityNumber);
 	}
-	
+
 	public void setActivity(Activity activity) {
 		for (int i = 0; i < super.activities.size(); i++) {
 			if (super.activities.get(i).getNumber() == activity.getNumber()) {
@@ -54,22 +56,22 @@ public class MarkovState extends ServiceFlow {
 			}
 		}
 	}
-	
+
 	public MarkovState clone() {
 		MarkovState stateTemp = new MarkovState();
-		
+
 		int[][] graphTemp = new int[graph.length][graph.length];
 		for (int i = 0; i < graph.length; i++) {
 			for (int j = 0; j < graph.length; j++) {
 				graphTemp[i][j] = graph[i][j];
 			}
 		}
-		
+
 		List<Activity> activitiesTemp = new ArrayList<Activity>();
 		for (int i = 0; i < super.activities.size(); i++) {
 			activitiesTemp.add(super.activities.get(i).clone());
 		}
-		
+
 		stateTemp.setGraph(graphTemp);
 		stateTemp.setGlobalState(this.globalState);
 		stateTemp.setActivities(activitiesTemp);
@@ -85,10 +87,31 @@ public class MarkovState extends ServiceFlow {
 		this.currentTimeCost = currentTimeCost;
 	}
 	
+	private boolean isPrefixActivitiesFinished(int currActivityNumber) {
+		List<Integer> prefixActivityNumbers = super.getPrefixActivityNumbers(currActivityNumber);
+		if (prefixActivityNumbers != null && !prefixActivityNumbers.isEmpty()) {
+			for (Integer it : prefixActivityNumbers) {
+				if (super.getActivity(it).getX() != 1) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+
+	// BUGS
 	private void nextStep() {
 		failed = false;
-		for (int i = 0; i < super.activities.size(); i++) {
-			//System.out.println("nextStep, activity.getX:" + super.activities.get(i).getX());
+		finished = true;
+		
+		nextTimeCost = Double.MAX_VALUE;
+		
+		List<Integer> activityNumbers = new ArrayList<Integer>();
+		for (Activity at : super.activities) {
+			activityNumbers.add(at.getNumber());
+		}
+		
+		for (int i = 0; i < super.getActivitySize(); i++) {
 			if (super.activities.get(i).getX() < 0) {
 				failed = true;
 				nextToDoActivity = super.activities.get(i);
@@ -97,34 +120,63 @@ public class MarkovState extends ServiceFlow {
 			}
 		}
 		
-		nextTimeCost = Double.MAX_VALUE;
-		for (int i = 0; i < super.activities.size(); i++) {
-			double xTemp = super.activities.get(i).getX();
-			//System.out.println("MarkovState, xTemp: " + xTemp);
-			if (xTemp < 1 && xTemp >= 0) {
-				double timeCostTemp = (1-xTemp) * super.activities.get(i).getBlindService().getQos().getExecTime();
+		for (int i = 0; i < super.getActivitySize(); i++) {
+			//System.out.println("MarkovState, nextStep: " + super.activities.get(i).getX() + " i=" + i);
+			if (super.activities.get(i).getX() < 1) {
+				finished = false;
+				break;
+			}
+		}
+		
+		nextToDoActivities = new ArrayList<Activity>();
+		for (int i = 0; i < super.getActivitySize(); i++) {
+			if (super.activities.get(i).getX() < 1 && super.activities.get(i).getX() >=0 
+					&& isPrefixActivitiesFinished(super.activities.get(i).getNumber())) {
+				nextToDoActivities.add(super.activities.get(i));
+				double timeCostTemp = (1 - super.activities.get(i).getX()) 
+						* super.activities.get(i).getBlindService().getQos().getExecTime();
 				if (nextTimeCost > timeCostTemp) {
-					//System.out.println("nextTimeCost:" + nextTimeCost + " timeCostTemp:" + timeCostTemp);
 					nextTimeCost = timeCostTemp;
 					nextToDoActivity = super.activities.get(i);
-					//System.out.println("MarkovState, if, nextToDoActivity:" + nextToDoActivity.getNumber());
 				}
 			}
 		}
 	}
-	
+
+	public MarkovState normalNextState() {
+		MarkovState stateAfter = this.clone();
+		for (Activity at : nextToDoActivities) {
+			Activity nextActivityTemp = stateAfter.getActivity(at.getNumber());
+			nextActivityTemp.setX(stateAfter.getActivity(at.getNumber()).getX() 
+					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime());
+		}
+		stateAfter.setGlobalState(MarkovInfo.S_UNKNOWN);
+		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
+		stateAfter.nextStep();
+		
+		return stateAfter;
+	}
+
+
 	public double getNextTimeCost() {
 		return nextTimeCost;
 	}
-	
+
 	public Activity getNextToDoActivity() {
 		return nextToDoActivity;
 	}
 	
+	public List<Activity> getNextToDoActivities () {
+		return nextToDoActivities;
+	}
+
 	public boolean isFailed() {
 		return failed;
 	}
 	
+	public boolean isFinished() {
+		return finished;
+	}
 	public Activity getFailedActivity() {
 		return nextToDoActivity;
 	}
@@ -181,5 +233,5 @@ public class MarkovState extends ServiceFlow {
 		}
 		return true;
 	}
-	
+
 }
