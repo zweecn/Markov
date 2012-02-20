@@ -150,7 +150,8 @@ public class ServiceFlow {
 	private void readBlindService() {
 		try {
 			Scanner scanner = new Scanner(new File(blindFileName));
-			while (scanner.hasNext()) {
+			for (int i = 0; i < activitySize && scanner.hasNext(); i++) {
+			//while (scanner.hasNext()) {
 				int activityNumber = scanner.nextInt();
 				int serviceNumber = scanner.nextInt();
 				activities.get(activityNumber).setBlindService(services.get(serviceNumber));

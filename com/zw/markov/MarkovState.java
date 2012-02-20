@@ -1,4 +1,5 @@
 package com.zw.markov;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,6 +77,9 @@ public class MarkovState extends ServiceFlow {
 		stateTemp.setGlobalState(this.globalState);
 		stateTemp.setActivities(activitiesTemp);
 		stateTemp.setCurrentTimeCost(currentTimeCost);
+		
+		stateTemp.nextStep();
+		
 		return stateTemp;
 	}
 
@@ -98,7 +102,21 @@ public class MarkovState extends ServiceFlow {
 		}
 		return true;
 	}
-
+	
+	public void setNextTimeCost() {
+		nextTimeCost = Double.MAX_VALUE;
+		for (Activity at : nextToDoActivities) {
+			double nextTimeCostTemp = (1 - at.getX()) * at.getBlindService().getQos().getExecTime();
+			if (nextTimeCostTemp < nextTimeCost) {
+				nextTimeCost = nextTimeCostTemp;
+			}
+		}
+	}
+	
+	public void setNextTimeCost(double timeCost) {
+		this.nextTimeCost = timeCost;
+	}
+	
 	// BUGS
 	private void nextStep() {
 		failed = false;
@@ -143,7 +161,7 @@ public class MarkovState extends ServiceFlow {
 		}
 	}
 
-	public MarkovState normalNextState() {
+	public MarkovState nextUnknownState() {
 		MarkovState stateAfter = this.clone();
 		for (Activity at : nextToDoActivities) {
 			Activity nextActivityTemp = stateAfter.getActivity(at.getNumber());
@@ -157,6 +175,21 @@ public class MarkovState extends ServiceFlow {
 		return stateAfter;
 	}
 
+	public MarkovState nextFailedState() {
+		MarkovState stateAfter = this.clone();
+		for (Activity at : nextToDoActivities) {
+			Activity nextActivityTemp = stateAfter.getActivity(at.getNumber());
+			nextActivityTemp.setX(stateAfter.getActivity(at.getNumber()).getX() 
+					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime());
+		}
+		stateAfter.getNextToDoActivity().setX(-1);
+		stateAfter.setGlobalState(MarkovInfo.S_FAILED);
+		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
+		stateAfter.nextStep();
+		
+		return stateAfter;
+	}
+	
 
 	public double getNextTimeCost() {
 		return nextTimeCost;
@@ -189,9 +222,14 @@ public class MarkovState extends ServiceFlow {
 		temp = Double.doubleToLongBits(currentTimeCost);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + (failed ? 1231 : 1237);
+		result = prime * result + (finished ? 1231 : 1237);
 		result = prime * result + globalState;
 		temp = Double.doubleToLongBits(nextTimeCost);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
+		result = prime
+				* result
+				+ ((nextToDoActivities == null) ? 0 : nextToDoActivities
+						.hashCode());
 		result = prime
 				* result
 				+ ((nextToDoActivity == null) ? 0 : nextToDoActivity.hashCode());
@@ -217,11 +255,21 @@ public class MarkovState extends ServiceFlow {
 		if (failed != other.failed) {
 			return false;
 		}
+		if (finished != other.finished) {
+			return false;
+		}
 		if (globalState != other.globalState) {
 			return false;
 		}
 		if (Double.doubleToLongBits(nextTimeCost) != Double
 				.doubleToLongBits(other.nextTimeCost)) {
+			return false;
+		}
+		if (nextToDoActivities == null) {
+			if (other.nextToDoActivities != null) {
+				return false;
+			}
+		} else if (!nextToDoActivities.equals(other.nextToDoActivities)) {
 			return false;
 		}
 		if (nextToDoActivity == null) {
@@ -233,5 +281,31 @@ public class MarkovState extends ServiceFlow {
 		}
 		return true;
 	}
-
+	
+	public String toString() {
+		String res = "";
+		res += "[State: Global_state=";
+		switch (globalState) {
+		case MarkovInfo.S_UNKNOWN:
+			res += "UNKNOW";
+			break;
+		case MarkovInfo.S_FAILED:
+			res += "FAILED";
+			break;
+		case MarkovInfo.S_SUCCEED:
+			res += "SUCCEED";
+			break;
+		case MarkovInfo.S_DELAYED:
+			res += "DELAYED";
+			break;
+		case MarkovInfo.S_PRICE_UP:
+			res += "PRICE_UP";
+			break;
+		default:
+			break;
+		}
+		DecimalFormat df=new DecimalFormat("0.00");
+		res += ", time_cost=" + df.format(currentTimeCost) + "]";
+		return res;
+	}
 }

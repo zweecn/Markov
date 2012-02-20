@@ -1,5 +1,7 @@
 package com.zw.markov;
 
+import java.text.DecimalFormat;
+
 public class MarkovRecord {
 	private MarkovState stateBefore;
 	private MarkovState stateAfter;
@@ -110,4 +112,12 @@ public class MarkovRecord {
 		return true;
 	}
 	
+	public String toString() {
+		String res = new String();
+		DecimalFormat df=new DecimalFormat("0.00");
+		res += stateBefore.toString() + " | " + action.toString() + " | " + stateAfter.toString()
+				+ " [Posibility: " + df.format(posibility) + "] | [Time_cost: " + timeCost 
+				+ "] | [Price_cost " + priceCost + "]";
+		return res;
+	}
 }
