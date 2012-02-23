@@ -26,7 +26,6 @@ public class GenerateMarkovRecords {
 		stateSet.add(state);
 		System.out.println(" StateBefore \t Action \t StateAfter \t Posibility \t Time \t Cost");
 		int i = 0;
-		int whileI = 0;
 		do {
 			List<MarkovRecord> records = MarkovInfo.ignore(state);
 			//System.out.println("whileI:" + (++whileI));

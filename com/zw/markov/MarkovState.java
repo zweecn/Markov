@@ -103,20 +103,6 @@ public class MarkovState extends ServiceFlow {
 		return true;
 	}
 	
-	public void setNextTimeCost() {
-		nextTimeCost = Double.MAX_VALUE;
-		for (Activity at : nextToDoActivities) {
-			double nextTimeCostTemp = (1 - at.getX()) * at.getBlindService().getQos().getExecTime();
-			if (nextTimeCostTemp < nextTimeCost) {
-				nextTimeCost = nextTimeCostTemp;
-			}
-		}
-	}
-	
-	public void setNextTimeCost(double timeCost) {
-		this.nextTimeCost = timeCost;
-	}
-	
 	// BUGS
 	private void nextStep() {
 		failed = false;
@@ -158,6 +144,10 @@ public class MarkovState extends ServiceFlow {
 					nextToDoActivity = super.activities.get(i);
 				}
 			}
+		}
+		
+		if (nextTimeCost > MarkovInfo.TIME_STEP) {
+			nextTimeCost = MarkovInfo.TIME_STEP;
 		}
 	}
 

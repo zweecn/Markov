@@ -35,8 +35,8 @@ public class MarkovAction {
 		String res = "";
 		String actionText = "";
 		switch (actionNumber) {
-		case MarkovInfo.A_IGNORE:
-			actionText = "IGNORE";
+		case MarkovInfo.A_NO_ACTION:
+			actionText = "NO_ACTION";
 			break;
 		case MarkovInfo.A_TERMINATE:
 			actionText = "TERMINATE";
