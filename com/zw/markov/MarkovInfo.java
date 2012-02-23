@@ -20,7 +20,7 @@ public final class MarkovInfo extends Object{
 	public static final int A_TERMINATE = 100;
 	public static final int A_RE_COMPOSITE = 110;
 	
-	public static List<MarkovRecord> ignore(MarkovState state) {
+	public static List<MarkovRecord> noAction(MarkovState state) {
 		if (state.getNextToDoActivity() == null) {
 			System.out.println("Ignore, Next to do activity is null.");
 			return null;
@@ -75,7 +75,7 @@ public final class MarkovInfo extends Object{
 		}
 	}
 	
-	public static List<MarkovRecord> terminal(MarkovState state) {
+	public static List<MarkovRecord> terminate(MarkovState state) {
 		if (state.getNextToDoActivity() == null) {
 			System.out.println("Terminal, Next to do activity is null.");
 			return null;
@@ -87,7 +87,7 @@ public final class MarkovInfo extends Object{
 		stateAfter.setGlobalState(S_FAILED);
 		
 		MarkovAction action = new MarkovAction(state.getNextToDoActivity().getNumber(), 
-				state.getNextToDoActivity().getBlindService().getNumber(), A_NO_ACTION);
+				state.getNextToDoActivity().getBlindService().getNumber(), MarkovInfo.A_TERMINATE);
 
 		MarkovRecord record = new MarkovRecord();
 		record.setStateBefore(state);
