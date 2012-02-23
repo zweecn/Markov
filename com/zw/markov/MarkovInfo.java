@@ -14,11 +14,11 @@ public final class MarkovInfo extends Object{
 	public static final int S_PRICE_UP = 4;
 	public static final int S_DELAYED = 5;
 
-	public static final int A_NO_ACTION = 70;
-	public static final int A_RE_DO = 80;
-	public static final int A_REPLACE = 90;
-	public static final int A_TERMINATE = 100;
-	public static final int A_RE_COMPOSITE = 110;
+	public static final int A_NO_ACTION = 0x11;
+	public static final int A_TERMINATE = 0x12;
+	public static final int A_RE_DO = 0x13;
+	public static final int A_REPLACE = 0x14;
+	public static final int A_RE_COMPOSITE = 0x15;
 	
 	public static List<MarkovRecord> noAction(MarkovState state) {
 		if (state.getNextToDoActivity() == null) {
@@ -99,6 +99,39 @@ public final class MarkovInfo extends Object{
 
 		records.add(record);
 
+		return records;
+	}
+	
+	public static List<MarkovRecord> redo(MarkovState state) {
+		List<MarkovRecord> records = new ArrayList<MarkovRecord>();
+		
+		MarkovState stateAfter = state.nextReDoUnknownState();
+		MarkovAction action = new MarkovAction(state.getFailedActivity().getNumber(), 
+				state.getFailedActivity().getBlindService().getNumber(), A_RE_DO);
+		
+		MarkovRecord record = new MarkovRecord();
+		record.setStateBefore(state);
+		record.setAction(action);
+		record.setStateAfter(stateAfter);
+		record.setPosibility(state.getFailedActivity().getBlindService().getQos().getReliability());
+		record.setPriceCost(state.getFailedActivity().getBlindService().getQos().getPrice()); // ?
+		record.setTimeCost(stateAfter.getReDoTimeCost());  // ?
+		
+		records.add(record);
+		
+		stateAfter = state.nextReDoFailedState();
+		action = new MarkovAction(state.getFailedActivity().getNumber(), 
+				state.getFailedActivity().getBlindService().getNumber(), A_RE_DO);
+		
+		record = new MarkovRecord();
+		record.setStateBefore(state);
+		record.setAction(action);
+		record.setStateAfter(stateAfter);
+		record.setPosibility(1 - state.getFailedActivity().getBlindService().getQos().getReliability());
+		record.setPriceCost(state.getFailedActivity().getBlindService().getQos().getPrice()); // ?
+		record.setTimeCost(stateAfter.getReDoTimeCost());  // ?
+		
+		records.add(record);
 		return records;
 	}
 }

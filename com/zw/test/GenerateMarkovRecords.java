@@ -30,7 +30,12 @@ public class GenerateMarkovRecords {
 			printRecord();
 			records = MarkovInfo.noAction(state);
 			printRecord();
-
+			if (state.isFailed()) {
+				//System.out.println("In if");
+				records = MarkovInfo.redo(state);
+				//System.out.println("After redo, record.size=" + records.size());
+				printRecord();
+			}
 			state = queue.poll();
 		} while (!queue.isEmpty());
 	}

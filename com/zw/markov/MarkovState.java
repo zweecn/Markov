@@ -15,7 +15,8 @@ public class MarkovState extends ServiceFlow {
 	private List<Activity> nextToDoActivities;
 	private boolean failed;
 	private boolean finished;
-
+	private double redoTimeCost; 
+	
 	public MarkovState() {
 		super();
 		//System.out.println("MarkovState constructor.");
@@ -79,6 +80,7 @@ public class MarkovState extends ServiceFlow {
 		stateTemp.setCurrentTimeCost(currentTimeCost);
 		
 		stateTemp.nextStep();
+		stateTemp.redoTimeCost = this.redoTimeCost;
 		
 		return stateTemp;
 	}
@@ -134,11 +136,16 @@ public class MarkovState extends ServiceFlow {
 		
 		nextToDoActivities = new ArrayList<Activity>();
 		for (int i = 0; i < super.getActivitySize(); i++) {
-			if (super.activities.get(i).getX() < 1 && super.activities.get(i).getX() >=0 
+			if ((super.activities.get(i).getX() < 1)// && super.activities.get(i).getX() >=0) 
 					&& isPrefixActivitiesFinished(super.activities.get(i).getNumber())) {
 				nextToDoActivities.add(super.activities.get(i));
-				double timeCostTemp = (1 - super.activities.get(i).getX()) 
+				double timeCostTemp = 0;
+				if (super.activities.get(i).getX() >=0) {
+					timeCostTemp = (1 - super.activities.get(i).getX())
 						* super.activities.get(i).getBlindService().getQos().getExecTime();
+				} else {
+					timeCostTemp = super.activities.get(i).getBlindService().getQos().getExecTime();
+				}
 				if (nextTimeCost > timeCostTemp) {
 					nextTimeCost = timeCostTemp;
 					nextToDoActivity = super.activities.get(i);
@@ -180,6 +187,51 @@ public class MarkovState extends ServiceFlow {
 		return stateAfter;
 	}
 	
+	public MarkovState nextReDoUnknownState() {
+		MarkovState stateAfter = this.clone();
+		
+		for (Activity at : nextToDoActivities) {
+			Activity nextActivityTemp = stateAfter.getActivity(at.getNumber());
+			if (stateAfter.getActivity(at.getNumber()).getX() >= 0) {
+				nextActivityTemp.setX(stateAfter.getActivity(at.getNumber()).getX() 
+					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime());
+			} else {
+				redoTimeCost = Math.abs(nextActivityTemp.getX()*nextActivityTemp.getBlindService().getQos().getExecTime());
+				nextActivityTemp.setX(nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime());
+			}
+		}
+		//stateAfter.getNextToDoActivity().setX(-1);
+		stateAfter.setGlobalState(MarkovInfo.S_UNKNOWN);
+		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
+		stateAfter.nextStep();
+		
+		return stateAfter;
+	}
+	
+	public MarkovState nextReDoFailedState() {
+		MarkovState stateAfter = this.clone();
+		
+		for (Activity at : nextToDoActivities) {
+			Activity nextActivityTemp = stateAfter.getActivity(at.getNumber());
+			if (stateAfter.getActivity(at.getNumber()).getX() >= 0) {
+				nextActivityTemp.setX(stateAfter.getActivity(at.getNumber()).getX() 
+					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime());
+			} else {
+				nextActivityTemp.setX(nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime());
+				redoTimeCost = Math.abs(nextActivityTemp.getX()*nextActivityTemp.getBlindService().getQos().getExecTime());
+			}
+		}
+		//stateAfter.getNextToDoActivity().setX(-1);
+		stateAfter.setGlobalState(MarkovInfo.S_FAILED);
+		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
+		stateAfter.nextStep();
+		
+		return stateAfter;
+	}
+	
+	public double getReDoTimeCost() {
+		return redoTimeCost;
+	}
 
 	public double getNextTimeCost() {
 		return nextTimeCost;
@@ -201,6 +253,11 @@ public class MarkovState extends ServiceFlow {
 		return finished;
 	}
 	public Activity getFailedActivity() {
+		for (int i = 0; i < nextToDoActivities.size(); i++) {
+			if (nextToDoActivities.get(i).getX() < 0) {
+				return nextToDoActivities.get(i);
+			}
+		}
 		return nextToDoActivity;
 	}
 
