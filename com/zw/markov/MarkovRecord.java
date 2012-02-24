@@ -3,7 +3,7 @@ package com.zw.markov;
 public class MarkovRecord {
 	private MarkovState stateBefore;
 	private MarkovState stateAfter;
-	private MarkovAction action;
+	private BaseAction action;
 	private double posibility;
 	private double priceCost;
 	private double timeCost;
@@ -20,10 +20,10 @@ public class MarkovRecord {
 	public void setStateAfter(MarkovState stateAfter) {
 		this.stateAfter = stateAfter;
 	}
-	public MarkovAction getAction() {
+	public BaseAction getAction() {
 		return action;
 	}
-	public void setAction(MarkovAction action) {
+	public void setAction(BaseAction action) {
 		this.action = action;
 	}
 	public double getPosibility() {
