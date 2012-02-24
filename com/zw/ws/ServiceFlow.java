@@ -57,6 +57,7 @@ public class ServiceFlow {
 				int serviceExecTime = scanner.nextInt();
 				AtomService service = new AtomService(serviceNumber, 
 						new ServiceQoS(servicePrice, serviceReliability, serviceExecTime));
+				service.setFree(true);
 				services.add(service);
 			}
 			scanner.close();
@@ -157,6 +158,7 @@ public class ServiceFlow {
 				services.get(serviceNumber).setFree(false);
 				activities.get(activityNumber).setBlindService(services.get(serviceNumber));
 			}
+			
 			scanner.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

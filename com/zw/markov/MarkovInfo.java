@@ -148,6 +148,9 @@ public final class MarkovInfo extends Object{
 		List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 		
 		MarkovState stateAfter = state.nextReplaceUnknownState();
+		//System.out.println(state.getReplaceOldActivity());
+		System.out.println("before " + state.toString() + " " + state.getReplaceNewActivity());
+		System.out.println("after  " + stateAfter.toString()+ " " + stateAfter.getReplaceNewActivity());
 		MarkovAction action = new MarkovAction(state.getReplaceOldActivity().getNumber(), 
 				state.getReplaceOldActivity().getBlindService().getNumber(),
 				state.getReplaceNewActivity().getBlindService().getNumber(), A_REPLACE);

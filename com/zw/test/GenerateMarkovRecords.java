@@ -34,8 +34,8 @@ public class GenerateMarkovRecords {
 				records = MarkovInfo.redo(state);
 				printRecord();
 			}
-			if (state.isFailed() && state.getReplaceNewActivity()!=null && state.getReplaceNewActivity().getReplaceCount() < MarkovInfo.MAX_REPLACE_COUNT)  {
-				System.out.println("In if.");
+			if (state.isFailed() ) {//&& state.getReplaceNewActivity()!=null && state.getReplaceNewActivity().getReplaceCount() < MarkovInfo.MAX_REPLACE_COUNT)  {
+				//System.out.println("In if.");
 				records = MarkovInfo.replace(state);
 				printRecord();
 			}

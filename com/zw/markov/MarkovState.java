@@ -2,6 +2,8 @@ package com.zw.markov;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.xml.ws.Service;
+
 import com.zw.ws.Activity;
 import com.zw.ws.AtomService;
 import com.zw.ws.ServiceFlow;
@@ -18,6 +20,7 @@ public class MarkovState extends ServiceFlow {
 	private double redoTimeCost;
 	private Activity replaceOldActivity;
 	private Activity replaceNewActivity;
+	private AtomService nextFreeService;
 	
 	public MarkovState() {
 		super();
@@ -82,7 +85,7 @@ public class MarkovState extends ServiceFlow {
 		stateTemp.setCurrentTimeCost(currentTimeCost);
 		stateTemp.replaceNewActivity = (this.replaceNewActivity == null) ? null : this.replaceNewActivity.clone();
 		stateTemp.replaceOldActivity = (this.replaceOldActivity == null) ? null : this.replaceOldActivity.clone();
-		
+		stateTemp.nextFreeService = (this.nextFreeService == null) ? null : this.nextFreeService.clone(); 
 		stateTemp.nextStep();
 		//stateTemp.redoTimeCost = this.redoTimeCost;
 		
@@ -163,6 +166,11 @@ public class MarkovState extends ServiceFlow {
 				}
 			}
 		}
+		System.out.println("nextTodoActivities:");
+		for (Activity at : nextToDoActivities) {
+			System.out.print(at.getNumber() + " ");
+		}
+		System.out.println();
 		
 		if (nextTimeCost > MarkovInfo.TIME_STEP) {
 			nextTimeCost = MarkovInfo.TIME_STEP;
@@ -235,11 +243,15 @@ public class MarkovState extends ServiceFlow {
 	}
 	
 	public MarkovState nextReplaceUnknownState() {
+		System.out.println("In  nextReplaceUnknownState:" + this.replaceOldActivity);
 		MarkovState stateAfter = this.clone();
+		nextFreeService = getFreeService(); //Mark, this have, failed not have
 		updateReplaceNextActivities(stateAfter);
 		stateAfter.setGlobalState(MarkovInfo.S_UNKNOWN);
 		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
 		stateAfter.nextStep();
+		//updateReplaceNextActivities(stateAfter);
+		System.out.println("out nextReplaceUnknownState:" + this.replaceOldActivity);
 		return stateAfter;
 	}
 	
@@ -250,12 +262,15 @@ public class MarkovState extends ServiceFlow {
 		stateAfter.setGlobalState(MarkovInfo.S_UNKNOWN);
 		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
 		stateAfter.nextStep();
+		//updateReplaceNextActivities(stateAfter);
 		return stateAfter;
 	}
 	
 	public void updateReplaceNextActivities(MarkovState stateAfter) {
+		System.out.println("In  updateReplaceNextActivities:" + this.replaceOldActivity);
 		for (Activity at : nextToDoActivities) {
 			Activity nextActivityTemp = stateAfter.getActivity(at.getNumber());
+			System.out.println("nextTodoactivities:" + nextActivityTemp.getNumber());
 			if (nextActivityTemp.getX() >= 0 &&nextActivityTemp.getX() < 1) {
 				if ((stateAfter.getActivity(at.getNumber()).getX() 
 					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime()) >= 1) {
@@ -265,29 +280,39 @@ public class MarkovState extends ServiceFlow {
 					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime()));
 				}
 			} else if (nextActivityTemp.getX() < 0){
-				AtomService service = getFreeService();
+				
 				//redoTimeCost = Math.abs(nextActivityTemp.getX()*nextActivityTemp.getBlindService().getQos().getExecTime());
 				replaceOldActivity = nextActivityTemp.clone();
-				nextActivityTemp.setBlindService(service);
+				nextActivityTemp.setBlindService(nextFreeService);
 				nextActivityTemp.addReplaceCount();
+				//System.out.println(service.getNumber());
 				replaceNewActivity = nextActivityTemp.clone();
 				nextActivityTemp.setX(nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime());
 			}
 		}
+		System.out.println("out updateReplaceNextActivities:" + this.replaceOldActivity);
 	}
 	
 	//保留接口
 	public AtomService getFreeService() {
 		for (int i = 0; i < super.services.size(); i++) {
+			//System.out.print(services.get(i).isFree() + " ");
 			if (super.services.get(i).isFree()) {
 				super.services.get(i).setFree(false);
 				return super.services.get(i);
 			}
 		}
+		//System.out.println();
 		return null;
 	}
 	
-	
+	public Activity getReplaceOldActivity() {
+		return replaceOldActivity;
+	}
+
+	public Activity getReplaceNewActivity() {
+		return replaceNewActivity;
+	}
 	
 	public double getReDoTimeCost() {
 		return redoTimeCost;
@@ -418,13 +443,4 @@ public class MarkovState extends ServiceFlow {
 		res = res.trim() + ")]";
 		return res;
 	}
-
-	public Activity getReplaceOldActivity() {
-		return replaceOldActivity;
-	}
-
-	public Activity getReplaceNewActivity() {
-		return replaceNewActivity;
-	}
-
 }
