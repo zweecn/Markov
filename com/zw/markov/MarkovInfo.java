@@ -7,6 +7,7 @@ import com.zw.ws.Activity;
 public final class MarkovInfo extends Object{
 	public static final double EXP = 0.00001;
 	public static final double TIME_STEP = Double.MAX_VALUE;
+	public static final int MAX_REDO_COUNT = 2;
 	
 	public static final int S_UNKNOWN = 1;
 	public static final int S_FAILED = 2;
@@ -103,6 +104,12 @@ public final class MarkovInfo extends Object{
 	}
 	
 	public static List<MarkovRecord> redo(MarkovState state) {
+//		if (state.getFailedActivity().getRedoCount() > MAX_REDO_COUNT) {
+//			return null;
+//		}
+		state.getFailedActivity().addRedoCount();
+		state.getFailedActivity().getBlindService().addRedoCount();
+		
 		List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 		
 		MarkovState stateAfter = state.nextReDoUnknownState();
@@ -115,8 +122,9 @@ public final class MarkovInfo extends Object{
 		record.setStateAfter(stateAfter);
 		record.setPosibility(state.getFailedActivity().getBlindService().getQos().getReliability());
 		record.setPriceCost(state.getFailedActivity().getBlindService().getQos().getPrice()); // ?
-		record.setTimeCost(stateAfter.getReDoTimeCost());  // ?
-		
+		record.setTimeCost(state.getReDoTimeCost());  // ?
+//		System.out.println("stateAfter.getReDoTimeCost()=" + stateAfter.getReDoTimeCost());
+//		System.out.println("state.getReDoTimeCost()=" + state.getReDoTimeCost());
 		records.add(record);
 		
 		stateAfter = state.nextReDoFailedState();
@@ -129,7 +137,7 @@ public final class MarkovInfo extends Object{
 		record.setStateAfter(stateAfter);
 		record.setPosibility(1 - state.getFailedActivity().getBlindService().getQos().getReliability());
 		record.setPriceCost(state.getFailedActivity().getBlindService().getQos().getPrice()); // ?
-		record.setTimeCost(stateAfter.getReDoTimeCost());  // ?
+		record.setTimeCost(state.getReDoTimeCost());  // ?
 		
 		records.add(record);
 		return records;

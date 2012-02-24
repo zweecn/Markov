@@ -3,18 +3,22 @@ package com.zw.ws;
 public class Activity {
 	public Activity() {
 		super();
+		this.redoCount = 0;
 	}
 	public Activity(int activityNumber) {
 		this.number = activityNumber;
+		this.redoCount = 0;
 	}
 	
 	public Activity(AtomService blindService) {
 		this.blindService = blindService;
+		this.redoCount = 0;
 	}
 	
 	private AtomService blindService;
 	private int number;
 	private double x;
+	private int redoCount;
 	
 	public AtomService getBlindService() {
 		return blindService;
@@ -41,6 +45,7 @@ public class Activity {
 		activityTemp.setX(x);
 		activityTemp.setBlindService(blindService.clone()); /////
 		activityTemp.setNumber(number);
+		activityTemp.redoCount = this.redoCount;
 		return activityTemp;
 	}
 	@Override
@@ -81,5 +86,17 @@ public class Activity {
 			return false;
 		}
 		return true;
+	}
+	
+	public int getRedoCount() {
+		return redoCount;
+	}
+
+	public void setRedoCount(int redoCount) {
+		this.redoCount = redoCount;
+	}
+	
+	public void addRedoCount() {
+		this.redoCount++;
 	}
 }

@@ -55,6 +55,11 @@ public class MarkovAction {
 		}
 		
 		res += "[Action: Activity " + activityNumber + " with service " + serviceNumber + " do " + actionText +"]"; 
+		if (res.length() < 51) {
+			for (int i = 0; i < 51 - res.length(); i++) {
+				res += "  ";
+			}
+		}
 		return res;
 	}
 }

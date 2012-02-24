@@ -30,7 +30,7 @@ public class GenerateMarkovRecords {
 			printRecord();
 			records = MarkovInfo.noAction(state);
 			printRecord();
-			if (state.isFailed()) {
+			if (state.isFailed() && state.getFailedActivity().getRedoCount() < MarkovInfo.MAX_REDO_COUNT) {
 				//System.out.println("In if");
 				records = MarkovInfo.redo(state);
 				//System.out.println("After redo, record.size=" + records.size());
@@ -42,11 +42,11 @@ public class GenerateMarkovRecords {
 
 	public static void printRecord() {
 		if (records != null) {
-			for (MarkovRecord markovRecord : records) {
-				if (!stateSet.contains(markovRecord.getStateAfter())) {
-					queue.offer(markovRecord.getStateAfter());
-					stateSet.add(markovRecord.getStateAfter());
-					System.out.println((++count) + " " + markovRecord.toString());
+			for (MarkovRecord rd : records) {
+				if (!stateSet.contains(rd.getStateAfter())) {
+					queue.offer(rd.getStateAfter());
+					stateSet.add(rd.getStateAfter());
+					System.out.println(String.format("%4s", (++count)) + " " + rd.toString());
 				}
 			}
 		}

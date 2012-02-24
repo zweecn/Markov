@@ -6,13 +6,16 @@ public class AtomService{
 		super();
 		this.number = number;
 		this.qos = qos;
+		this.redoCount = 0;
 	}
 
 	private int number;
 	private ServiceQoS qos;
+	private int redoCount;
 
 	public AtomService clone() {
 		AtomService serviceTemp = new AtomService(number, qos.clone());
+		serviceTemp.redoCount = this.redoCount;
 		return serviceTemp;
 	}
 	
@@ -65,5 +68,16 @@ public class AtomService{
 		}
 		return true;
 	}
+
+	public int getRedoCount() {
+		return redoCount;
+	}
+
+	public void setRedoCount(int redoCount) {
+		this.redoCount = redoCount;
+	}
 	
+	public void addRedoCount() {
+		this.redoCount++;
+	}
 }
