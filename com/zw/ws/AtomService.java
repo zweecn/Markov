@@ -12,10 +12,12 @@ public class AtomService{
 	private int number;
 	private ServiceQoS qos;
 	private int redoCount;
+	private boolean free;
 
 	public AtomService clone() {
 		AtomService serviceTemp = new AtomService(number, qos.clone());
 		serviceTemp.redoCount = this.redoCount;
+		serviceTemp.free = this.free;
 		return serviceTemp;
 	}
 	
@@ -79,5 +81,13 @@ public class AtomService{
 	
 	public void addRedoCount() {
 		this.redoCount++;
+	}
+
+	public boolean isFree() {
+		return free;
+	}
+
+	public void setFree(boolean free) {
+		this.free = free;
 	}
 }

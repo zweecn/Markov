@@ -4,21 +4,25 @@ public class Activity {
 	public Activity() {
 		super();
 		this.redoCount = 0;
+		this.replaceCount = 0;
 	}
 	public Activity(int activityNumber) {
 		this.number = activityNumber;
 		this.redoCount = 0;
+		this.replaceCount = 0;
 	}
 	
 	public Activity(AtomService blindService) {
 		this.blindService = blindService;
 		this.redoCount = 0;
+		this.replaceCount = 0;
 	}
 	
 	private AtomService blindService;
 	private int number;
 	private double x;
 	private int redoCount;
+	private int replaceCount;
 	
 	public AtomService getBlindService() {
 		return blindService;
@@ -46,6 +50,7 @@ public class Activity {
 		activityTemp.setBlindService(blindService.clone()); /////
 		activityTemp.setNumber(number);
 		activityTemp.redoCount = this.redoCount;
+		activityTemp.replaceCount = this.replaceCount;
 		return activityTemp;
 	}
 	@Override
@@ -98,5 +103,14 @@ public class Activity {
 	
 	public void addRedoCount() {
 		this.redoCount++;
+	}
+	public int getReplaceCount() {
+		return replaceCount;
+	}
+	public void setReplaceCount(int replaceCount) {
+		this.replaceCount = replaceCount;
+	}
+	public void addReplaceCount() {
+		this.replaceCount++;
 	}
 }

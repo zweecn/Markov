@@ -7,10 +7,18 @@ public class MarkovAction {
 		this.serviceNumber = serviceNumber;
 		this.actionNumber = action;
 	}
+	public MarkovAction(int activityNumber, int serviceNumber, int serviceNewNumber, int action) {
+		super();
+		this.activityNumber = activityNumber;
+		this.serviceNumber = serviceNumber;
+		this.serviceNewNumber = serviceNewNumber;
+		this.actionNumber = action;
+	}
 	
 	private int activityNumber;
 	private int serviceNumber;
 	private int actionNumber;
+	private int serviceNewNumber;
 	
 	public int getActivityNumber() {
 		return activityNumber;
@@ -29,6 +37,12 @@ public class MarkovAction {
 	}
 	public void setAction(int action) {
 		this.actionNumber = action;
+	}
+	public int getServiceNewNumber() {
+		return serviceNewNumber;
+	}
+	public void setServiceNewNumber(int serviceNewNumber) {
+		this.serviceNewNumber = serviceNewNumber;
 	}
 	
 	public String toString() {
@@ -54,12 +68,18 @@ public class MarkovAction {
 			break;
 		}
 		
-		res += "[Action: Activity " + activityNumber + " with service " + serviceNumber + " do " + actionText +"]"; 
-		if (res.length() < 51) {
-			for (int i = 0; i < 51 - res.length(); i++) {
-				res += "  ";
-			}
-		}
+//		res += "[Action: Activity " + String.format("%1d", activityNumber) + " (service " + String.format("%2d", serviceNumber) 
+//				+ " -> " + String.format("%2d", serviceNewNumber) + ") do " + actionText +"]"; 
+		
+		res += "[Action: " + String.format("%-12s", actionText) +  " Activity " + String.format("%1d", activityNumber) + " (service " + String.format("%2d", serviceNumber) 
+				+ " -> " + String.format("%2d", serviceNewNumber) + ")]";
+		
+//		if (res.length() < 64) {
+//			for (int i = 0; i < 64 - res.length(); i++) {
+//				res += "  ";
+//			}
+//		}
 		return res;
 	}
+	
 }

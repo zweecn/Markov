@@ -154,6 +154,7 @@ public class ServiceFlow {
 			//while (scanner.hasNext()) {
 				int activityNumber = scanner.nextInt();
 				int serviceNumber = scanner.nextInt();
+				services.get(serviceNumber).setFree(false);
 				activities.get(activityNumber).setBlindService(services.get(serviceNumber));
 			}
 			scanner.close();

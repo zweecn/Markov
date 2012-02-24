@@ -31,9 +31,12 @@ public class GenerateMarkovRecords {
 			records = MarkovInfo.noAction(state);
 			printRecord();
 			if (state.isFailed() && state.getFailedActivity().getRedoCount() < MarkovInfo.MAX_REDO_COUNT) {
-				//System.out.println("In if");
 				records = MarkovInfo.redo(state);
-				//System.out.println("After redo, record.size=" + records.size());
+				printRecord();
+			}
+			if (state.isFailed() && state.getReplaceNewActivity()!=null && state.getReplaceNewActivity().getReplaceCount() < MarkovInfo.MAX_REPLACE_COUNT)  {
+				System.out.println("In if.");
+				records = MarkovInfo.replace(state);
 				printRecord();
 			}
 			state = queue.poll();

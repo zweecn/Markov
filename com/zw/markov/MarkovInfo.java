@@ -8,6 +8,7 @@ public final class MarkovInfo extends Object{
 	public static final double EXP = 0.00001;
 	public static final double TIME_STEP = Double.MAX_VALUE;
 	public static final int MAX_REDO_COUNT = 2;
+	public static final int MAX_REPLACE_COUNT = 1;
 	
 	public static final int S_UNKNOWN = 1;
 	public static final int S_FAILED = 2;
@@ -140,6 +141,37 @@ public final class MarkovInfo extends Object{
 		record.setTimeCost(state.getReDoTimeCost());  // ?
 		
 		records.add(record);
+		return records;
+	}
+	
+	public static List<MarkovRecord> replace(MarkovState state) {		
+		List<MarkovRecord> records = new ArrayList<MarkovRecord>();
+		
+		MarkovState stateAfter = state.nextReplaceUnknownState();
+		MarkovAction action = new MarkovAction(state.getReplaceOldActivity().getNumber(), 
+				state.getReplaceOldActivity().getBlindService().getNumber(),
+				state.getReplaceNewActivity().getBlindService().getNumber(), A_REPLACE);
+		
+		MarkovRecord record = new MarkovRecord();
+		record.setStateBefore(state);
+		record.setAction(action);
+		record.setStateAfter(stateAfter);
+		record.setPosibility(state.getNextToDoActivity().getBlindService().getQos().getReliability());
+		record.setPriceCost(state.getReplaceNewActivity().getBlindService().getQos().getPrice()); // ?
+		record.setTimeCost(state.getReplaceNewActivity().getBlindService().getQos().getExecTime());  // ?
+		records.add(record);
+		
+		stateAfter = state.nextReplaceFailedState();
+		//action
+		record = new MarkovRecord();
+		record.setStateBefore(state);
+		record.setAction(action);
+		record.setStateAfter(stateAfter);
+		record.setPosibility(state.getNextToDoActivity().getBlindService().getQos().getReliability());
+		record.setPriceCost(state.getReplaceNewActivity().getBlindService().getQos().getPrice()); // ?
+		record.setTimeCost(state.getReplaceNewActivity().getBlindService().getQos().getExecTime());   // ?
+		records.add(record);
+		
 		return records;
 	}
 }

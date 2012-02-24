@@ -3,6 +3,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.zw.ws.Activity;
+import com.zw.ws.AtomService;
 import com.zw.ws.ServiceFlow;
 
 public class MarkovState extends ServiceFlow {
@@ -14,7 +15,9 @@ public class MarkovState extends ServiceFlow {
 	private List<Activity> nextToDoActivities;
 	private boolean failed;
 	private boolean finished;
-	private double redoTimeCost; 
+	private double redoTimeCost;
+	private Activity replaceOldActivity;
+	private Activity replaceNewActivity;
 	
 	public MarkovState() {
 		super();
@@ -77,6 +80,8 @@ public class MarkovState extends ServiceFlow {
 		stateTemp.setGlobalState(this.globalState);
 		stateTemp.setActivities(activitiesTemp);
 		stateTemp.setCurrentTimeCost(currentTimeCost);
+		stateTemp.replaceNewActivity = (this.replaceNewActivity == null) ? null : this.replaceNewActivity.clone();
+		stateTemp.replaceOldActivity = (this.replaceOldActivity == null) ? null : this.replaceOldActivity.clone();
 		
 		stateTemp.nextStep();
 		//stateTemp.redoTimeCost = this.redoTimeCost;
@@ -196,7 +201,6 @@ public class MarkovState extends ServiceFlow {
 		stateAfter.setGlobalState(MarkovInfo.S_UNKNOWN);
 		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
 		stateAfter.nextStep();
-		
 		return stateAfter;
 	}
 
@@ -207,7 +211,6 @@ public class MarkovState extends ServiceFlow {
 		stateAfter.setGlobalState(MarkovInfo.S_FAILED);
 		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
 		stateAfter.nextStep();
-		
 		return stateAfter;
 	}
 	
@@ -218,7 +221,6 @@ public class MarkovState extends ServiceFlow {
 		stateAfter.setGlobalState(MarkovInfo.S_UNKNOWN);
 		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
 		stateAfter.nextStep();
-		
 		return stateAfter;
 	}
 	
@@ -231,6 +233,60 @@ public class MarkovState extends ServiceFlow {
 		stateAfter.nextStep();
 		return stateAfter;
 	}
+	
+	public MarkovState nextReplaceUnknownState() {
+		MarkovState stateAfter = this.clone();
+		updateReplaceNextActivities(stateAfter);
+		stateAfter.setGlobalState(MarkovInfo.S_UNKNOWN);
+		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
+		stateAfter.nextStep();
+		return stateAfter;
+	}
+	
+	public MarkovState nextReplaceFailedState() {
+		MarkovState stateAfter = this.clone();
+		updateReplaceNextActivities(stateAfter);
+		stateAfter.getNextToDoActivity().setX(-1);
+		stateAfter.setGlobalState(MarkovInfo.S_UNKNOWN);
+		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
+		stateAfter.nextStep();
+		return stateAfter;
+	}
+	
+	public void updateReplaceNextActivities(MarkovState stateAfter) {
+		for (Activity at : nextToDoActivities) {
+			Activity nextActivityTemp = stateAfter.getActivity(at.getNumber());
+			if (nextActivityTemp.getX() >= 0 &&nextActivityTemp.getX() < 1) {
+				if ((stateAfter.getActivity(at.getNumber()).getX() 
+					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime()) >= 1) {
+					nextActivityTemp.setX(1);
+				} else {
+					nextActivityTemp.setX((stateAfter.getActivity(at.getNumber()).getX() 
+					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime()));
+				}
+			} else if (nextActivityTemp.getX() < 0){
+				AtomService service = getFreeService();
+				//redoTimeCost = Math.abs(nextActivityTemp.getX()*nextActivityTemp.getBlindService().getQos().getExecTime());
+				replaceOldActivity = nextActivityTemp.clone();
+				nextActivityTemp.setBlindService(service);
+				nextActivityTemp.addReplaceCount();
+				replaceNewActivity = nextActivityTemp.clone();
+				nextActivityTemp.setX(nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime());
+			}
+		}
+	}
+	
+	//保留接口
+	public AtomService getFreeService() {
+		for (int i = 0; i < super.services.size(); i++) {
+			if (super.services.get(i).isFree()) {
+				super.services.get(i).setFree(false);
+				return super.services.get(i);
+			}
+		}
+		return null;
+	}
+	
 	
 	
 	public double getReDoTimeCost() {
@@ -362,4 +418,13 @@ public class MarkovState extends ServiceFlow {
 		res = res.trim() + ")]";
 		return res;
 	}
+
+	public Activity getReplaceOldActivity() {
+		return replaceOldActivity;
+	}
+
+	public Activity getReplaceNewActivity() {
+		return replaceNewActivity;
+	}
+
 }
