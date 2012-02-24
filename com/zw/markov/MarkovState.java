@@ -166,49 +166,9 @@ public class MarkovState extends ServiceFlow {
 		if (nextTimeCost == Double.MAX_VALUE) {
 			nextTimeCost = 0;
 		}
-		//System.out.println("NextToDoActivity=" + nextToDoActivity);
-		//System.out.println("In nextStep(), nextTimeCost=" + nextTimeCost + " nextToDoActivity=" + nextToDoActivity.getNumber());
-		//System.out.println("End nextStep()-------------------------------\n");
-		
-	}
-
-	//以下nextTimeCost有问题, setX没有检查是否大于1
-	public MarkovState nextUnknownState() {
-		//System.out.println("In nextUnknownState");
-		MarkovState stateAfter = this.clone();
-		for (Activity at : nextToDoActivities) {
-			Activity nextActivityTemp = stateAfter.getActivity(at.getNumber());
-			nextActivityTemp.setX(stateAfter.getActivity(at.getNumber()).getX() 
-					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime());
-		}
-		stateAfter.setGlobalState(MarkovInfo.S_UNKNOWN);
-		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
-		stateAfter.nextStep();
-		
-		return stateAfter;
-	}
-
-	public MarkovState nextFailedState() {
-		//System.out.println("In nextFailedState");
-		MarkovState stateAfter = this.clone();
-		for (Activity at : nextToDoActivities) {
-			Activity nextActivityTemp = stateAfter.getActivity(at.getNumber());
-			nextActivityTemp.setX(stateAfter.getActivity(at.getNumber()).getX() 
-					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime());
-		}
-		stateAfter.getNextToDoActivity().setX(-1);
-		stateAfter.setGlobalState(MarkovInfo.S_FAILED);
-		//System.out.println("nextTimeCost=" + nextTimeCost + " currentTimeCost=" + currentTimeCost);
-		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
-		stateAfter.nextStep();
-		
-		return stateAfter;
 	}
 	
-	public MarkovState nextReDoUnknownState() {
-		//System.out.println("In nextReDoUnknownState");
-		MarkovState stateAfter = this.clone();
-		//System.out.println("nextTimeCost:" + nextTimeCost);
+	public void updateNextActivities(MarkovState stateAfter) {
 		for (Activity at : nextToDoActivities) {
 			Activity nextActivityTemp = stateAfter.getActivity(at.getNumber());
 			if (nextActivityTemp.getX() >= 0 &&nextActivityTemp.getX() < 1) {
@@ -227,6 +187,33 @@ public class MarkovState extends ServiceFlow {
 				//System.out.println("After, nextActivityTemp.getX():" + nextActivityTemp.getX());
 			}
 		}
+	}
+
+	//以下nextTimeCost有问题, setX没有检查是否大于1
+	public MarkovState nextUnknownState() {
+		MarkovState stateAfter = this.clone();
+		updateNextActivities(stateAfter);
+		stateAfter.setGlobalState(MarkovInfo.S_UNKNOWN);
+		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
+		stateAfter.nextStep();
+		
+		return stateAfter;
+	}
+
+	public MarkovState nextFailedState() {
+		MarkovState stateAfter = this.clone();
+		updateNextActivities(stateAfter);
+		stateAfter.getNextToDoActivity().setX(-1);
+		stateAfter.setGlobalState(MarkovInfo.S_FAILED);
+		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
+		stateAfter.nextStep();
+		
+		return stateAfter;
+	}
+	
+	public MarkovState nextReDoUnknownState() {
+		MarkovState stateAfter = this.clone();
+		updateNextActivities(stateAfter);
 		//stateAfter.getNextToDoActivity().setX(-1);
 		stateAfter.setGlobalState(MarkovInfo.S_UNKNOWN);
 		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
@@ -236,29 +223,12 @@ public class MarkovState extends ServiceFlow {
 	}
 	
 	public MarkovState nextReDoFailedState() {
-		//System.out.println("In nextReDoFailedState");
 		MarkovState stateAfter = this.clone();
-		
-		for (Activity at : nextToDoActivities) {
-			Activity nextActivityTemp = stateAfter.getActivity(at.getNumber());
-			if (nextActivityTemp.getX() >= 0 &&nextActivityTemp.getX() < 1) {
-				if ((stateAfter.getActivity(at.getNumber()).getX() 
-					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime()) >= 1) {
-					nextActivityTemp.setX(1);
-				} else {
-					nextActivityTemp.setX((stateAfter.getActivity(at.getNumber()).getX() 
-					+ nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime()));
-				}
-			} else if (nextActivityTemp.getX() < 0) {
-				redoTimeCost = Math.abs(nextActivityTemp.getX()*nextActivityTemp.getBlindService().getQos().getExecTime());
-				nextActivityTemp.setX(nextTimeCost/nextActivityTemp.getBlindService().getQos().getExecTime());
-			}
-		}
-		//stateAfter.getNextToDoActivity().setX(-1);
+		updateNextActivities(stateAfter);
+		stateAfter.getNextToDoActivity().setX(-1);
 		stateAfter.setGlobalState(MarkovInfo.S_FAILED);
 		stateAfter.setCurrentTimeCost(nextTimeCost + this.currentTimeCost);
 		stateAfter.nextStep();
-		
 		return stateAfter;
 	}
 	
