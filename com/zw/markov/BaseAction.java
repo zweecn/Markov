@@ -1,13 +1,15 @@
 package com.zw.markov;
 
 public class BaseAction {
-	public BaseAction(int activityNumber, int opNumber) {
+	public BaseAction(int activityNumber, int opNumber, int oldServiceNumber) {
 		this.currActivityNumber = activityNumber;
 		this.opNumber = opNumber;
+		this.oldServiceNumber = oldServiceNumber;
 	}
 	
 	protected int currActivityNumber;
 	protected int opNumber;
+	protected int oldServiceNumber;
 	
 	public int getCurrActivityNumber() {
 		return currActivityNumber;
@@ -18,7 +20,7 @@ public class BaseAction {
 	}
 	
 	public BaseAction clone() {
-		BaseAction action = new BaseAction(this.currActivityNumber, this.opNumber);
+		BaseAction action = new BaseAction(this.currActivityNumber, this.opNumber, this.oldServiceNumber);
 		return action;
 	}
 	
@@ -47,8 +49,44 @@ public class BaseAction {
 		
 		res += "[Action: " + String.format("%-12s", actionText) 
 				+  " Activity " + String.format("%1d", currActivityNumber) 
-				+ "]";
+				+ " (old=" + String.format("%2s", oldServiceNumber) 
+				+ " new=" + String.format("%2s", oldServiceNumber) 
+				+ ")]";
 		
 		return res;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + currActivityNumber;
+		result = prime * result + oldServiceNumber;
+		result = prime * result + opNumber;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof BaseAction)) {
+			return false;
+		}
+		BaseAction other = (BaseAction) obj;
+		if (currActivityNumber != other.currActivityNumber) {
+			return false;
+		}
+		if (oldServiceNumber != other.oldServiceNumber) {
+			return false;
+		}
+		if (opNumber != other.opNumber) {
+			return false;
+		}
+		return true;
 	}
 }

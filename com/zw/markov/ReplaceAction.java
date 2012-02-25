@@ -2,7 +2,7 @@ package com.zw.markov;
 
 public class ReplaceAction extends BaseAction{
 	public ReplaceAction(int activityNumber, int opNumber, int oldServiceNumber, int newServiceNumber) {
-		super(activityNumber, opNumber);
+		super(activityNumber, opNumber, oldServiceNumber);
 		this.oldServiceNumber = oldServiceNumber;
 		this.newServiceNumber = newServiceNumber;
 	}

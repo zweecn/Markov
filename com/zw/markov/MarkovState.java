@@ -1,7 +1,6 @@
 package com.zw.markov;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.zw.ws.Activity;
 import com.zw.ws.AtomService;
 import com.zw.ws.ServiceFlow;
@@ -55,22 +54,34 @@ public class MarkovState extends ServiceFlow {
 	
 	public List<MarkovState> nextStates(int opNumber) {
 		List<MarkovState> states = new ArrayList<MarkovState>();
-		states.add(this.clone());
-		states.add(this.clone());
-
 		switch (opNumber) {
 		case MarkovInfo.A_NO_ACTION:
-			states = aStepNoAction(states);
+			if (this.isCurrFailed()) {
+				states.add(this);
+			} else {
+				states.add(this.clone());
+				states.add(this.clone());
+				states = aStepNoAction(states);
+			}
 			return states;
 		case MarkovInfo.A_RE_DO:
 			if (this.isCurrFailed()) {
+				//this.getFailedActivity().addRedoCount();
+				states.add(this.clone());
+				states.add(this.clone());
 				states = aStepReDo(states);
 				return states;
 			} else {
 				return null;
 			}
 		case MarkovInfo.A_REPLACE:
-			states = aStepReplace(states);
+			if (this.isCurrFailed()) {
+				states.add(this.clone());
+				states.add(this.clone());
+				states = aStepReplace(states);
+			} else {
+				return null;
+			}
 			return states;
 		default:
 			return null;
@@ -195,7 +206,7 @@ public class MarkovState extends ServiceFlow {
 	private ReplaceAction replaceAction;
 	private AtomService nextFreeService;
 
-	private MarkovState init() {
+	public MarkovState init() {
 		nextToDoActivity = null;
 		//System.out.println("before init, nextToDoActivity:" + nextToDoActivity);
 		currFailed = false;

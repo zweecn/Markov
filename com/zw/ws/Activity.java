@@ -75,17 +75,18 @@ public class Activity {
 	}
 	
 	
-	public int getRedoCount() {
-		return redoCount;
-	}
-
-	public void setRedoCount(int redoCount) {
-		this.redoCount = redoCount;
-	}
+//	public int getRedoCount() {
+//		return redoCount;
+//	}
+//
+//	public void setRedoCount(int redoCount) {
+//		this.redoCount = redoCount;
+//	}
+//	
+//	public void addRedoCount() {
+//		this.redoCount++;
+//	}
 	
-	public void addRedoCount() {
-		this.redoCount++;
-	}
 	public int getReplaceCount() {
 		return replaceCount;
 	}
