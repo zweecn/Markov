@@ -19,27 +19,29 @@ public class GenerateMarkovRecords {
 	public static void main(String[] args) {
 		MarkovState state = new MarkovState();
 		//state.printFlow();
-		state.setGlobalState(MarkovInfo.S_UNKNOWN);
-		state.setCurrentTimeCost(0);
+		state.setCurrGlobalState(MarkovInfo.S_UNKNOWN);
 		stateSet.add(state);
 		System.out.println(" StateBefore \t Action \t StateAfter \t Posibility \t Time \t Cost");
 		count = 0;
 		do {
 
-			records = MarkovInfo.terminate(state);
-			printRecord();
+			//records = MarkovInfo.terminate(state);
+			//printRecord();
 			records = MarkovInfo.noAction(state);
 			printRecord();
-			if (state.isFailed() && state.getFailedActivity().getRedoCount() < MarkovInfo.MAX_REDO_COUNT) {
-				records = MarkovInfo.redo(state);
-				printRecord();
-			}
-			if (state.isFailed() ) {//&& state.getReplaceNewActivity()!=null && state.getReplaceNewActivity().getReplaceCount() < MarkovInfo.MAX_REPLACE_COUNT)  {
-				//System.out.println("In if.");
-				records = MarkovInfo.replace(state);
-				printRecord();
-			}
+//			if (state.isCurrFailed() && state.getFailedActivity().getRedoCount() < MarkovInfo.MAX_REDO_COUNT) {
+//				records = MarkovInfo.redo(state);
+//				printRecord();
+//			}
+//			if (state.isCurrFailed() ) {//&& state.getReplaceNewActivity()!=null && state.getReplaceNewActivity().getReplaceCount() < MarkovInfo.MAX_REPLACE_COUNT)  {
+//				//System.out.println("In if.");
+//				records = MarkovInfo.replace(state);
+//				printRecord();
+//			}
 			state = queue.poll();
+			if (count > 1) {
+				System.exit(-1);
+			}
 		} while (!queue.isEmpty());
 	}
 

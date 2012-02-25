@@ -37,22 +37,60 @@ public class Activity {
 	public void setNumber(int activityNumber) {
 		this.number = activityNumber;
 	}
+	
 	public double getX() {
 		return x;
 	}
+	
 	public void setX(double x) {
 		this.x = x;
 	}
 	
+	public void addX(double x) {
+		if (this.x >= 0) {
+			this.x = (this.x + x >= 1 ? 1 : this.x + x);
+		} else {
+			this.x = x;
+		}
+	}
+	
 	public Activity clone() {
 		Activity activityTemp = new Activity();
-		activityTemp.setX(x);
-		activityTemp.setBlindService(blindService.clone()); /////
-		activityTemp.setNumber(number);
+		//System.out.println("Before activityTemp:" + activityTemp + "\t this:" + this);
+		activityTemp.x = this.x;
+		activityTemp.blindService = this.blindService.clone();
+		activityTemp.number = this.number;
 		activityTemp.redoCount = this.redoCount;
 		activityTemp.replaceCount = this.replaceCount;
+				
+		//System.out.println("After activityTemp:" + activityTemp + "\t this:" + this);
+		//System.out.println();
+		
 		return activityTemp;
 	}
+	
+	
+	public int getRedoCount() {
+		return redoCount;
+	}
+
+	public void setRedoCount(int redoCount) {
+		this.redoCount = redoCount;
+	}
+	
+	public void addRedoCount() {
+		this.redoCount++;
+	}
+	public int getReplaceCount() {
+		return replaceCount;
+	}
+	public void setReplaceCount(int replaceCount) {
+		this.replaceCount = replaceCount;
+	}
+	public void addReplaceCount() {
+		this.replaceCount++;
+	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -93,24 +131,4 @@ public class Activity {
 		return true;
 	}
 	
-	public int getRedoCount() {
-		return redoCount;
-	}
-
-	public void setRedoCount(int redoCount) {
-		this.redoCount = redoCount;
-	}
-	
-	public void addRedoCount() {
-		this.redoCount++;
-	}
-	public int getReplaceCount() {
-		return replaceCount;
-	}
-	public void setReplaceCount(int replaceCount) {
-		this.replaceCount = replaceCount;
-	}
-	public void addReplaceCount() {
-		this.replaceCount++;
-	}
 }

@@ -16,8 +16,16 @@ public class AtomService{
 
 	public AtomService clone() {
 		AtomService serviceTemp = new AtomService(number, qos.clone());
+		
+//		System.out.println("\n1 In AtomService.clone(), this:" + this.hashCode() + " new:" + serviceTemp.hashCode() + "\n");
 		serviceTemp.redoCount = this.redoCount;
 		serviceTemp.free = this.free;
+		
+//		System.out.println("2 In AtomService.clone(), this:" + this.hashCode() + " new:" + serviceTemp.hashCode() + "\n");
+		
+//		this.setNumber(11);
+//		System.out.println(this.getNumber() + " " + serviceTemp.getNumber());
+		
 		return serviceTemp;
 	}
 	
@@ -35,6 +43,26 @@ public class AtomService{
 
 	public void setQos(ServiceQoS qos) {
 		this.qos = qos;
+	}
+
+	public int getRedoCount() {
+		return redoCount;
+	}
+
+	public void setRedoCount(int redoCount) {
+		this.redoCount = redoCount;
+	}
+	
+	public void addRedoCount() {
+		this.redoCount++;
+	}
+
+	public boolean isFree() {
+		return free;
+	}
+
+	public void setFree(boolean free) {
+		this.free = free;
 	}
 
 	@Override
@@ -69,25 +97,5 @@ public class AtomService{
 			return false;
 		}
 		return true;
-	}
-
-	public int getRedoCount() {
-		return redoCount;
-	}
-
-	public void setRedoCount(int redoCount) {
-		this.redoCount = redoCount;
-	}
-	
-	public void addRedoCount() {
-		this.redoCount++;
-	}
-
-	public boolean isFree() {
-		return free;
-	}
-
-	public void setFree(boolean free) {
-		this.free = free;
 	}
 }

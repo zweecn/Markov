@@ -7,9 +7,6 @@ public class ReplaceAction extends BaseAction{
 		this.newServiceNumber = newServiceNumber;
 	}
 	
-	private int oldServiceNumber;
-	private int newServiceNumber;
-	
 	public int getOldServiceNumber() {
 		return oldServiceNumber;
 	}
@@ -49,4 +46,7 @@ public class ReplaceAction extends BaseAction{
 		
 		return res;
 	}
+	
+	private int oldServiceNumber;
+	private int newServiceNumber;
 }
