@@ -27,7 +27,11 @@ public class GenerateMarkovRecords {
 
 			//records = MarkovInfo.terminate(state);
 			//printRecord();
+			//System.out.println("Begin do while");
 			records = MarkovInfo.noAction(state);
+//			if (state.isCurrFailed()) {
+//				System.out.println("Failed");
+//			}
 			printRecord();
 //			if (state.isCurrFailed() && state.getFailedActivity().getRedoCount() < MarkovInfo.MAX_REDO_COUNT) {
 //				records = MarkovInfo.redo(state);
@@ -40,7 +44,7 @@ public class GenerateMarkovRecords {
 //			}
 			state = queue.poll();
 			if (count > 1) {
-				System.exit(-1);
+				//System.exit(-1);
 			}
 		} while (!queue.isEmpty());
 	}
@@ -48,10 +52,10 @@ public class GenerateMarkovRecords {
 	public static void printRecord() {
 		if (records != null) {
 			for (MarkovRecord rd : records) {
+				System.out.println(String.format("%4s", (++count)) + " " + rd.toString());
 				if (!stateSet.contains(rd.getStateAfter())) {
 					queue.offer(rd.getStateAfter());
 					stateSet.add(rd.getStateAfter());
-					System.out.println(String.format("%4s", (++count)) + " " + rd.toString());
 				}
 			}
 		}

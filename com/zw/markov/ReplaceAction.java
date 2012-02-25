@@ -7,12 +7,21 @@ public class ReplaceAction extends BaseAction{
 		this.newServiceNumber = newServiceNumber;
 	}
 	
+	private int oldServiceNumber;
+	private int newServiceNumber;
+	
 	public int getOldServiceNumber() {
 		return oldServiceNumber;
 	}
 	
 	public int getNewServiceNumber() {
 		return newServiceNumber;
+	}
+	
+	public ReplaceAction clone() {
+		ReplaceAction action = new ReplaceAction(currActivityNumber, 
+				newServiceNumber, oldServiceNumber, newServiceNumber);
+		return action;
 	}
 	
 	public String toString() {
@@ -47,6 +56,5 @@ public class ReplaceAction extends BaseAction{
 		return res;
 	}
 	
-	private int oldServiceNumber;
-	private int newServiceNumber;
+	
 }

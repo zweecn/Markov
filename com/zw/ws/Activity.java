@@ -23,6 +23,7 @@ public class Activity {
 	private double x;
 	private int redoCount;
 	private int replaceCount;
+	private int id;
 	
 	public AtomService getBlindService() {
 		return blindService;
@@ -52,6 +53,10 @@ public class Activity {
 		} else {
 			this.x = x;
 		}
+	}
+	
+	public int getId() {
+		return id;
 	}
 	
 	public Activity clone() {

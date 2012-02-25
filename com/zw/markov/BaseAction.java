@@ -17,6 +17,11 @@ public class BaseAction {
 		return opNumber;
 	}
 	
+	public BaseAction clone() {
+		BaseAction action = new BaseAction(this.currActivityNumber, this.opNumber);
+		return action;
+	}
+	
 	public String toString() {
 		String res = "";
 		String actionText = "";
