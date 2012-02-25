@@ -134,4 +134,26 @@ public final class MarkovInfo extends Object{
 			return null;
 		}
 	}
+	
+	public static List<MarkovRecord> terminate(MarkovState state) {
+		if (state == null || state.isCurrFinished()) {
+			return null;
+		}
+		BaseAction terminateAction = new BaseAction(state.getNextToDoActivity().getNumber(), 
+				MarkovInfo.A_TERMINATE, 
+				state.getNextToDoActivity().getBlindService().getNumber());
+		List<MarkovRecord> records = new ArrayList<MarkovRecord>();
+		MarkovRecord record = new MarkovRecord();
+		record.setStateBefore(state);
+		MarkovState stateAfter = state.clone();
+		stateAfter.setCurrGlobalState(S_FAILED);
+		record.setStateAfter(stateAfter);
+		record.setAction(terminateAction);
+		record.setPosibility(1);
+		record.setTimeCost(0);
+		record.setPriceCost(0);
+		records.add(record);
+		return records;
+	}
 }
+

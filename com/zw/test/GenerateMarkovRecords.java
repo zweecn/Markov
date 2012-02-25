@@ -36,9 +36,10 @@ public class GenerateMarkovRecords {
 		queue.offer(state);
 		while (!queue.isEmpty()) {
 			state = queue.poll();
-			//records = MarkovInfo.terminate(state);
-			//printRecord();
-			//System.out.println("Begin do while");
+//			if (!stateSet.contains(state)) {
+//				records = MarkovInfo.terminate(state);
+//				printRecord();
+//			}
 			records = MarkovInfo.noAction(state);
 			printRecord();
 			records = MarkovInfo.redo(state);

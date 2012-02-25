@@ -18,6 +18,68 @@ public class MarkovState extends ServiceFlow {
 		this.id = MarkovInfo.getNextFreeStateID();
 	}
 	
+	public MarkovState init() {
+		nextToDoActivity = null;
+		//System.out.println("before init, nextToDoActivity:" + nextToDoActivity);
+		currFailed = false;
+
+		currFinished = true;
+		nextStepTimeCost = Double.MAX_VALUE;
+		nextToDoActivities = new ArrayList<Activity>();
+		for (int i = 0; i < super.getActivitySize(); i++) {
+			if (super.activities.get(i).getX() < 1) {
+				currFinished = false;
+			}
+			if (super.activities.get(i).getX() < 0) {
+				currFailed = true;
+				this.currGlobalState = MarkovInfo.S_FAILED;
+			}
+			if ((super.activities.get(i).getX() < 1) 
+					&& isPrefixActivitiesFinished(super.activities.get(i).getNumber())) {
+				nextToDoActivities.add(super.activities.get(i));
+				double timeCostTemp = 0;
+				if (super.activities.get(i).getX() >=0) {
+					timeCostTemp = (1 - super.activities.get(i).getX())
+						* super.activities.get(i).getBlindService().getQos().getExecTime();
+				} else {
+					timeCostTemp = super.activities.get(i).getBlindService().getQos().getExecTime();
+				}
+				if (nextStepTimeCost > timeCostTemp) {
+					nextStepTimeCost = timeCostTemp;
+					nextToDoActivity = super.activities.get(i);
+				}
+			}
+		}
+//		if (this.currGlobalState == 0) {
+//			this.currGlobalState = MarkovInfo.S_UNKNOWN;
+//		}
+		if (nextStepTimeCost > MarkovInfo.TIME_STEP) {
+			nextStepTimeCost = MarkovInfo.TIME_STEP;
+		}
+		
+//		if (currFinished) {
+//			nextStepTimeCost = 0;
+//			if (currFailed) {
+//				this.currGlobalState = MarkovInfo.S_FAILED;
+//			} else {
+//				this.currGlobalState = MarkovInfo.S_SUCCEED;
+//			}
+//		}
+		if (currFinished && currFailed) {
+			nextStepTimeCost = 0;
+			this.currGlobalState = MarkovInfo.S_FAILED;
+		}
+		if (currFinished && !currFailed) {
+			nextStepTimeCost = 0;
+			this.currGlobalState = MarkovInfo.S_SUCCEED;
+		}
+		if (!currFinished && !currFailed) {
+			this.currGlobalState = MarkovInfo.S_UNKNOWN;
+		}
+		
+		return this;
+	}
+	
 	public long getId() {
 		return id;
 	}
@@ -206,53 +268,6 @@ public class MarkovState extends ServiceFlow {
 	private ReplaceAction replaceAction;
 	private AtomService nextFreeService;
 
-	public MarkovState init() {
-		nextToDoActivity = null;
-		//System.out.println("before init, nextToDoActivity:" + nextToDoActivity);
-		currFailed = false;
-		this.currGlobalState = MarkovInfo.S_UNKNOWN;
-		currFinished = true;
-		//currTotalTimeCost = 0;
-		nextStepTimeCost = Double.MAX_VALUE;
-		nextToDoActivities = new ArrayList<Activity>();
-		for (int i = 0; i < super.getActivitySize(); i++) {
-			if (super.activities.get(i).getX() < 1) {
-				currFinished = false;
-			}
-			if (super.activities.get(i).getX() < 0) {
-				currFailed = true;
-				this.currGlobalState = MarkovInfo.S_FAILED;
-			}
-			if ((super.activities.get(i).getX() < 1) 
-					&& isPrefixActivitiesFinished(super.activities.get(i).getNumber())) {
-				nextToDoActivities.add(super.activities.get(i));
-				double timeCostTemp = 0;
-				if (super.activities.get(i).getX() >=0) {
-					timeCostTemp = (1 - super.activities.get(i).getX())
-						* super.activities.get(i).getBlindService().getQos().getExecTime();
-				} else {
-					timeCostTemp = super.activities.get(i).getBlindService().getQos().getExecTime();
-				}
-				if (nextStepTimeCost > timeCostTemp) {
-					nextStepTimeCost = timeCostTemp;
-					nextToDoActivity = super.activities.get(i);
-				}
-			}
-		}
-		if (currFinished) {
-			nextStepTimeCost = 0;
-			if (currFailed) {
-				this.currGlobalState = MarkovInfo.S_FAILED;
-			} else {
-				this.currGlobalState = MarkovInfo.S_SUCCEED;
-			}
-		}
-		if (nextStepTimeCost > MarkovInfo.TIME_STEP) {
-			nextStepTimeCost = MarkovInfo.TIME_STEP;
-		}
-		//System.out.println("after init, nextToDoActivity:" + nextToDoActivity.hashCode());
-		return this;
-	}
 	
 	private List<MarkovState> aStepNoAction(List<MarkovState> states) {
 
