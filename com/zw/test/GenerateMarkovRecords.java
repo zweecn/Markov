@@ -36,10 +36,10 @@ public class GenerateMarkovRecords {
 		queue.offer(state);
 		while (!queue.isEmpty()) {
 			state = queue.poll();
-//			if (!stateSet.contains(state)) {
-//				records = MarkovInfo.terminate(state);
-//				printRecord();
-//			}
+			//if (!stateSet.contains(state)) {
+				records = MarkovInfo.terminate(state);
+				printRecord();
+			//}
 			records = MarkovInfo.noAction(state);
 			printRecord();
 			records = MarkovInfo.redo(state);

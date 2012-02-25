@@ -50,21 +50,10 @@ public class MarkovState extends ServiceFlow {
 				}
 			}
 		}
-//		if (this.currGlobalState == 0) {
-//			this.currGlobalState = MarkovInfo.S_UNKNOWN;
-//		}
+
 		if (nextStepTimeCost > MarkovInfo.TIME_STEP) {
 			nextStepTimeCost = MarkovInfo.TIME_STEP;
 		}
-		
-//		if (currFinished) {
-//			nextStepTimeCost = 0;
-//			if (currFailed) {
-//				this.currGlobalState = MarkovInfo.S_FAILED;
-//			} else {
-//				this.currGlobalState = MarkovInfo.S_SUCCEED;
-//			}
-//		}
 		if (currFinished && currFailed) {
 			nextStepTimeCost = 0;
 			this.currGlobalState = MarkovInfo.S_FAILED;

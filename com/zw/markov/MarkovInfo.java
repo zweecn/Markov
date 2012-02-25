@@ -24,24 +24,36 @@ public final class MarkovInfo extends Object{
 	public static final int A_RE_COMPOSITE = 0x15;
 	
 	private static long stateid = 0;
-	private static Map<BaseAction, Integer> baseActionMap = new HashMap<BaseAction, Integer>();
+	private static Map<BaseAction, Integer> reDoActionMap = new HashMap<BaseAction, Integer>();
+	private static Map<BaseAction, Integer> terminateActionMap = new HashMap<BaseAction, Integer>();
 	
 	public static long getNextFreeStateID() {
 		return (stateid++); 
 	}
 	
-	private static boolean isActionCanReDo(BaseAction action) {
-		if (baseActionMap.get(action) == null) {
-			baseActionMap.put(action, new Integer(0));
+	private static boolean isReDoActionCanDo(BaseAction action) {
+		if (reDoActionMap.get(action) == null) {
+			reDoActionMap.put(action, new Integer(0));
 			return true;
 		}
-		return (baseActionMap.get(action) < MarkovInfo.MAX_REDO_COUNT);
+		return (reDoActionMap.get(action) < MarkovInfo.MAX_REDO_COUNT);
 	}
 	
 	private static void addReDoActionUsedCount(BaseAction action) {
-		baseActionMap.put(action, baseActionMap.get(action)+1);
+		reDoActionMap.put(action, reDoActionMap.get(action)+1);
 	}
 	
+	private static boolean isTerminateActionCanDo(BaseAction action) {
+		if (terminateActionMap.get(action) == null) {
+			terminateActionMap.put(action, new Integer(0));
+			return true;
+		}
+		return (terminateActionMap.get(action) < MarkovInfo.MAX_REDO_COUNT);
+	}
+	
+	private static void addTerminateActionUsedCount(BaseAction action) {
+		terminateActionMap.put(action, terminateActionMap.get(action)+1);
+	}
 	
 	public static List<MarkovRecord> noAction(MarkovState state) {
 		if (state == null || state.getCurrGlobalState() == MarkovInfo.S_SUCCEED
@@ -100,7 +112,7 @@ public final class MarkovInfo extends Object{
 		
 		BaseAction redoAction = new BaseAction(state.getFailedActivity().getNumber(), 
 				MarkovInfo.A_RE_DO, state.getFailedActivity().getBlindService().getNumber());
-		if (!isActionCanReDo(redoAction)) {
+		if (!isReDoActionCanDo(redoAction)) {
 			return null;
 		}
 		//System.out.println("IS CURRENT FAILED? " +state.isCurrFailed() + " " + state);
@@ -142,6 +154,10 @@ public final class MarkovInfo extends Object{
 		BaseAction terminateAction = new BaseAction(state.getNextToDoActivity().getNumber(), 
 				MarkovInfo.A_TERMINATE, 
 				state.getNextToDoActivity().getBlindService().getNumber());
+		if (!isTerminateActionCanDo(terminateAction)) {
+			return null;
+		}
+		addTerminateActionUsedCount(terminateAction);
 		List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 		MarkovRecord record = new MarkovRecord();
 		record.setStateBefore(state);
