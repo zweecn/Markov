@@ -10,12 +10,14 @@ public class MarkovState extends ServiceFlow {
 	public MarkovState() {
 		super();
 		this.id = MarkovInfo.getNextFreeStateID();
+		freeServiceFinder = new FreeServiceFinderImpl();
 		init();
 	}
 	
 	public MarkovState(MarkovState state) {
 		super();
 		this.id = MarkovInfo.getNextFreeStateID();
+		freeServiceFinder = new FreeServiceFinderImpl();
 	}
 	
 	public MarkovState init() {
@@ -97,7 +99,7 @@ public class MarkovState extends ServiceFlow {
 			stateNew.nextToDoActivities.add(at.clone());
 		}
 		stateNew.nextToDoActivity = (this.nextToDoActivity == null) ? null : this.nextToDoActivity.clone();
-		stateNew.nextFreeService = (this.nextFreeService == null) ? null : this.nextFreeService.clone(); 
+		stateNew.replaceNewService = (this.replaceNewService == null) ? null : this.replaceNewService.clone(); 
 		stateNew.replaceAction = (this.replaceAction == null) ? null : this.replaceAction;
 		
 		return stateNew;
@@ -225,7 +227,7 @@ public class MarkovState extends ServiceFlow {
 	}
 
 	public AtomService getNextFreeService() {
-		return nextFreeService;
+		return replaceNewService;
 	}
 
 	public void setCurrGlobalState(int currGlobalState) {
@@ -255,9 +257,9 @@ public class MarkovState extends ServiceFlow {
 	private Activity nextToDoActivity;
 	private List<Activity> nextToDoActivities;
 	private ReplaceAction replaceAction;
-	private AtomService nextFreeService;
+	private AtomService replaceNewService;
+	private FreeServiceFinder freeServiceFinder;
 
-	
 	private List<MarkovState> aStepNoAction(List<MarkovState> states) {
 
 		for (Activity at : this.nextToDoActivities) {
@@ -301,12 +303,13 @@ public class MarkovState extends ServiceFlow {
 	}
 
 	private List<MarkovState> aStepReplace(List<MarkovState> states) {
-		nextFreeService = this.getFreeService();
+		//replaceNewService = this.getFreeService();
+		replaceNewService = freeServiceFinder.nextFreeService();
 		for (Activity at : this.nextToDoActivities) {
 			for (int i = 0; i < states.size(); i++) {
 				Activity runActivity = states.get(i).getActivity(at.getNumber());
 				if (runActivity.getX() < 0) {
-					runActivity.setBlindService(nextFreeService);
+					runActivity.setBlindService(replaceNewService);
 				}
 				runActivity.addX(nextStepTimeCost / runActivity.getBlindService().getQos().getExecTime());
 			}
@@ -314,7 +317,6 @@ public class MarkovState extends ServiceFlow {
 		states.get(0).addCurrTotalTimeCost(nextStepTimeCost);
 		
 		states.get(1).addCurrTotalTimeCost(nextStepTimeCost);
-		//states.get(1).getNextToDoActivity().setX(-1);  //mark
 		states.get(1).getActivity(this.nextToDoActivity.getNumber()).setX(-1); //Mark
 		for (int i = 0; i < states.size(); i++) {
 			states.get(i).init();
@@ -334,6 +336,10 @@ public class MarkovState extends ServiceFlow {
 		}
 		//System.out.println();
 		return null;
+	}
+	
+	public AtomService getReplaceNewService() {
+		return replaceNewService;
 	}
 	
 	private boolean isPrefixActivitiesFinished(int currActivityNumber) {

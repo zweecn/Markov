@@ -1,7 +1,5 @@
 package com.zw.test;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashSet;
@@ -36,14 +34,15 @@ public class GenerateMarkovRecords {
 		queue.offer(state);
 		while (!queue.isEmpty()) {
 			state = queue.poll();
-			//if (!stateSet.contains(state)) {
-				records = MarkovInfo.terminate(state);
-				printRecord();
-			//}
+			records = MarkovInfo.terminate(state);
+			printRecord();
 			records = MarkovInfo.noAction(state);
 			printRecord();
 			records = MarkovInfo.redo(state);
 			printRecord();
+			records = MarkovInfo.replace(state);  //Without replace, count is 39
+			printRecord();
+			
 			
 //			if (state.isCurrFailed() ) {//&& state.getReplaceNewActivity()!=null && state.getReplaceNewActivity().getReplaceCount() < MarkovInfo.MAX_REPLACE_COUNT)  {
 //				//System.out.println("In if.");
