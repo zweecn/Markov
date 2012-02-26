@@ -13,7 +13,7 @@ public class MarkovState extends ActivityFlow {
 	
 	public MarkovState() {
 		super();
-		this.id = MarkovInfo.getNextFreeStateID();
+		this.id = MarkovState.getNextFreeStateID();
 		freeServiceFinder = new FreeServiceFinderImpl();
 		reCompositor = new ReCompositorImpl();
 		init();
@@ -21,9 +21,14 @@ public class MarkovState extends ActivityFlow {
 	
 	public MarkovState(MarkovState state) {
 		super();
-		this.id = MarkovInfo.getNextFreeStateID();
+		this.id = MarkovState.getNextFreeStateID();
 		freeServiceFinder = new FreeServiceFinderImpl();
 		reCompositor = new ReCompositorImpl();
+	}
+	
+	private static long freeId;
+	public static long getNextFreeStateID() {
+		return freeId++; 
 	}
 	
 	public MarkovState init() {
@@ -40,7 +45,7 @@ public class MarkovState extends ActivityFlow {
 			}
 			if (super.activities.get(i).getX() < 0) {
 				currFailed = true;
-				this.currGlobalState = MarkovInfo.S_FAILED;
+				this.currGlobalState = Markov.S_FAILED;
 			}
 			if ((super.activities.get(i).getX() < 1) 
 					&& isPrefixActivitiesFinished(super.activities.get(i).getNumber())) {
@@ -61,19 +66,19 @@ public class MarkovState extends ActivityFlow {
 			}
 		}
 
-		if (nextStepTimeCost > MarkovInfo.TIME_STEP) {
-			nextStepTimeCost = MarkovInfo.TIME_STEP;
+		if (nextStepTimeCost > Markov.TIME_STEP) {
+			nextStepTimeCost = Markov.TIME_STEP;
 		}
 		if (currFinished && currFailed) {
 			nextStepTimeCost = 0;
-			this.currGlobalState = MarkovInfo.S_FAILED;
+			this.currGlobalState = Markov.S_FAILED;
 		}
 		if (currFinished && !currFailed) {
 			nextStepTimeCost = 0;
-			this.currGlobalState = MarkovInfo.S_SUCCEED;
+			this.currGlobalState = Markov.S_SUCCEED;
 		}
 		if (!currFinished && !currFailed) {
-			this.currGlobalState = MarkovInfo.S_UNKNOWN;
+			this.currGlobalState = Markov.S_UNKNOWN;
 		}
 		
 		return this;
@@ -119,7 +124,7 @@ public class MarkovState extends ActivityFlow {
 	public List<MarkovState> nextStates(int opNumber) {
 		List<MarkovState> states = new ArrayList<MarkovState>();
 		switch (opNumber) {
-		case MarkovInfo.A_NO_ACTION:
+		case Markov.A_NO_ACTION:
 			if (this.isCurrFailed()) {
 				states.add(this);
 			} else {
@@ -128,7 +133,7 @@ public class MarkovState extends ActivityFlow {
 				states = aStepNoAction(states);
 			}
 			return states;
-		case MarkovInfo.A_RE_DO:
+		case Markov.A_RE_DO:
 			if (this.isCurrFailed()) {
 				//this.getFailedActivity().addRedoCount();
 				states.add(this.clone());
@@ -138,7 +143,7 @@ public class MarkovState extends ActivityFlow {
 			} else {
 				return null;
 			}
-		case MarkovInfo.A_REPLACE:
+		case Markov.A_REPLACE:
 			if (this.isCurrFailed()) {
 				states.add(this.clone());
 				states.add(this.clone());
@@ -147,7 +152,7 @@ public class MarkovState extends ActivityFlow {
 			} else {
 				return null;
 			}
-		case MarkovInfo.A_RE_COMPOSITE:
+		case Markov.A_RE_COMPOSITE:
 			if (this.isCurrFailed()) {
 				MarkovState state = reCompositor.recomposite(this);
 				if (state == null) {
@@ -179,37 +184,38 @@ public class MarkovState extends ActivityFlow {
 
 	public String toString() {
 		String res = "[State " + String.format("%3d", this.id) + ":";
-		res += " Global_state=";
+		
 		String stateText = "";
 		switch (currGlobalState) {
-		case MarkovInfo.S_UNKNOWN:
+		case Markov.S_UNKNOWN:
 			stateText += "UNKNOW";
 			break;
-		case MarkovInfo.S_FAILED:
+		case Markov.S_FAILED:
 			stateText += "FAILED";
 			break;
-		case MarkovInfo.S_SUCCEED:
+		case Markov.S_SUCCEED:
 			stateText += "SUCCEED";
 			break;
-		case MarkovInfo.S_DELAYED:
+		case Markov.S_DELAYED:
 			stateText += "DELAYED";
 			break;
-		case MarkovInfo.S_PRICE_UP:
+		case Markov.S_PRICE_UP:
 			stateText += "PRICE_UP";
 			break;
 		default:
 			break;
 		}
-		stateText = String.format("%-8s", stateText);
-		res += stateText;
-		res += ", currTimeCost=" + String.format("%7.2f", currTotalTimeCost) + ", nextTimeCost=" 
-				+ String.format("%6.2f", nextStepTimeCost) + " (";
+		res += " [";
 		for (Activity at : super.activities) {
 			//System.out.println("at:" + at.getBlindService());
-			res += "A" + String.format("%1s", at.getNumber()) + ".s=" + at.getBlindService().getNumber() 
-					+  " x=" + String.format("%5.2f", at.getX()) + ", ";
+			res += "(A" + String.format("%1s", at.getNumber()) + ".s=" + at.getBlindService().getNumber() 
+					+  " x=" + String.format("%5.2f", at.getX()) + ") ";
 		}
-		res = res.trim() + ")]";
+		res = res.trim() + "] Global_state=";
+		stateText = String.format("%-8s", stateText);
+		res += stateText + " currTimeCost=" + String.format("%7.2f", currTotalTimeCost) + ", nextTimeCost=" 
+				+ String.format("%6.2f", nextStepTimeCost);
+		res = res.trim() + "]";
 		return res;
 	}
 
@@ -272,6 +278,7 @@ public class MarkovState extends ActivityFlow {
 			}
 		}
 	}
+	
 	
 	private long id;
 	private int currGlobalState;

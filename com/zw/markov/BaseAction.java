@@ -28,19 +28,19 @@ public class BaseAction {
 		String res = "";
 		String actionText = "";
 		switch (opNumber) {
-		case MarkovInfo.A_NO_ACTION:
+		case Markov.A_NO_ACTION:
 			actionText = "NO_ACTION";
 			break;
-		case MarkovInfo.A_TERMINATE:
+		case Markov.A_TERMINATE:
 			actionText = "TERMINATE";
 			break;
-		case MarkovInfo.A_RE_DO:
+		case Markov.A_RE_DO:
 			actionText = "RE_DO";
 			break;
-		case MarkovInfo.A_REPLACE:
+		case Markov.A_REPLACE:
 			actionText = "REPLACE";
 			break;
-		case MarkovInfo.A_RE_COMPOSITE:
+		case Markov.A_RE_COMPOSITE:
 			actionText = "RE_COMPOSITE";
 			break;
 		default:

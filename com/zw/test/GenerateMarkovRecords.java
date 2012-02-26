@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-import com.zw.markov.MarkovInfo;
+import com.zw.markov.Markov;
 import com.zw.markov.MarkovRecord;
 import com.zw.markov.MarkovState;
 
@@ -25,7 +25,7 @@ public class GenerateMarkovRecords {
 		writer = new FileWriter(LOG_FILE_NAME);
 		MarkovState state = new MarkovState();
 		//state.printFlow();
-		state.setCurrGlobalState(MarkovInfo.S_UNKNOWN);
+		state.setCurrGlobalState(Markov.S_UNKNOWN);
 		state.getActivity(0).setX(-1);
 		state.init();
 		stateSet.add(state);
@@ -35,16 +35,16 @@ public class GenerateMarkovRecords {
 		while (!queue.isEmpty()) {
 			state = queue.poll();
 			//System.out.println("\nSTATE:" + state);
-			records = MarkovInfo.terminate(state);
+			records = Markov.terminate(state);
 			printRecord();
-			records = MarkovInfo.noAction(state);
+			records = Markov.noAction(state);
 			printRecord();
-			records = MarkovInfo.redo(state);
+			records = Markov.redo(state);
 			printRecord();
-			records = MarkovInfo.replace(state);  //Without replace, count is 39
+			records = Markov.replace(state);  //Without replace, count is 39
 			printRecord();
 			
-			records = MarkovInfo.reComposite(state);
+			records = Markov.reComposite(state);
 			printRecord();
 			
 			//System.out.println("-------------------------");
