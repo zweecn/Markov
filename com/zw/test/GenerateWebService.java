@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Random;
 
-import com.zw.ws.ServiceFlow;
+import com.zw.ws.ActivityFlow;
 
 public class GenerateWebService {
 	private final static String candidateServiceFileName = "E:\\markov_output\\wsinfo.txt";
@@ -54,7 +54,7 @@ public class GenerateWebService {
 	public static void main(String[] args) {
 //		GenerateWebService gen = new GenerateWebService();
 //		gen.generate(100);
-		ServiceFlow flow = new ServiceFlow();
+		ActivityFlow flow = new ActivityFlow();
 		flow.printFlow();
 		
 		//int[][] temp = new int[5][5];

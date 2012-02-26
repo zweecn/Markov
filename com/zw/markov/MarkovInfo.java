@@ -11,7 +11,7 @@ public final class MarkovInfo extends Object{
 	public static final int MAX_REDO_COUNT = 1;
 	public static final int MAX_TERMINATE_COUNT = 1;
 	public static final int MAX_REPLACE_COUNT = 1;
-	
+	public static final int MAX_RECOMPOSITE_COUNT = 1;
 	
 	public static final int S_UNKNOWN = 1;
 	public static final int S_FAILED = 2;
@@ -29,7 +29,8 @@ public final class MarkovInfo extends Object{
 	private static Map<BaseAction, Integer> reDoActionMap = new HashMap<BaseAction, Integer>();
 	private static Map<BaseAction, Integer> terminateActionMap = new HashMap<BaseAction, Integer>();
 	private static Map<Integer, Integer> replaceActionMap = new HashMap<Integer, Integer>();
-	
+	private static Map<Integer, Integer> reCompositeActionMap = new HashMap<Integer, Integer>(); 
+			
 	public static long getNextFreeStateID() {
 		return (stateid++); 
 	}
@@ -69,6 +70,19 @@ public final class MarkovInfo extends Object{
 	private static void addReplaceActionUsedCount(int replaceActivityNumber) {
 		replaceActionMap.put(replaceActivityNumber, 
 				replaceActionMap.get(replaceActivityNumber)+1);
+	}
+	
+	private static boolean isReCompositeActionCanDo(int reCompositeActivityNumber) {
+		if (reCompositeActionMap.get(reCompositeActivityNumber) == null) {
+			reCompositeActionMap.put(reCompositeActivityNumber, 0);
+			return true;
+		}
+		return reCompositeActionMap.get(reCompositeActivityNumber) < MAX_RECOMPOSITE_COUNT;
+	}
+	
+	private static void addRecompositeActionUsedCount(int reCompositeActivityNumber) {
+		reCompositeActionMap.put(reCompositeActivityNumber, 
+				reCompositeActionMap.get(reCompositeActivityNumber)+1);
 	}
 	
 	public static List<MarkovRecord> noAction(MarkovState state) {
@@ -194,6 +208,9 @@ public final class MarkovInfo extends Object{
 			addReplaceActionUsedCount(state.getFailedActivity().getNumber());
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 			List<MarkovState> states = state.nextStates(MarkovInfo.A_REPLACE);
+			if (states == null) {
+				return null;
+			}
 			ReplaceAction replaceAction = new ReplaceAction(state.getFailedActivity().getNumber(), 
 					MarkovInfo.A_REPLACE, state.getFailedActivity().getBlindService().getNumber(),
 					state.getReplaceNewService().getNumber());
@@ -203,18 +220,62 @@ public final class MarkovInfo extends Object{
 			record.setStateAfter(states.get(0));
 			record.setAction(replaceAction);
 			//record.setPosibility(state.getNextToDoActivity().getBlindService().getQos().getReliability());
-			record.setPosibility(state.getReplaceNewService().getQos().getReliability());
-			record.setTimeCost(state.getReplaceNewService().getQos().getExecTime());
-			record.setPriceCost(state.getReplaceNewService().getQos().getPrice());
+//			record.setPosibility(state.getReplaceNewService().getQos().getReliability());
+//			record.setTimeCost(state.getReplaceNewService().getQos().getExecTime());
+//			record.setPriceCost(state.getReplaceNewService().getQos().getPrice());
+			record.setPosibility(state.getFreeServiceFinder().getPosibility());
+			record.setTimeCost(state.getFreeServiceFinder().getTimeCost());
+			record.setPriceCost(state.getFreeServiceFinder().getPriceCost());
 			records.add(record);
 
 			record = new MarkovRecord();
 			record.setStateBefore(state);
 			record.setStateAfter(states.get(1));
 			record.setAction(replaceAction);
-			record.setPosibility(1 - state.getReplaceNewService().getQos().getReliability());
-			record.setTimeCost(state.getReplaceNewService().getQos().getExecTime());
-			record.setPriceCost(state.getReplaceNewService().getQos().getPrice());
+			record.setPosibility(1 - state.getFreeServiceFinder().getPosibility());
+			record.setTimeCost(state.getFreeServiceFinder().getTimeCost());
+			record.setPriceCost(state.getFreeServiceFinder().getPriceCost());
+			records.add(record);
+
+			return records;
+			
+		} else {
+			return null;
+		}
+	}
+	
+	public static List<MarkovRecord> reComposite(MarkovState state) {
+		if (state == null || state.isCurrFinished()) {
+			return null;
+		}
+		
+		if (!isReCompositeActionCanDo(state.getFailedActivity().getNumber())) {
+			return null;
+		}
+		if (state.isCurrFailed()) {
+			addRecompositeActionUsedCount(state.getFailedActivity().getNumber());
+			
+			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
+			List<MarkovState> states = state.nextStates(MarkovInfo.A_RE_COMPOSITE);
+			ReCompositeAction reCompositeAction = new ReCompositeAction(state.getFailedActivity().getNumber(),
+					MarkovInfo.A_RE_COMPOSITE, state.getFailedActivity().getBlindService().getNumber());
+			
+			MarkovRecord record = new MarkovRecord();
+			record.setStateBefore(state);
+			record.setStateAfter(states.get(0));
+			record.setAction(reCompositeAction);
+			record.setPosibility(state.getReCompositor().getPosibility());
+			record.setTimeCost(state.getReCompositor().getTimeCost());
+			record.setPriceCost(state.getReCompositor().getPriceCost());
+			records.add(record);
+
+			record = new MarkovRecord();
+			record.setStateBefore(state);
+			record.setStateAfter(states.get(1));
+			record.setAction(reCompositeAction);
+			record.setPosibility(state.getReCompositor().getPosibility());
+			record.setTimeCost(state.getReCompositor().getTimeCost());
+			record.setPriceCost(state.getReCompositor().getPriceCost());
 			records.add(record);
 
 			return records;

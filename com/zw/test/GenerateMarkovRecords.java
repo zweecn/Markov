@@ -43,7 +43,12 @@ public class GenerateMarkovRecords {
 			printRecord();
 			records = MarkovInfo.replace(state);  //Without replace, count is 39
 			printRecord();
+			
+			records = MarkovInfo.reComposite(state);
+			printRecord();
+			
 			//System.out.println("-------------------------");
+			
 		} 
 		writer.close();
 	}

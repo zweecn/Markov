@@ -5,14 +5,17 @@ import com.zw.ws.Activity;
 import com.zw.ws.AtomService;
 import com.zw.ws.FreeServiceFinder;
 import com.zw.ws.FreeServiceFinderImpl;
-import com.zw.ws.ServiceFlow;
+import com.zw.ws.ActivityFlow;
+import com.zw.ws.ReCompositor;
+import com.zw.ws.ReCompositorImpl;
 
-public class MarkovState extends ServiceFlow {
+public class MarkovState extends ActivityFlow {
 	
 	public MarkovState() {
 		super();
 		this.id = MarkovInfo.getNextFreeStateID();
 		freeServiceFinder = new FreeServiceFinderImpl();
+		reCompositor = new ReCompositorImpl();
 		init();
 	}
 	
@@ -20,6 +23,7 @@ public class MarkovState extends ServiceFlow {
 		super();
 		this.id = MarkovInfo.getNextFreeStateID();
 		freeServiceFinder = new FreeServiceFinderImpl();
+		reCompositor = new ReCompositorImpl();
 	}
 	
 	public MarkovState init() {
@@ -46,6 +50,8 @@ public class MarkovState extends ServiceFlow {
 					timeCostTemp = (1 - super.activities.get(i).getX())
 						* super.activities.get(i).getBlindService().getQos().getExecTime();
 				} else {
+//					System.out.println(this.getId());
+//					System.out.println(super.activities.get(i).getNumber());
 					timeCostTemp = super.activities.get(i).getBlindService().getQos().getExecTime();
 				}
 				if (nextStepTimeCost > timeCostTemp || nextStepTimeCost == -1) {
@@ -104,6 +110,9 @@ public class MarkovState extends ServiceFlow {
 		stateNew.replaceNewService = (this.replaceNewService == null) ? null : this.replaceNewService.clone(); 
 		stateNew.replaceAction = (this.replaceAction == null) ? null : this.replaceAction;
 		
+		stateNew.freeServiceFinder = this.freeServiceFinder; // Mark, this is not clone()
+		stateNew.reCompositor = this.reCompositor;
+		
 		return stateNew;
 	}
 	
@@ -134,10 +143,23 @@ public class MarkovState extends ServiceFlow {
 				states.add(this.clone());
 				states.add(this.clone());
 				states = aStepReplace(states);
+				return states;
 			} else {
 				return null;
 			}
-			return states;
+		case MarkovInfo.A_RE_COMPOSITE:
+			if (this.isCurrFailed()) {
+				MarkovState state = reCompositor.recomposite(this);
+				System.out.println("state:" + state);
+				state.init();
+				states.add(state.clone());
+				states.add(state.clone());
+				states = aStepReComposite(states);
+				return states;
+			} else {
+				return null;
+			}
+			
 		default:
 			return null;
 		}
@@ -261,7 +283,8 @@ public class MarkovState extends ServiceFlow {
 	private ReplaceAction replaceAction;
 	private AtomService replaceNewService;
 	private FreeServiceFinder freeServiceFinder;
-
+	private ReCompositor reCompositor;
+	
 	private List<MarkovState> aStepNoAction(List<MarkovState> states) {
 
 		for (Activity at : this.nextToDoActivities) {
@@ -305,11 +328,17 @@ public class MarkovState extends ServiceFlow {
 	}
 
 	private List<MarkovState> aStepReplace(List<MarkovState> states) {
-		replaceNewService = freeServiceFinder.nextFreeService();
-		freeServiceFinder.setServiceUsed(replaceNewService.getNumber());
+		
 		for (Activity at : this.nextToDoActivities) {
 			Activity runActivity = states.get(0).getActivity(at.getNumber());
 			if (runActivity.getX() < 0) { //这里是假设只同时出现1个结点故障时
+				replaceNewService = freeServiceFinder.nextFreeService(runActivity.getNumber());
+				if (replaceNewService == null) {
+					System.err.println("Candidate service is all used.");
+					return null;
+				}
+				freeServiceFinder.setServiceUsed(replaceNewService.getNumber());
+
 				states.get(0).getActivity(at.getNumber()).setBlindService(replaceNewService);
 				states.get(0).getActivity(at.getNumber()).setX(1);
 				states.get(0).addCurrTotalTimeCost(replaceNewService.getQos().getExecTime());
@@ -326,9 +355,14 @@ public class MarkovState extends ServiceFlow {
 		return states;
 	}
 	
+	private List<MarkovState> aStepReComposite(List<MarkovState> states) {
+		return aStepNoAction(states);
+	}
+	
 	public AtomService getReplaceNewService() {
 		return (replaceNewService);
 	}
+	
 	
 	private boolean isPrefixActivitiesFinished(int currActivityNumber) {
 		List<Integer> prefixActivityNumbers = super.getPrefixActivityNumbers(currActivityNumber);
@@ -340,6 +374,14 @@ public class MarkovState extends ServiceFlow {
 			}
 		}
 		return true;
+	}
+
+	public FreeServiceFinder getFreeServiceFinder() {
+		return freeServiceFinder;
+	}
+
+	public ReCompositor getReCompositor() {
+		return reCompositor;
 	}
 	
 }
