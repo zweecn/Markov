@@ -1,6 +1,6 @@
 package com.zw.markov;
 
-public class ReplaceAction extends BaseAction{
+public class ReplaceAction extends BaseAction implements MarkovAction{
 	public ReplaceAction(int activityNumber, int opNumber, int oldServiceNumber, int newServiceNumber) {
 		super(activityNumber, opNumber, oldServiceNumber);
 		this.oldServiceNumber = oldServiceNumber;

@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import com.zw.ws.AtomService;
 
-public class ReCompositeAction extends BaseAction {
+public class ReCompositeAction extends BaseAction implements MarkovAction {
 	public ReCompositeAction(int activityNumber, int opNumber,
 			int oldServiceNumber) {
 		super(activityNumber, opNumber, oldServiceNumber);

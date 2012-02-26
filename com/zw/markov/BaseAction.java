@@ -1,6 +1,6 @@
 package com.zw.markov;
 
-public class BaseAction {
+public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 	public BaseAction(int activityNumber, int opNumber, int oldServiceNumber) {
 		this.currActivityNumber = activityNumber;
 		this.opNumber = opNumber;
