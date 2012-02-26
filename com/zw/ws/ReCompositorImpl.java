@@ -28,9 +28,13 @@ public class ReCompositorImpl extends ActivityFlow implements ReCompositor{
 			AtomService failedService = state.getActivity(ano).getBlindService();
 			if (isReplacedRandom()) {
 				AtomService service = state.getFreeServiceFinder().nextFreeService(ano);
+				if (service == null) {
+					break;
+				}
 				AtomService replaceService = service;
 				oldNewReplaceServiceMap.put(failedService, replaceService);
 				stateNew.getActivity(ano).setBlindService(service);
+				//System.out.println("blindService:" + stateNew.getActivity(ano).getBlindService());
 			} else {
 				break;
 			}
@@ -39,7 +43,9 @@ public class ReCompositorImpl extends ActivityFlow implements ReCompositor{
 				queue.offer(i);
 			}
 		}
-		
+		if (state.equals(stateNew)) {
+			return null;
+		}
 		return stateNew;
 	}
 

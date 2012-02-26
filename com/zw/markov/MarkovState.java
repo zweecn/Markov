@@ -150,7 +150,10 @@ public class MarkovState extends ActivityFlow {
 		case MarkovInfo.A_RE_COMPOSITE:
 			if (this.isCurrFailed()) {
 				MarkovState state = reCompositor.recomposite(this);
-				System.out.println("state:" + state);
+				//System.out.println("state:" + state);
+				if (state == null) {
+					return null;
+				}
 				state.init();
 				states.add(state.clone());
 				states.add(state.clone());
@@ -203,6 +206,7 @@ public class MarkovState extends ActivityFlow {
 		res += ", currTimeCost=" + String.format("%7.2f", currTotalTimeCost) + ", nextTimeCost=" 
 				+ String.format("%6.2f", nextStepTimeCost) + " (";
 		for (Activity at : super.activities) {
+			//System.out.println("at:" + at.getBlindService());
 			res += "A" + String.format("%1s", at.getNumber()) + ".s=" + at.getBlindService().getNumber() 
 					+  " x=" + String.format("%5.2f", at.getX()) + ", ";
 		}
@@ -334,7 +338,7 @@ public class MarkovState extends ActivityFlow {
 			if (runActivity.getX() < 0) { //这里是假设只同时出现1个结点故障时
 				replaceNewService = freeServiceFinder.nextFreeService(runActivity.getNumber());
 				if (replaceNewService == null) {
-					System.err.println("Candidate service is all used.");
+					//System.err.println("Candidate service is all used.");
 					return null;
 				}
 				freeServiceFinder.setServiceUsed(replaceNewService.getNumber());
