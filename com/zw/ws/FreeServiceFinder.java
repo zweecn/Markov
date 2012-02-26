@@ -1,7 +1,7 @@
 package com.zw.ws;
 
 public interface FreeServiceFinder {
-	AtomService nextFreeService(int activityNumber);
+	AtomService nextFreeService(Activity activity);
 	void setServiceUsed(int number);
 	double getPosibility();
 	double getTimeCost();

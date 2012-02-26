@@ -257,6 +257,9 @@ public final class MarkovInfo extends Object{
 			
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 			List<MarkovState> states = state.nextStates(MarkovInfo.A_RE_COMPOSITE);
+			if (states == null) {
+				return null;
+			}
 			ReCompositeAction reCompositeAction = new ReCompositeAction(state.getFailedActivity().getNumber(),
 					MarkovInfo.A_RE_COMPOSITE, state.getFailedActivity().getBlindService().getNumber());
 			
@@ -273,7 +276,7 @@ public final class MarkovInfo extends Object{
 			record.setStateBefore(state);
 			record.setStateAfter(states.get(1));
 			record.setAction(reCompositeAction);
-			record.setPosibility(state.getReCompositor().getPosibility());
+			record.setPosibility(1- state.getReCompositor().getPosibility());
 			record.setTimeCost(state.getReCompositor().getTimeCost());
 			record.setPriceCost(state.getReCompositor().getPriceCost());
 			records.add(record);

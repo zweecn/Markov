@@ -19,31 +19,36 @@ public class ReCompositorImpl extends ActivityFlow implements ReCompositor{
 	@Override
 	public MarkovState recomposite(MarkovState state) {
 		oldNewReplaceServiceMap = new HashMap<AtomService, AtomService>();
-		failedActivity = state.getFailedActivity();
-		Queue<Integer> queue = new LinkedList<Integer>();
-		queue.offer(failedActivity.getNumber());
+		if (state.getFailedActivity() == null) {
+			return null;
+		}
+		failedActivity = state.getFailedActivity().clone();
+		
+		Queue<Activity> queue = new LinkedList<Activity>();
+		queue.offer(failedActivity);
 		MarkovState stateNew = state.clone();
 		while (!queue.isEmpty()) {
-			int ano = queue.poll();
-			AtomService failedService = state.getActivity(ano).getBlindService();
+			Activity activity = queue.poll();
+			AtomService failedService = activity.getBlindService();
 			if (isReplacedRandom()) {
-				AtomService service = state.getFreeServiceFinder().nextFreeService(ano);
-				if (service == null) {
+				AtomService replaceService = state.getFreeServiceFinder().nextFreeService(activity);
+				if (replaceService == null) {
 					break;
 				}
-				AtomService replaceService = service;
+				state.getFreeServiceFinder().setServiceUsed(replaceService.getNumber());
+				
 				oldNewReplaceServiceMap.put(failedService, replaceService);
-				stateNew.getActivity(ano).setBlindService(service);
+				stateNew.getActivity(activity.getNumber()).setBlindService(replaceService);
 				//System.out.println("blindService:" + stateNew.getActivity(ano).getBlindService());
 			} else {
 				break;
 			}
 			
-			for (Integer i : state.getSuffixActivityNumbers(ano)) {
-				queue.offer(i);
+			for (Integer i : state.getSuffixActivityNumbers(activity.getNumber())) {
+				queue.offer(state.getActivity(i));
 			}
 		}
-		if (state.equals(stateNew)) {
+		if (oldNewReplaceServiceMap.isEmpty()) {
 			return null;
 		}
 		return stateNew;
@@ -78,7 +83,8 @@ public class ReCompositorImpl extends ActivityFlow implements ReCompositor{
 			while (iter.hasNext()) {
 			    Map.Entry<AtomService, AtomService> entry = iter.next();
 			    timeRes += (entry.getValue().getQos().getExecTime() - entry.getKey().getQos().getExecTime()); 
-			} 
+			}
+			timeRes += failedActivity.getBlindService().getQos().getExecTime() * Math.abs(failedActivity.getX());
 		}
 		return timeRes;
 	}
@@ -86,12 +92,17 @@ public class ReCompositorImpl extends ActivityFlow implements ReCompositor{
 	@Override
 	public double getPriceCost() {
 		double price = 0;
+		//System.out.println("oldNewReplaceServiceMap.size():" + oldNewReplaceServiceMap.size());
 		if (failedActivity != null) {
 			Iterator<Entry<AtomService, AtomService>> iter = oldNewReplaceServiceMap.entrySet().iterator();
 			while (iter.hasNext()) {
 			    Map.Entry<AtomService, AtomService> entry = iter.next();
 			    price += (entry.getValue().getQos().getPrice() - entry.getKey().getQos().getPrice()); 
-			} 
+			    //System.out.println("new=" + entry.getValue().getQos().getPrice() + " old=" + entry.getKey().getQos().getPrice());
+			}
+			price += failedActivity.getBlindService().getQos().getPrice();
+//			System.out.println("failedActivity.getBlindService().getQos().getPrice():" + failedActivity.getBlindService().getQos().getPrice());
+//			System.out.println("failedActivity.getNumber():" + failedActivity.getNumber());
 		}
 		return price;
 	}

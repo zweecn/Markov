@@ -6,8 +6,8 @@ public class FreeServiceFinderImpl extends ActivityFlow implements FreeServiceFi
 	private AtomService serviceNew;
 	
 	@Override
-	public AtomService nextFreeService(int activityNumber) {
-		oldActivity = super.getActivity(activityNumber).clone();
+	public AtomService nextFreeService(Activity activity) {
+		oldActivity = activity.clone();
 		for (int i = 0; i < this.services.size(); i++) {
 			if (this.services.get(i).isFree()) { 
 				//this.services.get(i).setFree(false);  //ERROR
@@ -40,11 +40,16 @@ public class FreeServiceFinderImpl extends ActivityFlow implements FreeServiceFi
 
 	@Override
 	public double getTimeCost() {
+//		System.out.println("serviceNew.getQos().getExecTime():" + serviceNew.getQos().getExecTime());
+//		System.out.println("oldActivity.getBlindService().getQos().getExecTime():" + oldActivity.getBlindService().getQos().getExecTime());
+//		System.out.println(oldActivity.getBlindService().getQos().getExecTime() * Math.abs(oldActivity.getX()) 
+//				+ serviceNew.getQos().getExecTime()
+//				- oldActivity.getBlindService().getQos().getExecTime() + " " + Math.abs(oldActivity.getX()));
 		if (serviceNew != null) {
 			if (Math.abs(oldActivity.getX()) <= 1) {
-				return serviceNew.getQos().getExecTime()
-						+ (Math.abs(oldActivity.getX()) - 1) 
-						* oldActivity.getBlindService().getQos().getExecTime();
+				return (oldActivity.getBlindService().getQos().getExecTime() * Math.abs(oldActivity.getX()) 
+						+ serviceNew.getQos().getExecTime()
+						- oldActivity.getBlindService().getQos().getExecTime());
 			} else {
 				return serviceNew.getQos().getExecTime();
 			}
@@ -59,5 +64,4 @@ public class FreeServiceFinderImpl extends ActivityFlow implements FreeServiceFi
 		}
 		return 0;
 	}
-
 }
