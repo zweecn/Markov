@@ -49,8 +49,8 @@ public class ReplaceAction extends BaseAction{
 		
 		res += "[Action: " + String.format("%-12s", actionText) 
 				+ " Activity " + String.format("%1d", currActivityNumber)
-				+ " (oldService=" + String.format("%2s", oldServiceNumber)
-				+ " newService=" + String.format("%2s", newServiceNumber)
+				+ " (old=" + String.format("%2s", oldServiceNumber)
+				+ " new=" + String.format("%2s", newServiceNumber)
 				+ ")]";
 		
 		return res;

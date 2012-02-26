@@ -58,17 +58,17 @@ public final class MarkovInfo extends Object{
 		terminateActionMap.put(action, terminateActionMap.get(action)+1);
 	}
 	
-	private static boolean isReplaceActionCanDo(ReplaceAction action) {
-		if (replaceActionMap.get(action.getCurrActivityNumber()) == null) {
-			replaceActionMap.put(action.getCurrActivityNumber(), 0);
+	private static boolean isReplaceActionCanDo(int replaceActivityNumber) {
+		if (replaceActionMap.get(replaceActivityNumber) == null) {
+			replaceActionMap.put(replaceActivityNumber, 0);
 			return true;
 		}
-		return replaceActionMap.get(action.getCurrActivityNumber()) < MAX_TERMINATE_COUNT;
+		return replaceActionMap.get(replaceActivityNumber) < MAX_TERMINATE_COUNT;
 	}
 	
-	private static void addReplaceActionUsedCount(BaseAction action) {
-		replaceActionMap.put(action.getCurrActivityNumber(), 
-				replaceActionMap.get(action.getCurrActivityNumber())+1);
+	private static void addReplaceActionUsedCount(int replaceActivityNumber) {
+		replaceActionMap.put(replaceActivityNumber, 
+				replaceActionMap.get(replaceActivityNumber)+1);
 	}
 	
 	public static List<MarkovRecord> noAction(MarkovState state) {
@@ -80,10 +80,6 @@ public final class MarkovInfo extends Object{
 		BaseAction noAction = new BaseAction(state.getNextToDoActivity().getNumber(), 
 				MarkovInfo.A_NO_ACTION, 
 				state.getNextToDoActivity().getBlindService().getNumber());
-//		if (!isActionCanReDo(noAction)) {
-//			return null;
-//		}
-//		addReDoActionUsedCount(noAction);
 		if (state.getCurrGlobalState() == MarkovInfo.S_FAILED) {
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 			MarkovRecord record = new MarkovRecord();
@@ -94,7 +90,6 @@ public final class MarkovInfo extends Object{
 			record.setTimeCost(0);
 			record.setPriceCost(0);
 			records.add(record);
-			//System.out.println("In failed:" + record.toString());
 			return records;
 		} else {
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
@@ -131,7 +126,6 @@ public final class MarkovInfo extends Object{
 		if (!isReDoActionCanDo(redoAction)) {
 			return null;
 		}
-		//System.out.println("IS CURRENT FAILED? " +state.isCurrFailed() + " " + state);
 		if (state.isCurrFailed()) {
 			addReDoActionUsedCount(redoAction);
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
@@ -188,31 +182,29 @@ public final class MarkovInfo extends Object{
 		return records;
 	}
 	
-	
-	// UnFinished!!
 	public static List<MarkovRecord> replace(MarkovState state) {
 		if (state == null || state.isCurrFinished()) {
 			return null;
 		}
 		
-		ReplaceAction replaceAction = new ReplaceAction(state.getFailedActivity().getNumber(), 
-				MarkovInfo.A_REPLACE, state.getFailedActivity().getBlindService().getNumber(),
-				state.getReplaceNewService().getNumber());
-		if (!isReplaceActionCanDo(replaceAction)) {
+		if (!isReplaceActionCanDo(state.getFailedActivity().getNumber())) {
 			return null;
 		}
-		//System.out.println("IS CURRENT FAILED? " +state.isCurrFailed() + " " + state);
 		if (state.isCurrFailed()) {
-			addReplaceActionUsedCount(replaceAction);
+			addReplaceActionUsedCount(state.getFailedActivity().getNumber());
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 			List<MarkovState> states = state.nextStates(MarkovInfo.A_REPLACE);
+			ReplaceAction replaceAction = new ReplaceAction(state.getFailedActivity().getNumber(), 
+					MarkovInfo.A_REPLACE, state.getFailedActivity().getBlindService().getNumber(),
+					state.getReplaceNewService().getNumber());
+			
 			MarkovRecord record = new MarkovRecord();
 			record.setStateBefore(state);
 			record.setStateAfter(states.get(0));
 			record.setAction(replaceAction);
-			record.setPosibility(state.getNextToDoActivity().getBlindService().getQos().getReliability());
-			record.setTimeCost(Math.abs(state.getNextToDoActivity().getBlindService().getQos().getExecTime()
-					*state.getNextToDoActivity().getX()));
+			//record.setPosibility(state.getNextToDoActivity().getBlindService().getQos().getReliability());
+			record.setPosibility(state.getReplaceNewService().getQos().getReliability());
+			record.setTimeCost(state.getReplaceNewService().getQos().getExecTime());
 			record.setPriceCost(state.getReplaceNewService().getQos().getPrice());
 			records.add(record);
 
@@ -220,9 +212,8 @@ public final class MarkovInfo extends Object{
 			record.setStateBefore(state);
 			record.setStateAfter(states.get(1));
 			record.setAction(replaceAction);
-			record.setPosibility(1 - state.getNextToDoActivity().getBlindService().getQos().getReliability());
-			record.setTimeCost(Math.abs(state.getNextToDoActivity().getBlindService().getQos().getExecTime()
-					*state.getNextToDoActivity().getX()));
+			record.setPosibility(1 - state.getReplaceNewService().getQos().getReliability());
+			record.setTimeCost(state.getReplaceNewService().getQos().getExecTime());
 			record.setPriceCost(state.getReplaceNewService().getQos().getPrice());
 			records.add(record);
 

@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.List;
 import com.zw.ws.Activity;
 import com.zw.ws.AtomService;
+import com.zw.ws.FreeServiceFinder;
+import com.zw.ws.FreeServiceFinderImpl;
 import com.zw.ws.ServiceFlow;
 
 public class MarkovState extends ServiceFlow {
@@ -26,7 +28,7 @@ public class MarkovState extends ServiceFlow {
 		currFailed = false;
 
 		currFinished = true;
-		nextStepTimeCost = Double.MAX_VALUE;
+		nextStepTimeCost = -1;
 		nextToDoActivities = new ArrayList<Activity>();
 		for (int i = 0; i < super.getActivitySize(); i++) {
 			if (super.activities.get(i).getX() < 1) {
@@ -46,7 +48,7 @@ public class MarkovState extends ServiceFlow {
 				} else {
 					timeCostTemp = super.activities.get(i).getBlindService().getQos().getExecTime();
 				}
-				if (nextStepTimeCost > timeCostTemp) {
+				if (nextStepTimeCost > timeCostTemp || nextStepTimeCost == -1) {
 					nextStepTimeCost = timeCostTemp;
 					nextToDoActivity = super.activities.get(i);
 				}
@@ -303,43 +305,29 @@ public class MarkovState extends ServiceFlow {
 	}
 
 	private List<MarkovState> aStepReplace(List<MarkovState> states) {
-		//replaceNewService = this.getFreeService();
 		replaceNewService = freeServiceFinder.nextFreeService();
+		freeServiceFinder.setServiceUsed(replaceNewService.getNumber());
 		for (Activity at : this.nextToDoActivities) {
-			for (int i = 0; i < states.size(); i++) {
-				Activity runActivity = states.get(i).getActivity(at.getNumber());
-				if (runActivity.getX() < 0) {
-					runActivity.setBlindService(replaceNewService);
-				}
-				runActivity.addX(nextStepTimeCost / runActivity.getBlindService().getQos().getExecTime());
+			Activity runActivity = states.get(0).getActivity(at.getNumber());
+			if (runActivity.getX() < 0) { //这里是假设只同时出现1个结点故障时
+				states.get(0).getActivity(at.getNumber()).setBlindService(replaceNewService);
+				states.get(0).getActivity(at.getNumber()).setX(1);
+				states.get(0).addCurrTotalTimeCost(replaceNewService.getQos().getExecTime());
+				states.get(1).getActivity(at.getNumber()).setBlindService(replaceNewService);
+				states.get(1).getActivity(at.getNumber()).setX(-1);
+				states.get(1).addCurrTotalTimeCost(replaceNewService.getQos().getExecTime());
+				break;
 			}
 		}
-		states.get(0).addCurrTotalTimeCost(nextStepTimeCost);
-		
-		states.get(1).addCurrTotalTimeCost(nextStepTimeCost);
-		states.get(1).getActivity(this.nextToDoActivity.getNumber()).setX(-1); //Mark
 		for (int i = 0; i < states.size(); i++) {
 			states.get(i).init();
 		}
-		
+		//System.out.println("states:" + states);
 		return states;
 	}
 	
-	//保留接口
-	private AtomService getFreeService() {
-		for (int i = 0; i < super.services.size(); i++) {
-			//System.out.print(services.get(i).isFree() + " ");
-			if (super.services.get(i).isFree()) {
-				super.services.get(i).setFree(false);
-				return super.services.get(i);
-			}
-		}
-		//System.out.println();
-		return null;
-	}
-	
 	public AtomService getReplaceNewService() {
-		return replaceNewService;
+		return (replaceNewService);
 	}
 	
 	private boolean isPrefixActivitiesFinished(int currActivityNumber) {

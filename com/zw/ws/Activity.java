@@ -48,8 +48,8 @@ public class Activity {
 	}
 	
 	public void addX(double x) {
-		if (this.x >= 0) {
-			this.x = (this.x + x >= 1 ? 1 : this.x + x);
+		if (this.x >= 0 || x > 1) {
+			this.x = ((this.x + x) >= 1 ? 1 : this.x + x);
 		} else {
 			this.x = x;
 		}
@@ -74,19 +74,7 @@ public class Activity {
 		return activityTemp;
 	}
 	
-	
-//	public int getRedoCount() {
-//		return redoCount;
-//	}
-//
-//	public void setRedoCount(int redoCount) {
-//		this.redoCount = redoCount;
-//	}
-//	
-//	public void addRedoCount() {
-//		this.redoCount++;
-//	}
-	
+
 	public int getReplaceCount() {
 		return replaceCount;
 	}
