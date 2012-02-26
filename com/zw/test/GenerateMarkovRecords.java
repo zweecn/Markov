@@ -34,6 +34,7 @@ public class GenerateMarkovRecords {
 		queue.offer(state);
 		while (!queue.isEmpty()) {
 			state = queue.poll();
+			//System.out.println("\nSTATE:" + state);
 			records = MarkovInfo.terminate(state);
 			printRecord();
 			records = MarkovInfo.noAction(state);
@@ -42,17 +43,7 @@ public class GenerateMarkovRecords {
 			printRecord();
 			records = MarkovInfo.replace(state);  //Without replace, count is 39
 			printRecord();
-			
-			
-//			if (state.isCurrFailed() ) {//&& state.getReplaceNewActivity()!=null && state.getReplaceNewActivity().getReplaceCount() < MarkovInfo.MAX_REPLACE_COUNT)  {
-//				//System.out.println("In if.");
-//				records = MarkovInfo.replace(state);
-//				printRecord();
-//			}
-			//System.out.println(queue);
-			
-			//System.out.println(state.isCurrFailed() + " " + state.getFailedActivity().getRedoCount());
-			
+			//System.out.println("-------------------------");
 		} 
 		writer.close();
 	}

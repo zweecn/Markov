@@ -63,7 +63,7 @@ public final class MarkovInfo extends Object{
 			replaceActionMap.put(replaceActivityNumber, 0);
 			return true;
 		}
-		return replaceActionMap.get(replaceActivityNumber) < MAX_TERMINATE_COUNT;
+		return replaceActionMap.get(replaceActivityNumber) < MAX_REPLACE_COUNT;
 	}
 	
 	private static void addReplaceActionUsedCount(int replaceActivityNumber) {
