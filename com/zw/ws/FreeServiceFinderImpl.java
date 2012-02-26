@@ -10,7 +10,6 @@ public class FreeServiceFinderImpl extends ActivityFlow implements FreeServiceFi
 		oldActivity = activity.clone();
 		for (int i = 0; i < this.services.size(); i++) {
 			if (this.services.get(i).isFree()) { 
-				//this.services.get(i).setFree(false);  //ERROR
 				return serviceNew = this.services.get(i);
 			}
 		}
@@ -40,11 +39,6 @@ public class FreeServiceFinderImpl extends ActivityFlow implements FreeServiceFi
 
 	@Override
 	public double getTimeCost() {
-//		System.out.println("serviceNew.getQos().getExecTime():" + serviceNew.getQos().getExecTime());
-//		System.out.println("oldActivity.getBlindService().getQos().getExecTime():" + oldActivity.getBlindService().getQos().getExecTime());
-//		System.out.println(oldActivity.getBlindService().getQos().getExecTime() * Math.abs(oldActivity.getX()) 
-//				+ serviceNew.getQos().getExecTime()
-//				- oldActivity.getBlindService().getQos().getExecTime() + " " + Math.abs(oldActivity.getX()));
 		if (serviceNew != null) {
 			if (Math.abs(oldActivity.getX()) <= 1) {
 				return (oldActivity.getBlindService().getQos().getExecTime() * Math.abs(oldActivity.getX()) 

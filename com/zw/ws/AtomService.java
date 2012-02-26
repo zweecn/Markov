@@ -16,16 +16,8 @@ public class AtomService{
 
 	public AtomService clone() {
 		AtomService serviceTemp = new AtomService(number, qos.clone());
-		
-//		System.out.println("\n1 In AtomService.clone(), this:" + this.hashCode() + " new:" + serviceTemp.hashCode() + "\n");
 		serviceTemp.redoCount = this.redoCount;
 		serviceTemp.free = this.free;
-		
-//		System.out.println("2 In AtomService.clone(), this:" + this.hashCode() + " new:" + serviceTemp.hashCode() + "\n");
-		
-//		this.setNumber(11);
-//		System.out.println(this.getNumber() + " " + serviceTemp.getNumber());
-		
 		return serviceTemp;
 	}
 	

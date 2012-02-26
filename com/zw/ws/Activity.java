@@ -61,16 +61,11 @@ public class Activity {
 	
 	public Activity clone() {
 		Activity activityTemp = new Activity();
-		//System.out.println("Before activityTemp:" + activityTemp + "\t this:" + this);
 		activityTemp.x = this.x;
 		activityTemp.blindService = this.blindService.clone();
 		activityTemp.number = this.number;
 		activityTemp.redoCount = this.redoCount;
 		activityTemp.replaceCount = this.replaceCount;
-				
-		//System.out.println("After activityTemp:" + activityTemp + "\t this:" + this);
-		//System.out.println();
-		
 		return activityTemp;
 	}
 	

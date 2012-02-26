@@ -34,20 +34,17 @@ public class GenerateMarkovRecords {
 		queue.offer(state);
 		while (!queue.isEmpty()) {
 			state = queue.poll();
-			//System.out.println("\nSTATE:" + state);
 			records = Markov.terminate(state);
 			printRecord();
 			records = Markov.noAction(state);
 			printRecord();
 			records = Markov.redo(state);
 			printRecord();
-			records = Markov.replace(state);  //Without replace, count is 39
+			records = Markov.replace(state);  
 			printRecord();
 			
 			records = Markov.reComposite(state);
 			printRecord();
-			
-			//System.out.println("-------------------------");
 			
 		} 
 		writer.close();

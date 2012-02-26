@@ -33,7 +33,6 @@ public class MarkovState extends ActivityFlow {
 	
 	public MarkovState init() {
 		nextToDoActivity = null;
-		//System.out.println("before init, nextToDoActivity:" + nextToDoActivity);
 		currFailed = false;
 
 		currFinished = true;
@@ -55,8 +54,6 @@ public class MarkovState extends ActivityFlow {
 					timeCostTemp = (1 - super.activities.get(i).getX())
 						* super.activities.get(i).getBlindService().getQos().getExecTime();
 				} else {
-//					System.out.println(this.getId());
-//					System.out.println(super.activities.get(i).getNumber());
 					timeCostTemp = super.activities.get(i).getBlindService().getQos().getExecTime();
 				}
 				if (nextStepTimeCost > timeCostTemp || nextStepTimeCost == -1) {
@@ -135,7 +132,6 @@ public class MarkovState extends ActivityFlow {
 			return states;
 		case Markov.A_RE_DO:
 			if (this.isCurrFailed()) {
-				//this.getFailedActivity().addRedoCount();
 				states.add(this.clone());
 				states.add(this.clone());
 				states = aStepReDo(states);
@@ -207,7 +203,6 @@ public class MarkovState extends ActivityFlow {
 		}
 		res += " [";
 		for (Activity at : super.activities) {
-			//System.out.println("at:" + at.getBlindService());
 			res += "(A" + String.format("%1s", at.getNumber()) + ".s=" + at.getBlindService().getNumber() 
 					+  " x=" + String.format("%5.2f", at.getX()) + ") ";
 		}
@@ -361,7 +356,6 @@ public class MarkovState extends ActivityFlow {
 		for (int i = 0; i < states.size(); i++) {
 			states.get(i).init();
 		}
-		//System.out.println("states:" + states);
 		return states;
 	}
 	
