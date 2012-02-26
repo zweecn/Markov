@@ -47,11 +47,17 @@ public class ReplaceAction extends BaseAction{
 			break;
 		}
 		
+//		res += "[Action: " + String.format("%-12s", actionText) 
+//				+ " Activity " + String.format("%1d", currActivityNumber)
+//				+ " (old=" + String.format("%2s", oldServiceNumber)
+//				+ " new=" + String.format("%2s", newServiceNumber)
+//				+ ")]";
+		
+		String oldNew = " (old=" + oldServiceNumber + " new=" + newServiceNumber +")"; 
 		res += "[Action: " + String.format("%-12s", actionText) 
 				+ " Activity " + String.format("%1d", currActivityNumber)
-				+ " (old=" + String.format("%2s", oldServiceNumber)
-				+ " new=" + String.format("%2s", newServiceNumber)
-				+ ")]";
+				+ String.format("%-23s", oldNew)
+				+ "]";
 		
 		return res;
 	}

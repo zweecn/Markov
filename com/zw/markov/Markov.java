@@ -253,6 +253,7 @@ public final class Markov extends Object{
 			}
 			ReCompositeAction reCompositeAction = new ReCompositeAction(state.getFailedActivity().getNumber(),
 					Markov.A_RE_COMPOSITE, state.getFailedActivity().getBlindService().getNumber());
+			reCompositeAction.setOldNewReplaceServiceMap(state.getReCompositor().getOldNewReplaceMap());
 			
 			MarkovRecord record = new MarkovRecord();
 			record.setStateBefore(state);

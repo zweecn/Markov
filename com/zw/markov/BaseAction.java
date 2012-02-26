@@ -46,13 +46,11 @@ public class BaseAction {
 		default:
 			break;
 		}
-		
+		String oldNew = " (old=" + oldServiceNumber + " new=" + oldServiceNumber +")"; 
 		res += "[Action: " + String.format("%-12s", actionText) 
-				+  " Activity " + String.format("%1d", currActivityNumber) 
-				+ " (old=" + String.format("%2s", oldServiceNumber) 
-				+ " new=" + String.format("%2s", oldServiceNumber) 
-				+ ")]";
-		
+				+ " Activity " + String.format("%1d", currActivityNumber)
+				+ String.format("%-23s", oldNew)
+				+ "]";
 		return res;
 	}
 
