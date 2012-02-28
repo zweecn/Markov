@@ -127,6 +127,8 @@ public class MarkovState extends ActivityFlow {
 			} else {
 				states.add(this.clone());
 				states.add(this.clone());
+//				System.out.println("clone 1:" + states.get(0));
+//				System.out.println("clone 2:" + states.get(1));
 				states = aStepNoAction(states);
 			}
 			return states;
@@ -386,6 +388,32 @@ public class MarkovState extends ActivityFlow {
 
 	public ReCompositor getReCompositor() {
 		return reCompositor;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int) (id ^ (id >>> 32));
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof MarkovState)) {
+			return false;
+		}
+		MarkovState other = (MarkovState) obj;
+		if (id != other.id) {
+			return false;
+		}
+		return true;
 	}
 	
 }

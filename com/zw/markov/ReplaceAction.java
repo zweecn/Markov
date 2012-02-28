@@ -46,13 +46,7 @@ public class ReplaceAction extends BaseAction implements MarkovAction{
 		default:
 			break;
 		}
-		
-//		res += "[Action: " + String.format("%-12s", actionText) 
-//				+ " Activity " + String.format("%1d", currActivityNumber)
-//				+ " (old=" + String.format("%2s", oldServiceNumber)
-//				+ " new=" + String.format("%2s", newServiceNumber)
-//				+ ")]";
-		
+				
 		String oldNew = " (old=" + oldServiceNumber + " new=" + newServiceNumber +")"; 
 		res += "[Action: " + String.format("%-12s", actionText) 
 				+ " Activity " + String.format("%1d", currActivityNumber)
