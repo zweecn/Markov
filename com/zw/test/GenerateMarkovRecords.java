@@ -2,6 +2,7 @@ package com.zw.test;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,11 +12,13 @@ import java.util.Set;
 import com.zw.markov.Markov;
 import com.zw.markov.MarkovRecord;
 import com.zw.markov.MarkovState;
+import com.zw.markov.alg.BackwardIteration;
 
 public class GenerateMarkovRecords {
 	static Queue<MarkovState> queue = new LinkedList<MarkovState>();
 	static Set<MarkovState> stateSet = new HashSet<MarkovState>();
-	static List<MarkovRecord> records = null;
+	static List<MarkovRecord> records;
+	static List<MarkovRecord> totalRecords;
 	static int count;
 	static FileWriter writer;
 	
@@ -24,6 +27,7 @@ public class GenerateMarkovRecords {
 	public static void main(String[] args) throws IOException {
 		writer = new FileWriter(LOG_FILE_NAME);
 		MarkovState state = new MarkovState();
+		totalRecords = new ArrayList<MarkovRecord>();
 		//state.printFlow();
 		state.setCurrGlobalState(Markov.S_UNKNOWN);
 		state.getActivity(0).setX(-1);
@@ -48,10 +52,13 @@ public class GenerateMarkovRecords {
 			
 		} 
 		writer.close();
+		BackwardIteration bi = new BackwardIteration(totalRecords);
+		bi.getBestChose();
 	}
 
 	public static void printRecord() throws IOException {
-		if (records != null) {
+		if (records != null && !records.isEmpty()) {
+			totalRecords.addAll(records);
 			for (MarkovRecord rd : records) {
 				System.out.println(String.format("%4s", (++count)) + " " + rd.toString());
 				writer.append(String.format("%4s", (count)) + " " + rd.toString() + "\n");

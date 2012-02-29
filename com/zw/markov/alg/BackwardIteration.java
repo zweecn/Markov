@@ -28,28 +28,30 @@ public class BackwardIteration {
 	
 	public List<MarkovAction> getBestChose() {
 		int timeSize = (int) records.get(records.size()-1).getStateAfter().getCurrTotalTimeCost();
-		int stateSize = (int) states.size();
-		
 		
 		for (int t = (int) timeSize; t >= 0; t--) {
 			for (MarkovState it : states) {
-				if (((int) it.getCurrTotalTimeCost()) == t) {
-					//u[(int) it.getId()] = maxU(it);
-				}
+				u[(int)it.getCurrTotalTimeCost()][(int) it.getId()] = maxU(it);
 			}
 		}
-		
+		System.out.println("maxu:" + u[0][0]);
 		
 		return null;
 	}
 	
 	private double maxU(MarkovState it) {
-		double temp = 0;
+		double temp = 0, res = 0;
 		for (MarkovAction ac : actions) {
-			
+			temp += r[(int) it.getCurrTotalTimeCost()][(int)it.getId()][ac.getId()];
+			for (MarkovRecord rd : records) {
+				temp += rd.getPosibility() * u[(int) it.getCurrTotalTimeCost() + 1][(int)rd.getStateAfter().getId()];
+			}
+			if (res < temp) {
+				res = temp;
+			}
 		}
 		
-		return 0;
+		return res;
 	}
 	
 	
@@ -65,28 +67,33 @@ public class BackwardIteration {
 					n = (int) records.get(i).getStateBefore().getCurrTotalTimeCost();
 				}
 			}
+			
 			if (!states.contains(records.get(i).getStateAfter())) {
 				states.add(records.get(i).getStateAfter());
 				times.add(records.get(i).getStateAfter().getCurrTotalTimeCost());
 				if (n < records.get(i).getStateAfter().getCurrTotalTimeCost()) {
 					n = (int) records.get(i).getStateAfter().getCurrTotalTimeCost();
 				}
-			}
+			} 
+			
 			if (!actions.contains(records.get(i).getAction())) {
 				actions.add(records.get(i).getAction());
 			}
 		}
-		u = new double[n][states.size()]; 
-		a = new MarkovAction[n][states.size()];
-		r = new double[n][states.size()][actions.size()];
+		u = new double[n + 2][(int) records.get(records.size()-1).getStateAfter().getId() + 1]; 
+		a = new MarkovAction[n + 1][(int) records.get(records.size()-1).getStateAfter().getId() + 1];
+		r = new double[n + 1][(int) records.get(records.size()-1).getStateAfter().getId() + 1][records.get(records.size()-1).getAction().getId() + 1];
+		System.out.println("u.length " + u.length + " u[0].length " + u[0].length);
+		System.out.println("a.length " + a.length + " a[0].length " + a[0].length);
+		System.out.println("r.length " + r.length + " r[0].length " + r[0].length + " r[0][0].length " + r[0][0].length);
 		for (MarkovRecord rd : records) {
-			u[(int) rd.getStateBefore().getCurrTotalTimeCost()][(int) rd.getStateBefore().getId()] 
+			r[(int) rd.getStateBefore().getCurrTotalTimeCost()][(int) rd.getStateBefore().getId()][rd.getAction().getId()]
 				= this.mergeTimeAndCost(rd.getTimeCost(), rd.getPriceCost());
 		}
 		
 	}
 	
 	public double mergeTimeAndCost(double time, double cost) {
-		return time * cost / 1000;
+		return cost * time / 1000;
 	}
 }

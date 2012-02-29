@@ -5,7 +5,9 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 		this.currActivityNumber = activityNumber;
 		this.opNumber = opNumber;
 		this.oldServiceNumber = oldServiceNumber;
+		this.id = this.id + 1;
 	}
+	private static int id;
 	
 	protected int currActivityNumber;
 	protected int opNumber;
@@ -47,7 +49,7 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 			break;
 		}
 		String oldNew = " (old=" + oldServiceNumber + " new=" + oldServiceNumber +")"; 
-		res += "[Action: " + String.format("%-12s", actionText) 
+		res += "[Action: " +  String.format("%2d", getId()) + " " + String.format("%-12s", actionText) 
 				+ " Activity " + String.format("%1d", currActivityNumber)
 				+ String.format("%-23s", oldNew)
 				+ "]";
@@ -86,5 +88,10 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public int getId() {
+		return id;
 	}
 }
