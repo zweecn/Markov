@@ -1,7 +1,9 @@
 package com.zw.markov.alg;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.zw.markov.MarkovAction;
@@ -11,9 +13,11 @@ import com.zw.markov.MarkovState;
 public class BackwardIteration {
 	List<MarkovRecord> records;
 	Set<MarkovState> states;
-	Set<MarkovAction> actions;
+//	Set<MarkovAction> actions;
 	Set<Double> times;
-	
+	Map<MarkovAction, Integer> actionMap;
+	Map<Double, Integer> timeMap;
+	Map<MarkovState, List<MarkovAction>> statesActionMap;
 	MarkovAction[][] a;
 	double[][] u;
 	double[][][] r;
@@ -65,51 +69,77 @@ public class BackwardIteration {
 	
 	private void init() {
 		states = new HashSet<MarkovState>();
-		actions = new HashSet<MarkovAction>();
+//		actions = new HashSet<MarkovAction>();
 		times = new HashSet<Double>();
+		actionMap = new HashMap<MarkovAction, Integer>();
+		timeMap = new HashMap<Double, Integer>();
+		
+		int tCount = 0, aCount = 0;
 		for (int i = 0; i < records.size(); i++) {
 			if (!states.contains(records.get(i).getStateBefore())) {
 				states.add(records.get(i).getStateBefore());
 				times.add(records.get(i).getStateBefore().getCurrTotalTimeCost());
-				if (n < records.get(i).getStateBefore().getCurrTotalTimeCost()) {
-					n = (int) records.get(i).getStateBefore().getCurrTotalTimeCost();
-				}
-				System.out.println("before, state.size=" + states.size() + " " + records.get(i).getStateBefore());
+//				if (n < records.get(i).getStateBefore().getCurrTotalTimeCost()) {
+//					n = (int) records.get(i).getStateBefore().getCurrTotalTimeCost();
+//				}
+				//timeMap.put(records.get(i).getStateBefore().getCurrTotalTimeCost(), tCount++);
 			}
 			
 			if (!states.contains(records.get(i).getStateAfter())) {
-				int before = states.size();
-				System.out.println("before add, state.size=" + states.size() + " " + records.get(i).getStateAfter());
-
-				
 				states.add(records.get(i).getStateAfter());
 				times.add(records.get(i).getStateAfter().getCurrTotalTimeCost());
-				if (n < records.get(i).getStateAfter().getCurrTotalTimeCost()) {
-					n = (int) records.get(i).getStateAfter().getCurrTotalTimeCost();
-				}
-				if (states.size() == before) {
-					System.err.println(before + " "  + records.get(i).getStateAfter());
-				}
-				System.out.println(" after add, state.size=" + states.size());
-				System.out.println();
+//				if (n < records.get(i).getStateAfter().getCurrTotalTimeCost()) {
+//					n = (int) records.get(i).getStateAfter().getCurrTotalTimeCost();
+//				}
+				//timeMap.put(records.get(i).getStateAfter().getCurrTotalTimeCost(), tCount++);
 			} 
 			
-			if (!actions.contains(records.get(i).getAction())) {
-				actions.add(records.get(i).getAction());
+			if (timeMap.get(records.get(i).getStateBefore().getCurrTotalTimeCost()) == null) {
+				timeMap.put(records.get(i).getStateBefore().getCurrTotalTimeCost(), tCount++);
+			}
+			
+			if (timeMap.get(records.get(i).getStateAfter().getCurrTotalTimeCost()) == null) {
+				timeMap.put(records.get(i).getStateAfter().getCurrTotalTimeCost(), tCount++);
+			}
+			
+			
+//			if (!actions.contains(records.get(i).getAction())) {
+//				actions.add(records.get(i).getAction());
+//				actionMap.put(records.get(i).getAction(), aCount++);
+//			}
+			if (actionMap.get(records.get(i).getAction()) == null) {
+				actionMap.put(records.get(i).getAction(), aCount++);
 			}
 		}
+//		int aCount = 0;
+//		for (MarkovAction ac : actions) {
+//			actionMap.put(ac, aCount++);
+//		}
 		
-		System.out.println("state.size()=" + states.size());
+		System.out.println("timeMap.size=" + timeMap.size());
+		System.out.println("state.size=" + states.size());
+		System.out.println("actionMap.size=" + actionMap.size());
 		
-		u = new double[n + 1][(int) records.get(records.size()-1).getStateAfter().getId() + 1]; 
-		a = new MarkovAction[n + 1][(int) records.get(records.size()-1).getStateAfter().getId() + 1];
-		r = new double[n + 1][(int) records.get(records.size()-1).getStateAfter().getId() + 1][records.get(records.size()-1).getAction().getId() + 1];
+		n = timeMap.size();
+		//u = new double[n + 1][(int) records.get(records.size()-1).getStateAfter().getId() + 1]; 
+		u = new double[n + 1][states.size() + 1]; 
+		a = new MarkovAction[n + 1][states.size() + 1];
+		r = new double[n + 1][states.size() + 1][actionMap.size() + 1];
+//		r = new double[n + 1][states.size() + 1][records.get(records.size()-1).getAction().getId() + 1];
 //		System.out.println("u.length " + u.length + " u[0].length " + u[0].length);
 //		System.out.println("a.length " + a.length + " a[0].length " + a[0].length);
 //		System.out.println("r.length " + r.length + " r[0].length " + r[0].length + " r[0][0].length " + r[0][0].length);
 		for (MarkovRecord rd : records) {
-			r[(int) rd.getStateBefore().getCurrTotalTimeCost()][(int) rd.getStateBefore().getId()][rd.getAction().getId()]
-				= this.mergeTimeAndCost(rd.getTimeCost(), rd.getPriceCost());
+//			r[(int) rd.getStateBefore().getCurrTotalTimeCost()][(int) rd.getStateBefore().getId()][rd.getAction().getId()]
+//				= this.mergeTimeAndCost(rd.getTimeCost(), rd.getPriceCost());
+			System.out.println();
+			int t = timeMap.get(rd.getStateBefore().getCurrTotalTimeCost());
+			int it = (int) rd.getStateBefore().getId();
+			int a = actionMap.get(rd.getAction());
+			System.out.println(t);
+			System.out.println(it);
+			System.out.println(a);
+			r[t][it][a] = this.mergeTimeAndCost(rd.getTimeCost(), rd.getPriceCost());
 		}
 		
 	}

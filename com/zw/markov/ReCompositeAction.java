@@ -46,8 +46,6 @@ public class ReCompositeAction extends BaseAction implements MarkovAction {
 			break;
 		}
 		
-	
-		
 		Iterator<Entry<AtomService, AtomService>> iter = oldNewReplaceServiceMap.entrySet().iterator();
 		String oldString = " (old=";
 		String newString = "new=";
@@ -65,5 +63,39 @@ public class ReCompositeAction extends BaseAction implements MarkovAction {
 				+ "]";
 		
 		return res;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime
+				* result
+				+ ((oldNewReplaceServiceMap == null) ? 0
+						: oldNewReplaceServiceMap.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof ReCompositeAction)) {
+			return false;
+		}
+		ReCompositeAction other = (ReCompositeAction) obj;
+		if (oldNewReplaceServiceMap == null) {
+			if (other.oldNewReplaceServiceMap != null) {
+				return false;
+			}
+		} else if (!oldNewReplaceServiceMap
+				.equals(other.oldNewReplaceServiceMap)) {
+			return false;
+		}
+		return true;
 	}
 }

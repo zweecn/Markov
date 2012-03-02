@@ -55,6 +55,36 @@ public class ReplaceAction extends BaseAction implements MarkovAction{
 		
 		return res;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + newServiceNumber;
+		result = prime * result + oldServiceNumber;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof ReplaceAction)) {
+			return false;
+		}
+		ReplaceAction other = (ReplaceAction) obj;
+		if (newServiceNumber != other.newServiceNumber) {
+			return false;
+		}
+		if (oldServiceNumber != other.oldServiceNumber) {
+			return false;
+		}
+		return true;
+	}
 	
 	
 }

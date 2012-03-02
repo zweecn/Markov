@@ -5,9 +5,9 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 		this.currActivityNumber = activityNumber;
 		this.opNumber = opNumber;
 		this.oldServiceNumber = oldServiceNumber;
-		this.id = this.id + 1;
+		BaseAction.id ++;
 	}
-	private static int id;
+	private static int id = 0;
 	
 	protected int currActivityNumber;
 	protected int opNumber;
@@ -90,7 +90,6 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 		return true;
 	}
 
-	@Override
 	public int getId() {
 		return id;
 	}
