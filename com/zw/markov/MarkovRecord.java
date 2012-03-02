@@ -9,42 +9,16 @@ public class MarkovRecord {
 	private double priceCost;
 	private double timeCost;
 	
-	public MarkovState getStateBefore() {
-		return stateBefore;
-	}
-	public void setStateBefore(MarkovState stateBefore) {
+	public MarkovRecord(MarkovState stateBefore, MarkovState stateAfter, 
+			MarkovAction action, double posibility, double priceCost, double timeCost) {
 		this.stateBefore = stateBefore;
-	}
-	public MarkovState getStateAfter() {
-		return stateAfter;
-	}
-	public void setStateAfter(MarkovState stateAfter) {
 		this.stateAfter = stateAfter;
-	}
-	public MarkovAction getAction() {
-		return action;
-	}
-	public void setAction(MarkovAction action) {
 		this.action = action;
-	}
-	public double getPosibility() {
-		return posibility;
-	}
-	public void setPosibility(double posibility) {
 		this.posibility = posibility;
-	}
-	public double getPriceCost() {
-		return priceCost;
-	}
-	public void setPriceCost(double priceCost) {
 		this.priceCost = priceCost;
-	}
-	public double getTimeCost() {
-		return timeCost;
-	}
-	public void setTimeCost(double timeCost) {
 		this.timeCost = timeCost;
 	}
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -117,5 +91,23 @@ public class MarkovRecord {
 				+ " [Posibility: " + String.format("%4.2f", posibility) + "] || [Time_cost: " 
 				+ String.format("%6.2f", timeCost)  + "] || [Price_cost:" + String.format("%6.1f", priceCost) + "]";
 		return res;
+	}
+	public MarkovState getStateBefore() {
+		return stateBefore;
+	}
+	public MarkovState getStateAfter() {
+		return stateAfter;
+	}
+	public MarkovAction getAction() {
+		return action;
+	}
+	public double getPosibility() {
+		return posibility;
+	}
+	public double getPriceCost() {
+		return priceCost;
+	}
+	public double getTimeCost() {
+		return timeCost;
 	}
 }

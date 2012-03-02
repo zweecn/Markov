@@ -81,6 +81,7 @@ public final class Markov extends Object{
 	}
 	
 	public static List<MarkovRecord> noAction(MarkovState state) {
+		//System.out.println("In noAction:" + state.getId());
 		if (state == null || state.getCurrGlobalState() == Markov.S_SUCCEED
 				|| state.isCurrFinished()) {
 			return null;
@@ -90,37 +91,20 @@ public final class Markov extends Object{
 				Markov.A_NO_ACTION, 
 				state.getNextToDoActivity().getBlindService().getNumber());
 		if (state.getCurrGlobalState() == Markov.S_FAILED) {
+			//System.out.println("state:" + state);
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
-			MarkovRecord record = new MarkovRecord();
-			record.setStateBefore(state);
-			record.setStateAfter(state);
-			record.setAction(noAction);
-			record.setPosibility(1);
-			record.setTimeCost(0);
-			record.setPriceCost(0);
-			records.add(record);
+
+			records.add(new MarkovRecord(state, state, noAction, 1, 0, 0));
 			return records;
 		} else {
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 			List<MarkovState> states = state.nextStates(Markov.A_NO_ACTION);
-			MarkovRecord record = new MarkovRecord();
-			record.setStateBefore(state);
-			record.setStateAfter(states.get(0));
-			record.setAction(noAction);
-			record.setPosibility(state.getNextToDoActivity().getBlindService().getQos().getReliability());
-			record.setTimeCost(0);
-			record.setPriceCost(0);
-			records.add(record);
 
-			record = new MarkovRecord();
-			record.setStateBefore(state);
-			record.setStateAfter(states.get(1));
-			record.setAction(noAction);
-			record.setPosibility(1 - state.getNextToDoActivity().getBlindService().getQos().getReliability());
-			record.setTimeCost(0);
-			record.setPriceCost(0);
-			records.add(record);
-
+			records.add(new MarkovRecord(state, states.get(0), noAction, 
+					state.getNextToDoActivity().getBlindService().getQos().getReliability(), 0, 0));
+			records.add(new MarkovRecord(state, states.get(1), noAction, 
+					1 - state.getNextToDoActivity().getBlindService().getQos().getReliability(), 0, 0));
+			
 			return records;
 		}
 	}
@@ -139,26 +123,15 @@ public final class Markov extends Object{
 			addReDoActionUsedCount(redoAction);
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 			List<MarkovState> states = state.nextStates(Markov.A_RE_DO);
-			MarkovRecord record = new MarkovRecord();
-			record.setStateBefore(state);
-			record.setStateAfter(states.get(0));
-			record.setAction(redoAction);
-			record.setPosibility(state.getFailedActivity().getBlindService().getQos().getReliability());
-			record.setTimeCost(Math.abs(state.getFailedActivity().getBlindService().getQos().getExecTime()
-					*state.getFailedActivity().getX()));
-			record.setPriceCost(state.getFailedActivity().getBlindService().getQos().getPrice());
-			records.add(record);
 
-			record = new MarkovRecord();
-			record.setStateBefore(state);
-			record.setStateAfter(states.get(1));
-			record.setAction(redoAction);
-			record.setPosibility(1 - state.getFailedActivity().getBlindService().getQos().getReliability());
-			record.setTimeCost(Math.abs(state.getFailedActivity().getBlindService().getQos().getExecTime()
-					*state.getFailedActivity().getX()));
-			record.setPriceCost(state.getFailedActivity().getBlindService().getQos().getPrice());
-			records.add(record);
-
+			records.add(new MarkovRecord(state, states.get(0), redoAction, 
+					state.getFailedActivity().getBlindService().getQos().getReliability(),
+					state.getFailedActivity().getBlindService().getQos().getPrice(), 
+					Math.abs(state.getFailedActivity().getBlindService().getQos().getExecTime()*state.getFailedActivity().getX())));
+			records.add(new MarkovRecord(state, states.get(1), redoAction,
+					1 - state.getFailedActivity().getBlindService().getQos().getReliability(), 
+					state.getFailedActivity().getBlindService().getQos().getPrice(), 
+					Math.abs(state.getFailedActivity().getBlindService().getQos().getExecTime()*state.getFailedActivity().getX())));
 			return records;
 			
 		} else {
@@ -178,16 +151,9 @@ public final class Markov extends Object{
 		}
 		addTerminateActionUsedCount(terminateAction);
 		List<MarkovRecord> records = new ArrayList<MarkovRecord>();
-		MarkovRecord record = new MarkovRecord();
-		record.setStateBefore(state);
 		MarkovState stateAfter = state.clone();
 		stateAfter.setCurrGlobalState(S_FAILED);
-		record.setStateAfter(stateAfter);
-		record.setAction(terminateAction);
-		record.setPosibility(1);
-		record.setTimeCost(0);
-		record.setPriceCost(0);
-		records.add(record);
+		records.add(new MarkovRecord(state, stateAfter, terminateAction, 1, 0, 0));
 		return records;
 	}
 	
@@ -209,24 +175,11 @@ public final class Markov extends Object{
 			ReplaceAction replaceAction = new ReplaceAction(state.getFailedActivity().getNumber(), 
 					Markov.A_REPLACE, state.getFailedActivity().getBlindService().getNumber(),
 					state.getReplaceNewService().getNumber());
-			
-			MarkovRecord record = new MarkovRecord();
-			record.setStateBefore(state);
-			record.setStateAfter(states.get(0));
-			record.setAction(replaceAction);
-			record.setPosibility(state.getFreeServiceFinder().getPosibility());
-			record.setTimeCost(state.getFreeServiceFinder().getTimeCost());
-			record.setPriceCost(state.getFreeServiceFinder().getPriceCost());
-			records.add(record);
-
-			record = new MarkovRecord();
-			record.setStateBefore(state);
-			record.setStateAfter(states.get(1));
-			record.setAction(replaceAction);
-			record.setPosibility(1 - state.getFreeServiceFinder().getPosibility());
-			record.setTimeCost(state.getFreeServiceFinder().getTimeCost());
-			record.setPriceCost(state.getFreeServiceFinder().getPriceCost());
-			records.add(record);
+		
+			records.add(new MarkovRecord(state, states.get(0), replaceAction, state.getFreeServiceFinder().getPosibility(),
+					state.getFreeServiceFinder().getPriceCost(), state.getFreeServiceFinder().getTimeCost()));
+			records.add(new MarkovRecord(state, states.get(1), replaceAction, 1 - state.getFreeServiceFinder().getPosibility(),
+					state.getFreeServiceFinder().getPriceCost(), state.getFreeServiceFinder().getTimeCost()));
 
 			return records;
 			
@@ -254,24 +207,11 @@ public final class Markov extends Object{
 			ReCompositeAction reCompositeAction = new ReCompositeAction(state.getFailedActivity().getNumber(),
 					Markov.A_RE_COMPOSITE, state.getFailedActivity().getBlindService().getNumber());
 			reCompositeAction.setOldNewReplaceServiceMap(state.getReCompositor().getOldNewReplaceMap());
-			
-			MarkovRecord record = new MarkovRecord();
-			record.setStateBefore(state);
-			record.setStateAfter(states.get(0));
-			record.setAction(reCompositeAction);
-			record.setPosibility(state.getReCompositor().getPosibility());
-			record.setTimeCost(state.getReCompositor().getTimeCost());
-			record.setPriceCost(state.getReCompositor().getPriceCost());
-			records.add(record);
-
-			record = new MarkovRecord();
-			record.setStateBefore(state);
-			record.setStateAfter(states.get(1));
-			record.setAction(reCompositeAction);
-			record.setPosibility(1- state.getReCompositor().getPosibility());
-			record.setTimeCost(state.getReCompositor().getTimeCost());
-			record.setPriceCost(state.getReCompositor().getPriceCost());
-			records.add(record);
+	
+			records.add(new MarkovRecord(state, states.get(0), reCompositeAction, state.getReCompositor().getPosibility(),
+					state.getReCompositor().getPriceCost(), state.getReCompositor().getTimeCost()));
+			records.add(new MarkovRecord(state, states.get(1), reCompositeAction, 1- state.getReCompositor().getPosibility(),
+					state.getReCompositor().getPriceCost(), state.getReCompositor().getTimeCost()));
 
 			return records;
 			

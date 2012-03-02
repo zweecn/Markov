@@ -25,7 +25,8 @@ public class ReCompositorImpl extends ActivityFlow implements ReCompositor{
 		
 		Queue<Activity> queue = new LinkedList<Activity>();
 		queue.offer(failedActivity);
-		MarkovState stateNew = state.clone();
+		//MarkovState stateNew = state.clone(); //old
+		MarkovState stateNew = state; // New
 		while (!queue.isEmpty()) {
 			Activity activity = queue.poll();
 			AtomService failedService = activity.getBlindService();

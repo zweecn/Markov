@@ -22,14 +22,20 @@ public class MarkovState extends ActivityFlow {
 	public MarkovState(MarkovState state) {
 		super();
 		this.id = MarkovState.getNextFreeStateID();
-		freeServiceFinder = new FreeServiceFinderImpl();
-		reCompositor = new ReCompositorImpl();
+	}
+	
+	public MarkovState(boolean isStore) {
+		super();
 	}
 	
 	private static long freeId;
-	public static long getNextFreeStateID() {
+	private static long getNextFreeStateID() {
 		return freeId++; 
 	}
+	private static void fallbackId(long num) {
+		freeId -= num;
+	}
+	
 	
 	public MarkovState init() {
 		nextToDoActivity = null;
@@ -118,6 +124,12 @@ public class MarkovState extends ActivityFlow {
 		return stateNew;
 	}
 	
+	public MarkovState store() {
+		MarkovState stateNew = this.clone();
+		fallbackId(1);
+		return stateNew;
+	}
+	
 	public List<MarkovState> nextStates(int opNumber) {
 		List<MarkovState> states = new ArrayList<MarkovState>();
 		switch (opNumber) {
@@ -127,8 +139,6 @@ public class MarkovState extends ActivityFlow {
 			} else {
 				states.add(this.clone());
 				states.add(this.clone());
-//				System.out.println("clone 1:" + states.get(0));
-//				System.out.println("clone 2:" + states.get(1));
 				states = aStepNoAction(states);
 			}
 			return states;
@@ -142,6 +152,7 @@ public class MarkovState extends ActivityFlow {
 				return null;
 			}
 		case Markov.A_REPLACE:
+
 			if (this.isCurrFailed()) {
 				states.add(this.clone());
 				states.add(this.clone());
@@ -152,8 +163,9 @@ public class MarkovState extends ActivityFlow {
 			}
 		case Markov.A_RE_COMPOSITE:
 			if (this.isCurrFailed()) {
+				MarkovState stateStore = this.store();
 				MarkovState state = reCompositor.recomposite(this);
-				if (state == null) {
+				if (state == null || stateStore.equals(state)) {
 					return null;
 				}
 				state.init();
@@ -180,6 +192,42 @@ public class MarkovState extends ActivityFlow {
 		return nextToDoActivity;
 	}
 
+//	public String toString() {
+//		String res = "[State " + String.format("%3d", this.id) + ":";
+//		
+//		String stateText = "";
+//		switch (currGlobalState) {
+//		case Markov.S_UNKNOWN:
+//			stateText += "UNKNOW";
+//			break;
+//		case Markov.S_FAILED:
+//			stateText += "FAILED";
+//			break;
+//		case Markov.S_SUCCEED:
+//			stateText += "SUCCEED";
+//			break;
+//		case Markov.S_DELAYED:
+//			stateText += "DELAYED";
+//			break;
+//		case Markov.S_PRICE_UP:
+//			stateText += "PRICE_UP";
+//			break;
+//		default:
+//			break;
+//		}
+//		res += " [";
+//		for (Activity at : super.activities) {
+//			res += "(A" + String.format("%1s", at.getNumber()) + ".s=" + at.getBlindService().getNumber() 
+//					+  " x=" + String.format("%5.2f", at.getX()) + ") ";
+//		}
+//		res = res.trim() + "] Global_state=";
+//		stateText = String.format("%-8s", stateText);
+//		res += stateText + " currTimeCost=" + String.format("%7.2f", currTotalTimeCost) + ", nextTimeCost=" 
+//				+ String.format("%6.2f", nextStepTimeCost);
+//		res = res.trim() + "]";
+//		return res;
+//	}
+
 	public String toString() {
 		String res = "[State " + String.format("%3d", this.id) + ":";
 		
@@ -203,19 +251,12 @@ public class MarkovState extends ActivityFlow {
 		default:
 			break;
 		}
-		res += " [";
-		for (Activity at : super.activities) {
-			res += "(A" + String.format("%1s", at.getNumber()) + ".s=" + at.getBlindService().getNumber() 
-					+  " x=" + String.format("%5.2f", at.getX()) + ") ";
-		}
-		res = res.trim() + "] Global_state=";
+		res += " Global_state=";
 		stateText = String.format("%-8s", stateText);
-		res += stateText + " currTimeCost=" + String.format("%7.2f", currTotalTimeCost) + ", nextTimeCost=" 
-				+ String.format("%6.2f", nextStepTimeCost);
-		res = res.trim() + "]";
+		res = res.trim() + stateText + "]";
 		return res;
 	}
-
+	
 	public int getCurrGlobalState() {
 		return currGlobalState;
 	}
@@ -342,6 +383,7 @@ public class MarkovState extends ActivityFlow {
 				replaceNewService = freeServiceFinder.nextFreeService(runActivity);
 				if (replaceNewService == null) {
 					//System.err.println("Candidate service is all used.");
+					fallbackId(2);
 					return null;
 				}
 				freeServiceFinder.setServiceUsed(replaceNewService.getNumber());

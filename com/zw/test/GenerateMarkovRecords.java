@@ -39,16 +39,16 @@ public class GenerateMarkovRecords {
 		while (!queue.isEmpty()) {
 			state = queue.poll();
 			records = Markov.terminate(state);
-			printRecord();
+			printRecord("Terminate");
 			records = Markov.noAction(state);
-			printRecord();
+			printRecord("No Action");
 			records = Markov.redo(state);
-			printRecord();
+			printRecord("Re do");
 			records = Markov.replace(state);  
-			printRecord();
+			printRecord("Replace");
 			
 			records = Markov.reComposite(state);
-			printRecord();
+			printRecord("Recomposite");
 			
 		} 
 		writer.close();
@@ -56,7 +56,8 @@ public class GenerateMarkovRecords {
 		bi.getBestChose();
 	}
 
-	public static void printRecord() throws IOException {
+	public static void printRecord(String flag) throws IOException {
+		//System.out.println(flag);
 		if (records != null && !records.isEmpty()) {
 			totalRecords.addAll(records);
 			for (MarkovRecord rd : records) {
