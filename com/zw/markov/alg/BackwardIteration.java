@@ -3,8 +3,10 @@ package com.zw.markov.alg;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import com.zw.markov.MarkovAction;
@@ -18,7 +20,7 @@ public class BackwardIteration {
 	Set<Double> times;
 	Map<MarkovAction, Integer> actionMap;
 	Map<Double, Integer> timeMap;
-	Map<MarkovState, List<MarkovAction>> statesActionMap;
+	Map<MarkovState, Set<MarkovAction>> statesActionMap;
 	MarkovAction[][] a;
 	double[][] u;
 	double[][][] r;
@@ -45,7 +47,7 @@ public class BackwardIteration {
 	}
 	
 	private double maxU(MarkovState it) {
-		double temp = 0, res = 0;
+		double temp = 0, res = - Double.MAX_VALUE;
 		MarkovAction resAction = null;
 		for (MarkovAction ac : statesActionMap.get(it)) {
 			temp = r[timeMap.get( it.getCurrTotalTimeCost())][(int)it.getId()][actionMap.get(ac)];
@@ -56,13 +58,15 @@ public class BackwardIteration {
 									[(int)rd.getStateAfter().getId()];
 				}
 			}
+			//System.out.println("temp=" + temp + " res=" + res);
 			if (res < temp) {
 				res = temp;
 				resAction = ac;
+				//System.out.println("IN IF");
 			}
 			
 		}
-
+		System.out.println(it + " " + resAction + " res=" + res);
 		return res;
 	}
 	
@@ -73,7 +77,7 @@ public class BackwardIteration {
 		times = new HashSet<Double>();
 		actionMap = new HashMap<MarkovAction, Integer>();
 		timeMap = new HashMap<Double, Integer>();
-		statesActionMap = new HashMap<MarkovState, List<MarkovAction>>();
+		statesActionMap = new HashMap<MarkovState, Set<MarkovAction>>();
 		int tCount = 0, aCount = 0;
 		for (int i = 0; i < records.size(); i++) {
 			if (!states.contains(records.get(i).getStateBefore())) {
@@ -87,7 +91,7 @@ public class BackwardIteration {
 			} 
 			
 			if (statesActionMap.get(records.get(i).getStateBefore()) == null) {
-				statesActionMap.put(records.get(i).getStateBefore(), new ArrayList<MarkovAction>());
+				statesActionMap.put(records.get(i).getStateBefore(), new HashSet<MarkovAction>());
 			}
 			statesActionMap.get(records.get(i).getStateBefore()).add(records.get(i).getAction());
 			
@@ -104,9 +108,9 @@ public class BackwardIteration {
 			}
 		}
 
-		System.out.println("timeMap.size=" + timeMap.size());
-		System.out.println("state.size=" + states.size());
-		System.out.println("actionMap.size=" + actionMap.size());
+//		System.out.println("timeMap.size=" + timeMap.size());
+//		System.out.println("state.size=" + states.size());
+//		System.out.println("actionMap.size=" + actionMap.size());
 		
 		n = timeMap.size();
 		//u = new double[n + 1][(int) records.get(records.size()-1).getStateAfter().getId() + 1]; 
@@ -120,6 +124,15 @@ public class BackwardIteration {
 			r[t][it][a] = this.mergeTimeAndCost(rd.getTimeCost(), rd.getPriceCost());
 		}
 		
+//		Iterator<Entry<MarkovState, Set<MarkovAction>>> it = statesActionMap.entrySet().iterator();
+//		while (it.hasNext()) {
+//			Entry<MarkovState, Set<MarkovAction>> entry = it.next();
+//			MarkovState state = entry.getKey();
+//			Set<MarkovAction> value = entry.getValue();
+//			System.out.println(state + "\n" + value + "\n");
+//		}
+//		
+//		System.out.println(statesActionMap);
 	}
 	
 	public double mergeTimeAndCost(double time, double cost) {
