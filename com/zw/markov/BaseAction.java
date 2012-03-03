@@ -55,7 +55,7 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 			break;
 		}
 		String oldNew = " (old=" + oldServiceNumber + " new=" + oldServiceNumber +")"; 
-		res += "[Action: " +  String.format("%2d", getId()) + " " + String.format("%-12s", actionText) 
+		res += "[Action: " +  String.format("%3d", getId()) + " " + String.format("%-12s", actionText) 
 				+ " Activity " + String.format("%1d", currActivityNumber)
 				+ String.format("%-23s", oldNew)
 				+ "]";

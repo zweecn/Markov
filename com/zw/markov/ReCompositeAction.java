@@ -57,7 +57,7 @@ public class ReCompositeAction extends BaseAction implements MarkovAction {
 			newString += news + "-";
 		}
 		String oldNew = oldString.substring(0, oldString.length()-1) + " " + newString.substring(0, newString.length()-1) + ")";
-		res += "[Action: " + String.format("%2d", getId()) + " " + String.format("%-12s", actionText) 
+		res += "[Action: " + String.format("%3d", getId()) + " " + String.format("%-12s", actionText) 
 				+  " Activity " + String.format("%1d", currActivityNumber) 
 				+ String.format("%-23s", oldNew)
 				+ "]";
