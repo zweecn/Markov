@@ -192,42 +192,6 @@ public class MarkovState extends ActivityFlow {
 		return nextToDoActivity;
 	}
 
-//	public String toString() {
-//		String res = "[State " + String.format("%3d", this.id) + ":";
-//		
-//		String stateText = "";
-//		switch (currGlobalState) {
-//		case Markov.S_UNKNOWN:
-//			stateText += "UNKNOW";
-//			break;
-//		case Markov.S_FAILED:
-//			stateText += "FAILED";
-//			break;
-//		case Markov.S_SUCCEED:
-//			stateText += "SUCCEED";
-//			break;
-//		case Markov.S_DELAYED:
-//			stateText += "DELAYED";
-//			break;
-//		case Markov.S_PRICE_UP:
-//			stateText += "PRICE_UP";
-//			break;
-//		default:
-//			break;
-//		}
-//		res += " [";
-//		for (Activity at : super.activities) {
-//			res += "(A" + String.format("%1s", at.getNumber()) + ".s=" + at.getBlindService().getNumber() 
-//					+  " x=" + String.format("%5.2f", at.getX()) + ") ";
-//		}
-//		res = res.trim() + "] Global_state=";
-//		stateText = String.format("%-8s", stateText);
-//		res += stateText + " currTimeCost=" + String.format("%7.2f", currTotalTimeCost) + ", nextTimeCost=" 
-//				+ String.format("%6.2f", nextStepTimeCost);
-//		res = res.trim() + "]";
-//		return res;
-//	}
-
 	public String toString() {
 		String res = "[State " + String.format("%3d", this.id) + ":";
 		
@@ -251,11 +215,47 @@ public class MarkovState extends ActivityFlow {
 		default:
 			break;
 		}
-		res += " Global_state=";
+		res += " [";
+		for (Activity at : super.activities) {
+			res += "(A" + String.format("%1s", at.getNumber()) + ".s=" + at.getBlindService().getNumber() 
+					+  " x=" + String.format("%5.2f", at.getX()) + ") ";
+		}
+		res = res.trim() + "] Global_state=";
 		stateText = String.format("%-8s", stateText);
-		res = res.trim() + stateText + "]";
+		res += stateText + " currTimeCost=" + String.format("%7.2f", currTotalTimeCost) + ", nextTimeCost=" 
+				+ String.format("%6.2f", nextStepTimeCost);
+		res = res.trim() + "]";
 		return res;
 	}
+//
+//	public String toString() {
+//		String res = "[State " + String.format("%3d", this.id) + ":";
+//		
+//		String stateText = "";
+//		switch (currGlobalState) {
+//		case Markov.S_UNKNOWN:
+//			stateText += "UNKNOW";
+//			break;
+//		case Markov.S_FAILED:
+//			stateText += "FAILED";
+//			break;
+//		case Markov.S_SUCCEED:
+//			stateText += "SUCCEED";
+//			break;
+//		case Markov.S_DELAYED:
+//			stateText += "DELAYED";
+//			break;
+//		case Markov.S_PRICE_UP:
+//			stateText += "PRICE_UP";
+//			break;
+//		default:
+//			break;
+//		}
+//		res += " Global_state=";
+//		stateText = String.format("%-8s", stateText);
+//		res = res.trim() + stateText + "]";
+//		return res;
+//	}
 	
 	public int getCurrGlobalState() {
 		return currGlobalState;
