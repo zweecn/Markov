@@ -25,6 +25,9 @@ public class Activity {
 	private int replaceCount;
 	private int id;
 	
+	private double predictTimeCost;
+	private double predictPriceCost;
+	
 	public AtomService getBlindService() {
 		return blindService;
 	}
@@ -118,6 +121,18 @@ public class Activity {
 			return false;
 		}
 		return true;
+	}
+	public double getPredictTimeCost() {
+		return predictTimeCost;
+	}
+	public void setPredictTimeCost(double predictTimeCost) {
+		this.predictTimeCost = predictTimeCost;
+	}
+	public double getPredictPriceCost() {
+		return predictPriceCost;
+	}
+	public void setPredictPriceCost(double predictPriceCost) {
+		this.predictPriceCost = predictPriceCost;
 	}
 	
 }

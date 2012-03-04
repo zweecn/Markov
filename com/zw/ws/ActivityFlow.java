@@ -12,10 +12,10 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class ActivityFlow {
-	private final static String flowInfoFileName = "E:\\markov_output\\flowinfo.txt";
-	private final static String candidateServiceFileName = "E:\\markov_output\\wsinfo.txt";
-	private final static String blindFileName = "E:\\markov_output\\blind.txt";
-	private final static String graphFileName = "E:\\markov_output\\graph.txt";
+	//private final static String flowInfoFileName = "markov_output\\flowinfo.txt";
+	private final static String candidateServiceFileName = "markov_output\\wsinfo.txt";
+	private final static String blindFileName = "markov_output\\blind.txt";
+	private final static String graphFileName = "markov_output\\graph.txt";
 	private int activitySize;
 	
 	protected List<Activity> activities;
@@ -123,7 +123,7 @@ public class ActivityFlow {
 		
 	}
 	
-	@SuppressWarnings("unused")
+/*	@SuppressWarnings("unused")
 	private void readActivityInfo() {
 		try {
 			Scanner scanner = new Scanner(new File(flowInfoFileName));
@@ -147,7 +147,7 @@ public class ActivityFlow {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-	}
+	}*/
 	
 	private void readBlindService() {
 		try {
@@ -158,6 +158,8 @@ public class ActivityFlow {
 				int serviceNumber = scanner.nextInt();
 				services.get(serviceNumber).setFree(false);
 				activities.get(activityNumber).setBlindService(services.get(serviceNumber));
+				activities.get(activityNumber).setPredictTimeCost(services.get(serviceNumber).getQos().getExecTime());
+				activities.get(activityNumber).setPredictPriceCost(services.get(serviceNumber).getQos().getPrice());
 			}
 			
 			scanner.close();

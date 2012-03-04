@@ -7,6 +7,8 @@ import java.util.Map;
 
 public final class Markov extends Object{
 	public static final double EXP = 0.00001;
+	public static final double WEAKEN = 1;
+	public static final double MIN_VALUE = -100000;
 	public static final double TIME_STEP = Double.MAX_VALUE;
 	public static final int MAX_REDO_COUNT = 1;
 	public static final int MAX_TERMINATE_COUNT = 1;
@@ -30,55 +32,55 @@ public final class Markov extends Object{
 	private static Map<Integer, Integer> replaceActionMap = new HashMap<Integer, Integer>();
 	private static Map<Integer, Integer> reCompositeActionMap = new HashMap<Integer, Integer>(); 
 	
-	private static boolean isReDoActionCanDo(BaseAction action) {
-		if (reDoActionMap.get(action) == null) {
-			reDoActionMap.put(action, new Integer(0));
-			return true;
-		}
-		return (reDoActionMap.get(action) < Markov.MAX_REDO_COUNT);
-	}
-	
-	private static void addReDoActionUsedCount(BaseAction action) {
-		reDoActionMap.put(action, reDoActionMap.get(action)+1);
-	}
-	
-	private static boolean isTerminateActionCanDo(BaseAction action) {
-		if (terminateActionMap.get(action) == null) {
-			terminateActionMap.put(action, new Integer(0));
-			return true;
-		}
-		return (terminateActionMap.get(action) < Markov.MAX_TERMINATE_COUNT);
-	}
-	
-	private static void addTerminateActionUsedCount(BaseAction action) {
-		terminateActionMap.put(action, terminateActionMap.get(action)+1);
-	}
-	
-	private static boolean isReplaceActionCanDo(int replaceActivityNumber) {
-		if (replaceActionMap.get(replaceActivityNumber) == null) {
-			replaceActionMap.put(replaceActivityNumber, 0);
-			return true;
-		}
-		return replaceActionMap.get(replaceActivityNumber) < MAX_REPLACE_COUNT;
-	}
-	
-	private static void addReplaceActionUsedCount(int replaceActivityNumber) {
-		replaceActionMap.put(replaceActivityNumber, 
-				replaceActionMap.get(replaceActivityNumber)+1);
-	}
-	
-	private static boolean isReCompositeActionCanDo(int reCompositeActivityNumber) {
-		if (reCompositeActionMap.get(reCompositeActivityNumber) == null) {
-			reCompositeActionMap.put(reCompositeActivityNumber, 0);
-			return true;
-		}
-		return reCompositeActionMap.get(reCompositeActivityNumber) < MAX_RECOMPOSITE_COUNT;
-	}
-	
-	private static void addRecompositeActionUsedCount(int reCompositeActivityNumber) {
-		reCompositeActionMap.put(reCompositeActivityNumber, 
-				reCompositeActionMap.get(reCompositeActivityNumber)+1);
-	}
+//	private static boolean isReDoActionCanDo(BaseAction action) {
+//		if (reDoActionMap.get(action) == null) {
+//			reDoActionMap.put(action, new Integer(0));
+//			return true;
+//		}
+//		return (reDoActionMap.get(action) < Markov.MAX_REDO_COUNT);
+//	}
+//	
+//	private static void addReDoActionUsedCount(BaseAction action) {
+//		reDoActionMap.put(action, reDoActionMap.get(action)+1);
+//	}
+//	
+//	private static boolean isTerminateActionCanDo(BaseAction action) {
+//		if (terminateActionMap.get(action) == null) {
+//			terminateActionMap.put(action, new Integer(0));
+//			return true;
+//		}
+//		return (terminateActionMap.get(action) < Markov.MAX_TERMINATE_COUNT);
+//	}
+//	
+//	private static void addTerminateActionUsedCount(BaseAction action) {
+//		terminateActionMap.put(action, terminateActionMap.get(action)+1);
+//	}
+//	
+//	private static boolean isReplaceActionCanDo(int replaceActivityNumber) {
+//		if (replaceActionMap.get(replaceActivityNumber) == null) {
+//			replaceActionMap.put(replaceActivityNumber, 0);
+//			return true;
+//		}
+//		return replaceActionMap.get(replaceActivityNumber) < MAX_REPLACE_COUNT;
+//	}
+//	
+//	private static void addReplaceActionUsedCount(int replaceActivityNumber) {
+//		replaceActionMap.put(replaceActivityNumber, 
+//				replaceActionMap.get(replaceActivityNumber)+1);
+//	}
+//	
+//	private static boolean isReCompositeActionCanDo(int reCompositeActivityNumber) {
+//		if (reCompositeActionMap.get(reCompositeActivityNumber) == null) {
+//			reCompositeActionMap.put(reCompositeActivityNumber, 0);
+//			return true;
+//		}
+//		return reCompositeActionMap.get(reCompositeActivityNumber) < MAX_RECOMPOSITE_COUNT;
+//	}
+//	
+//	private static void addRecompositeActionUsedCount(int reCompositeActivityNumber) {
+//		reCompositeActionMap.put(reCompositeActivityNumber, 
+//				reCompositeActionMap.get(reCompositeActivityNumber)+1);
+//	}
 	
 	public static List<MarkovRecord> noAction(MarkovState state) {
 		//System.out.println("In noAction:" + state.getId());
@@ -116,11 +118,11 @@ public final class Markov extends Object{
 		
 		BaseAction redoAction = new BaseAction(state.getFailedActivity().getNumber(), 
 				Markov.A_RE_DO, state.getFailedActivity().getBlindService().getNumber());
-		if (!isReDoActionCanDo(redoAction)) {
-			return null;
-		}
+//		if (!isReDoActionCanDo(redoAction)) {
+//			return null;
+//		}
 		if (state.isCurrFailed()) {
-			addReDoActionUsedCount(redoAction);
+//			addReDoActionUsedCount(redoAction);
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 			List<MarkovState> states = state.nextStates(Markov.A_RE_DO);
 
@@ -146,10 +148,10 @@ public final class Markov extends Object{
 		BaseAction terminateAction = new BaseAction(state.getNextToDoActivity().getNumber(), 
 				Markov.A_TERMINATE, 
 				state.getNextToDoActivity().getBlindService().getNumber());
-		if (!isTerminateActionCanDo(terminateAction)) {
-			return null;
-		}
-		addTerminateActionUsedCount(terminateAction);
+//		if (!isTerminateActionCanDo(terminateAction)) {
+//			return null;
+//		}
+//		addTerminateActionUsedCount(terminateAction);
 		List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 		MarkovState stateAfter = state.clone();
 		stateAfter.setCurrGlobalState(S_FAILED);
@@ -162,11 +164,11 @@ public final class Markov extends Object{
 			return null;
 		}
 		
-		if (!isReplaceActionCanDo(state.getFailedActivity().getNumber())) {
-			return null;
-		}
+//		if (!isReplaceActionCanDo(state.getFailedActivity().getNumber())) {
+//			return null;
+//		}
 		if (state.isCurrFailed()) {
-			addReplaceActionUsedCount(state.getFailedActivity().getNumber());
+//			addReplaceActionUsedCount(state.getFailedActivity().getNumber());
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 			List<MarkovState> states = state.nextStates(Markov.A_REPLACE);
 			if (states == null) {
@@ -193,11 +195,11 @@ public final class Markov extends Object{
 			return null;
 		}
 		
-		if (!isReCompositeActionCanDo(state.getFailedActivity().getNumber())) {
-			return null;
-		}
+//		if (!isReCompositeActionCanDo(state.getFailedActivity().getNumber())) {
+//			return null;
+//		}
 		if (state.isCurrFailed()) {
-			addRecompositeActionUsedCount(state.getFailedActivity().getNumber());
+//			addRecompositeActionUsedCount(state.getFailedActivity().getNumber());
 			
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 			List<MarkovState> states = state.nextStates(Markov.A_RE_COMPOSITE);

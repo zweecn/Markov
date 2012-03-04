@@ -343,6 +343,7 @@ public class MarkovState extends ActivityFlow {
 		}
 		states.get(0).addCurrTotalTimeCost(nextStepTimeCost);
 		states.get(1).addCurrTotalTimeCost(nextStepTimeCost);
+		
 		states.get(1).getActivity(this.nextToDoActivity.getNumber()).setX(-1); //Mark
 		for (int i = 0; i < states.size(); i++) {
 			states.get(i).init();
