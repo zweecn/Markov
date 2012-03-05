@@ -167,7 +167,7 @@ public class BackwardIteration {
 			if (stateToActionSetMap.get(rd.getStateAfter()) == null) {
 				rn[(int)rd.getStateAfter().getId()] = this.mergeTimeAndCost(rd.getTimeCost(), rd.getPriceCost());
 			}
-		}
+		} 
 		
 		
 //		Iterator<Entry<MarkovState, Set<MarkovAction>>> it = statesActionMap.entrySet().iterator();
