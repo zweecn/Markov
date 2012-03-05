@@ -87,8 +87,8 @@ public class MarkovState extends ActivityFlow {
 		return this;
 	}
 	
-	public long getId() {
-		return id;
+	public int getId() {
+		return (int) id;
 	}
 	
 	public MarkovState clone() {
