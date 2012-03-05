@@ -11,10 +11,8 @@ public class LayerMarkovBachwardTest {
 		state.getActivity(0).setX(-1);
 		state.init();
 		
-		LayerMarkovBackward bd = new LayerMarkovBackward();
-		bd.generateLayerRecords(state);
+		LayerMarkovBackward bd = new LayerMarkovBackward(state);
 		bd.printRecords();
-		
-		bd.printTree();
+		System.out.println("\nThe best is: " + bd.getBestChose());
 	}
 }
