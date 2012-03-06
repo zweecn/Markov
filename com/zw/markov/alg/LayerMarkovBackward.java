@@ -150,10 +150,13 @@ public class LayerMarkovBackward {
 		for (int i = 0; i < stateSize; i++) {
 			if (!stateNodes[i].hasChild()) {
 				utility[i] = reward_n[i] = getReward(states[i]);
-				///System.out.println(i + " do not have child, reward=" + reward_n[i]);
 			} else {
 				utility[i] = reward_n[i] = - Double.MAX_VALUE;
 			}
+		}
+		// Fix the bug: the last layer's stateAfter is the leaf, should be getReward
+		for (MarkovRecord rd : allLayerRecords.get(allLayerRecords.size()-1)) {
+			utility[rd.getStateAfter().getId()] = getReward(rd.getStateAfter());
 		}
 		
 		for (List<MarkovRecord> rds : allLayerRecords) { 
@@ -169,14 +172,10 @@ public class LayerMarkovBackward {
 
 	
 	public double getBestChose() {
-//		for (int i = 0; i < utility.length; i++) {
-//			System.out.println(utility[i]);
-//		}
-		System.out.println(stateSize);
 		for (int i = stateSize-1; i >= 0; i--) {
-			//if (states[i] != null) {
+			if (stateNodes[i].hasChild()) { //Fix the bug: rewrite utility[i]
 				utility[i] = max(i);
-			//}
+			}
 		}
 		return utility[0];
 	}
@@ -187,10 +186,7 @@ public class LayerMarkovBackward {
 		for (int a : stateNodes[i].getChildren()) {
 			double temp = reward_t[i][a];
 			for (int j : actionNodes[a].getChildren()) {
-				System.out.println("i=" + i + " a=" + a + " j=" + j + " u[j]=" + utility[j] + " p=" + posibility[i][a][j]);
-				//System.out.println("i=" + i+  " j=" + j  + " utility[j]=" + utility[j] + " posibility[i][a][j]=" + posibility[i][a][j]);
 				temp += utility[j] * posibility[i][a][j];
-				
 			}
 		
 			if (res < temp) {
@@ -198,7 +194,7 @@ public class LayerMarkovBackward {
 				actionId = a;
 			}
 		}
-		//System.out.println("state:" + i + " do " + actionId + " utility=" + res);
+		System.out.println("state:" + i + " do " + actionId + " utility=" + String.format("%.2f", res));
 		return res;
 	}
 	
