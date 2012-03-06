@@ -1,6 +1,8 @@
 package com.zw.markov;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.zw.Configs;
 import com.zw.ws.Activity;
 import com.zw.ws.AtomService;
 import com.zw.ws.FreeServiceFinder;
@@ -69,8 +71,8 @@ public class MarkovState extends ActivityFlow {
 			}
 		}
 
-		if (nextStepTimeCost > Markov.TIME_STEP) {
-			nextStepTimeCost = Markov.TIME_STEP;
+		if (nextStepTimeCost > Configs.TIME_STEP) {
+			nextStepTimeCost = Configs.TIME_STEP;
 		}
 		if (currFinished && currFailed) {
 			nextStepTimeCost = 0;

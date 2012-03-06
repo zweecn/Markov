@@ -4,14 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Markov extends Object{
-	public static final double EXP = 0.00001;
-	public static final double WEAKEN = 1;
-	public static final double MIN_VALUE = -100000;
-	public static final double TIME_STEP = Double.MAX_VALUE;
-	public static final int MAX_REDO_COUNT = 1;
-	public static final int MAX_TERMINATE_COUNT = 1;
-	public static final int MAX_REPLACE_COUNT = 1;
-	public static final int MAX_RECOMPOSITE_COUNT = 1;
+
+//	public static final int MAX_REDO_COUNT = 1;
+//	public static final int MAX_TERMINATE_COUNT = 1;
+//	public static final int MAX_REPLACE_COUNT = 1;
+//	public static final int MAX_RECOMPOSITE_COUNT = 1;
 	
 	public static final int S_UNKNOWN = 1;
 	public static final int S_FAILED = 2;

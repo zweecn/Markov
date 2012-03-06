@@ -9,14 +9,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
+
+import com.zw.Configs;
 import com.zw.markov.Markov;
 import com.zw.markov.MarkovAction;
 import com.zw.markov.MarkovRecord;
 import com.zw.markov.MarkovState;
 
 public class LayerMarkovBackward {
-	private final static String LOG_FILE_NAME = "markov_output\\markov_log.txt";
-	
 	public LayerMarkovBackward(MarkovState state) {
 		this.state = state;
 		generateLayerRecords();
@@ -113,7 +113,7 @@ public class LayerMarkovBackward {
 	public void writeRecords() {
 		System.out.println("records size=" + allLayerRecords.size());
 		try {
-		FileWriter writer = new FileWriter(LOG_FILE_NAME);
+		FileWriter writer = new FileWriter(Configs.LOG_FILE_NAME);
 		for (int i = 0; i < allLayerRecords.size(); i++) {
 			writer.append(i + "\n");
 			for (MarkovRecord rd : allLayerRecords.get(i)) {

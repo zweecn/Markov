@@ -11,11 +11,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
+import com.zw.Configs;
+
 public class ActivityFlow {
-	//private final static String flowInfoFileName = "markov_output\\flowinfo.txt";
-	private final static String candidateServiceFileName = "markov_output\\wsinfo.txt";
-	private final static String blindFileName = "markov_output\\blind.txt";
-	private final static String graphFileName = "markov_output\\graph.txt";
 	private int activitySize;
 	
 	protected List<Activity> activities;
@@ -50,7 +48,7 @@ public class ActivityFlow {
 	private void readCandidateServices() {
 		services = new ArrayList<AtomService>();
 		try {
-			Scanner scanner = new Scanner(new File(candidateServiceFileName));
+			Scanner scanner = new Scanner(new File(Configs.candidateServiceFileName));
 			while (scanner.hasNext()) {
 				int serviceNumber = scanner.nextInt();
 				int servicePrice = scanner.nextInt();
@@ -69,7 +67,7 @@ public class ActivityFlow {
 
 	private void readGraphInfo() {
 		try {
-			BufferedReader bf = new BufferedReader(new FileReader(graphFileName));
+			BufferedReader bf = new BufferedReader(new FileReader(Configs.graphFileName));
 			String line = bf.readLine();
 			activitySize = new Integer(line.trim());
 			graph = new int[activitySize][activitySize];
@@ -151,9 +149,8 @@ public class ActivityFlow {
 	
 	private void readBlindService() {
 		try {
-			Scanner scanner = new Scanner(new File(blindFileName));
+			Scanner scanner = new Scanner(new File(Configs.blindFileName));
 			for (int i = 0; i < activitySize && scanner.hasNext(); i++) {
-			//while (scanner.hasNext()) {
 				int activityNumber = scanner.nextInt();
 				int serviceNumber = scanner.nextInt();
 				services.get(serviceNumber).setFree(false);

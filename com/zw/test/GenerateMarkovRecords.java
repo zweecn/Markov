@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
+import com.zw.Configs;
 import com.zw.markov.Markov;
 import com.zw.markov.MarkovRecord;
 import com.zw.markov.MarkovState;
@@ -18,15 +19,12 @@ public class GenerateMarkovRecords {
 	static Queue<MarkovState> queueTemp = new LinkedList<MarkovState>();
 	static Set<MarkovState> stateSet = new HashSet<MarkovState>();
 	static List<List<MarkovRecord>> totalLayerRecords = new ArrayList<List<MarkovRecord>>();
-	//static List<MarkovRecord> records;
 	static List<MarkovRecord> oneLayerRecords;
 	static int count;
 	static FileWriter writer;
 	
-	private final static String LOG_FILE_NAME = "markov_output\\markov_log.txt";
-	
 	public static void main(String[] args) throws IOException {
-		writer = new FileWriter(LOG_FILE_NAME);
+		writer = new FileWriter(Configs.LOG_FILE_NAME);
 		MarkovState state = new MarkovState();
 		
 		//state.printFlow();
