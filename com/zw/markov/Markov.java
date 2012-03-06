@@ -1,9 +1,7 @@
 package com.zw.markov;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public final class Markov extends Object{
 	public static final double EXP = 0.00001;
@@ -27,10 +25,10 @@ public final class Markov extends Object{
 	public static final int A_REPLACE = 0x14;
 	public static final int A_RE_COMPOSITE = 0x15;
 	
-	private static Map<BaseAction, Integer> reDoActionMap = new HashMap<BaseAction, Integer>();
-	private static Map<BaseAction, Integer> terminateActionMap = new HashMap<BaseAction, Integer>();
-	private static Map<Integer, Integer> replaceActionMap = new HashMap<Integer, Integer>();
-	private static Map<Integer, Integer> reCompositeActionMap = new HashMap<Integer, Integer>(); 
+//	private static Map<BaseAction, Integer> reDoActionMap = new HashMap<BaseAction, Integer>();
+//	private static Map<BaseAction, Integer> terminateActionMap = new HashMap<BaseAction, Integer>();
+//	private static Map<Integer, Integer> replaceActionMap = new HashMap<Integer, Integer>();
+//	private static Map<Integer, Integer> reCompositeActionMap = new HashMap<Integer, Integer>(); 
 	
 //	private static boolean isReDoActionCanDo(BaseAction action) {
 //		if (reDoActionMap.get(action) == null) {
