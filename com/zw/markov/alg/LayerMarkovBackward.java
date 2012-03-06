@@ -37,8 +37,8 @@ public class LayerMarkovBackward {
 	private double[][] reward_t;
 	private double[] reward_n;
 	private double[][][] posibility;
-	private double[][][] timeCost;
-	private double[][][] priceCost;
+//	private double[][][] timeCost;
+//	private double[][][] priceCost;
 	
 	private MarkovState[] stateArray;
 	private MarkovAction[] actionArray;
@@ -54,7 +54,7 @@ public class LayerMarkovBackward {
 		queue2 = new LinkedList<MarkovState>();
 		queue2.offer(state);
 		Set<MarkovState> stateSet = new HashSet<MarkovState>();
-		for (int i = 0; i < 3; i++) {
+		for (int i = 0; i < Configs.LAYER_SIZE; i++) {
 			queue1 = queue2;
 			queue2 = new LinkedList<MarkovState>();
 			oneLayerRecords = new ArrayList<MarkovRecord>();
@@ -71,6 +71,7 @@ public class LayerMarkovBackward {
 					records = Markov.replace(state);  
 					addToRecords(records);
 					records = Markov.reComposite(state);
+					//System.out.println("In Layer:" + records);
 					addToRecords(records);
 				}
 			}
@@ -100,7 +101,7 @@ public class LayerMarkovBackward {
 	}
 
 	public void printRecords() {
-		System.out.println("records size=" + allLayerRecords.size());
+		//System.out.println("records size=" + allLayerRecords.size());
 		System.out.println(" StateBefore \t Action \t StateAfter \t Posibility \t Time \t Cost");
 		for (int i = 0; i < allLayerRecords.size(); i++) {
 			System.out.println("Layer " + i);
@@ -108,6 +109,7 @@ public class LayerMarkovBackward {
 				System.out.println(rd.toString());
 			}
 		}
+		System.out.println();
 	}
 	
 	public void writeRecords() {
@@ -146,8 +148,8 @@ public class LayerMarkovBackward {
 		reward_n = new double[stateSize];
 		reward_t = new double[stateSize][actionSize];
 		posibility = new double[stateSize][actionSize][stateSize];
-		timeCost = new double[stateSize][actionSize][stateSize];
-		priceCost = new double[stateSize][actionSize][stateSize];
+//		timeCost = new double[stateSize][actionSize][stateSize];
+//		priceCost = new double[stateSize][actionSize][stateSize];
 		
 		for (int i = 0; i < stateSize; i++) {
 			if (!stateNodeArray[i].hasChild()) {
@@ -165,17 +167,34 @@ public class LayerMarkovBackward {
 			for (MarkovRecord rd : rds) {
 				reward_t[rd.getStateBefore().getId()][rd.getAction().getId()] = - rd.getPriceCost();
 				posibility[rd.getStateBefore().getId()][rd.getAction().getId()][rd.getStateAfter().getId()] = rd.getPosibility();
-				timeCost[rd.getStateBefore().getId()][rd.getAction().getId()][rd.getStateAfter().getId()] = rd.getTimeCost();
-				priceCost[rd.getStateBefore().getId()][rd.getAction().getId()][rd.getStateAfter().getId()] = rd.getPriceCost();
+//				timeCost[rd.getStateBefore().getId()][rd.getAction().getId()][rd.getStateAfter().getId()] = rd.getTimeCost();
+//				priceCost[rd.getStateBefore().getId()][rd.getAction().getId()][rd.getStateAfter().getId()] = rd.getPriceCost();
 			}
 		}
 	}
 	
-
+	public void printUtility() {
+		for (int i = 0; i < utility.length; i++) {
+			System.out.println("utility[" + i + "]=" + utility[i]);
+		}
+	}
+	
+	public void printStateFlow() {
+		for (int i = 0; i < stateArray.length; i++) {
+			if (stateArray[i] != null) {
+				System.out.println("------------------------------------------------------------------------");
+				System.out.println("state " + i);
+				stateArray[i].printFlow();
+			}
+		}
+	}
 	
 	public double getBestChose() {
+		printUtility();
+		
 		for (int i = stateSize-1; i >= 0; i--) {
 			if (stateNodeArray[i].hasChild()) { //Fix the bug: rewrite utility[i]
+				//System.out.println("In state has child, i=" + i);
 				utility[i] = max(i);
 			}
 		}
@@ -193,7 +212,7 @@ public class LayerMarkovBackward {
 		for (int a : stateNodeArray[i].getChildren()) {
 			double temp = reward_t[i][a];
 			for (int j : actionNodeArray[a].getChildren()) {
-				temp += utility[j] * posibility[i][a][j];
+				temp += utility[j] * posibility[i][a][j] * Configs.WEAKEN;
 			}
 		
 			if (resDouble < temp) {
@@ -203,8 +222,6 @@ public class LayerMarkovBackward {
 		}
 		String currStep = "At state=" + String.format("%2d", i) + "  do action=" + actionArray[actionId] + "  current utility=" + String.format("%.2f", resDouble);
 		resultActions.add(currStep);
-		
-		//System.out.println("state:" + i + " do " + actionId + "=" + actionArray[actionId] + " utility=" + String.format("%.2f", resDouble));
 		return resDouble;
 	}
 	
@@ -252,16 +269,16 @@ public class LayerMarkovBackward {
 	private double getReward(MarkovState state) {
 		switch (state.getCurrGlobalState()) {
 		case Markov.S_SUCCEED:
-			return ( 1000 );
+			return ( 10 );
 		case Markov.S_DELAYED:
-			return (100);
+			return ( 10 );
 		case Markov.S_PRICE_UP:
-			return (100);
-		
-		case Markov.S_FAILED:
-			return (-100000);
+			return ( 10 );
 		case Markov.S_UNKNOWN:
-			return (-100);
+			return ( 10 );
+			
+		case Markov.S_FAILED:
+			return (-1000000);
 		default:
 			return 0;
 		}

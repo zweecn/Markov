@@ -11,6 +11,8 @@ public class LayerMarkovBachwardTest {
 		state.getActivity(0).setX(-1);
 		state.init();
 		
+		//state.printFlow();
+		
 		LayerMarkovBackward bd = new LayerMarkovBackward(state);
 		bd.printRecords();
 		System.out.printf("\nThe best is: %.2f\n", bd.getBestChose());
@@ -18,5 +20,7 @@ public class LayerMarkovBachwardTest {
 		for (String s : bd.getResultActions()) {
 			System.out.println(s);
 		}
+		
+		//bd.printStateFlow();
 	}
 }

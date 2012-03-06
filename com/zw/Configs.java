@@ -8,4 +8,7 @@ public final class Configs {
 	
 	public static final double WEAKEN = 1;
 	public static final double TIME_STEP = Double.MAX_VALUE;
+	
+	public static final int LAYER_SIZE = 1;
+	
 }

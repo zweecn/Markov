@@ -28,9 +28,14 @@ public class ActivityFlow {
 		readCandidateServices();
 		//readActivityInfo();
 		readGraphInfo();
-		initPrefixSuffix();
 		readBlindService();
+		initPrefixSuffix();
+		
 	}
+	
+//	public ActivityFlow() {
+//		
+//	}
 	
 	public Activity getActivity(int number) {
 		if (number < activitySize && activities.get(number).getNumber() == number) {

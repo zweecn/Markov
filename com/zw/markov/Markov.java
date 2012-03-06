@@ -199,6 +199,7 @@ public final class Markov extends Object{
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 			List<MarkovState> states = state.nextStates(Markov.A_RE_COMPOSITE);
 			if (states == null) {
+				//System.out.println("Here, states are=" + states);
 				return null;
 			}
 			ReCompositeAction reCompositeAction = new ReCompositeAction(state.getFailedActivity().getNumber(),

@@ -17,6 +17,8 @@ public class ReCompositorImpl extends ActivityFlow implements ReCompositor{
 	
 	@Override
 	public MarkovState recomposite(MarkovState state) {
+		//System.out.println("Old=" + state);
+		
 		oldNewReplaceServiceMap = new HashMap<AtomService, AtomService>();
 		if (state.getFailedActivity() == null) {
 			return null;
@@ -26,7 +28,7 @@ public class ReCompositorImpl extends ActivityFlow implements ReCompositor{
 		Queue<Activity> queue = new LinkedList<Activity>();
 		queue.offer(failedActivity);
 		//MarkovState stateNew = state.clone(); //old
-		MarkovState stateNew = state; // New
+		//MarkovState stateNew = state; // New
 		while (!queue.isEmpty()) {
 			Activity activity = queue.poll();
 			AtomService failedService = activity.getBlindService();
@@ -38,7 +40,7 @@ public class ReCompositorImpl extends ActivityFlow implements ReCompositor{
 				state.getFreeServiceFinder().setServiceUsed(replaceService.getNumber());
 				
 				oldNewReplaceServiceMap.put(failedService, replaceService);
-				stateNew.getActivity(activity.getNumber()).setBlindService(replaceService);
+				state.getActivity(activity.getNumber()).setBlindService(replaceService);
 			} else {
 				break;
 			}
@@ -50,7 +52,9 @@ public class ReCompositorImpl extends ActivityFlow implements ReCompositor{
 		if (oldNewReplaceServiceMap.isEmpty()) {
 			return null;
 		}
-		return stateNew;
+		
+		//System.out.println("New=" + state);
+		return state;
 	}
 
 	@Override
@@ -60,7 +64,7 @@ public class ReCompositorImpl extends ActivityFlow implements ReCompositor{
 	
 	private boolean isReplacedRandom() {
 		Random random = new Random();
-		if (random.nextFloat() > 0.2) {
+		if (random.nextFloat() > 0) {
 			return true;
 		}
 		return false;

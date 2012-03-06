@@ -26,9 +26,9 @@ public class MarkovState extends ActivityFlow {
 		this.id = MarkovState.getNextFreeStateID();
 	}
 	
-	public MarkovState(boolean isStore) {
-		super();
-	}
+//	public MarkovState(boolean isStore) {
+//		super();
+//	}
 	
 	private static long freeId;
 	private static long getNextFreeStateID() {
@@ -165,11 +165,16 @@ public class MarkovState extends ActivityFlow {
 			}
 		case Markov.A_RE_COMPOSITE:
 			if (this.isCurrFailed()) {
-				MarkovState stateStore = this.store();
-				MarkovState state = reCompositor.recomposite(this);
-				if (state == null || stateStore.equals(state)) {
+				//MarkovState stateStore = this.store();
+				MarkovState state = reCompositor.recomposite(this.store());
+				
+//				System.out.println("++++++++++++++++++ " + stateStore.equals(state));
+//				System.out.println(state);
+				if (state == null || this.equals(state)) {
+					System.out.println("In if... " + state);
 					return null;
 				}
+				//System.out.println("--------------");
 				state.init();
 				states.add(state.clone());
 				states.add(state.clone());
@@ -406,7 +411,8 @@ public class MarkovState extends ActivityFlow {
 		return states;
 	}
 	
-	private List<MarkovState> aStepReComposite(List<MarkovState> states) {		
+	private List<MarkovState> aStepReComposite(List<MarkovState> states) {	
+		//System.out.println("In aStepReComposite:" + aStepNoAction(states));
 		return aStepNoAction(states);
 	}
 	
