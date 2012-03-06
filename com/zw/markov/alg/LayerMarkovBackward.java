@@ -4,11 +4,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -32,13 +30,13 @@ public class LayerMarkovBackward {
 	private List<MarkovRecord> oneLayerRecords;
 	private MarkovState state;
 	private List<String> resultActions;
-	private StateActionState sas; 
+//	private StateActionState sas; 
 	
 	private int stateSize;
 	private int actionSize;
 	private double[] utility;
-	private double[][] reward_t;
-	private double[] reward_n;
+//	private double[][] reward_t;
+//	private double[] reward_n;
 //	private double[][][] posibility;
 //	private double[][][] timeCost;
 //	private double[][][] priceCost;
@@ -48,18 +46,18 @@ public class LayerMarkovBackward {
 	private ActionNode[] actionNodeArray;
 	private StateNode[] stateNodeArray;
 	
-	private class StateActionState {
-		private Map<String, Double> pMap;
-		public StateActionState() {
-			pMap = new HashMap<String, Double>();
-		}
-		public double getPosibility(int i, int a, int j) {
-			return pMap.get(i + "-" + a + "-" + j);
-		}
-		public void setPosibility(int i, int a, int j, double p) {
-			pMap.put(i + "-" + a + "-" + j, p);
-		}
-	}
+//	private class StateActionState {
+//		private Map<String, Double> pMap;
+//		public StateActionState() {
+//			pMap = new HashMap<String, Double>();
+//		}
+//		public double getPosibility(int i, int a, int j) {
+//			return pMap.get(i + "-" + a + "-" + j);
+//		}
+//		public void setPosibility(int i, int a, int j, double p) {
+//			pMap.put(i + "-" + a + "-" + j, p);
+//		}
+//	}
 	
 	private void generateLayerRecords() {
 		allLayerRecords = new ArrayList<List<MarkovRecord>>();
@@ -95,6 +93,7 @@ public class LayerMarkovBackward {
 		}
 		stateSize++;
 		actionSize++;
+		//System.out.println("state size=" + stateSize);
 	}
 
 	
@@ -161,18 +160,20 @@ public class LayerMarkovBackward {
 		}
 		
 		utility = new double[stateSize];
-		reward_n = new double[stateSize];
-		reward_t = new double[stateSize][actionSize];
-		sas = new StateActionState();
+//		reward_n = new double[stateSize];
+//		reward_t = new double[stateSize][actionSize];
+//		sas = new StateActionState();
 //		posibility = new double[stateSize][actionSize][stateSize];
 //		timeCost = new double[stateSize][actionSize][stateSize];
 //		priceCost = new double[stateSize][actionSize][stateSize];
 		
 		for (int i = 0; i < stateSize; i++) {
 			if (!stateNodeArray[i].hasChild()) {
-				utility[i] = reward_n[i] = getReward(stateArray[i]);
+				//utility[i] = reward_n[i] = getReward(stateArray[i]);
+				utility[i] = getReward(stateArray[i]);
 			} else {
-				utility[i] = reward_n[i] = - Double.MAX_VALUE;
+				//utility[i] = reward_n[i] = - Double.MAX_VALUE;
+				utility[i] = - Double.MAX_VALUE;
 			}
 		}
 		// Fix the bug: the last layer's stateAfter is the leaf, should be getReward
@@ -182,9 +183,10 @@ public class LayerMarkovBackward {
 		
 		for (List<MarkovRecord> rds : allLayerRecords) { 
 			for (MarkovRecord rd : rds) {
-				reward_t[rd.getStateBefore().getId()][rd.getAction().getId()] = - rd.getPriceCost();
+//				reward_t[rd.getStateBefore().getId()][rd.getAction().getId()] = - rd.getPriceCost();
+				MarkovRecord.setReward_t(rd.getStateBefore().getId(), rd.getAction().getId(), - rd.getPriceCost());
 //				posibility[rd.getStateBefore().getId()][rd.getAction().getId()][rd.getStateAfter().getId()] = rd.getPosibility();
-				sas.setPosibility(rd.getStateBefore().getId(), rd.getAction().getId(), rd.getStateAfter().getId(), rd.getPosibility());
+// 1				MarkovRecord.setPosibility(rd.getStateBefore().getId(), rd.getAction().getId(), rd.getStateAfter().getId(), rd.getPosibility());
 //				timeCost[rd.getStateBefore().getId()][rd.getAction().getId()][rd.getStateAfter().getId()] = rd.getTimeCost();
 //				priceCost[rd.getStateBefore().getId()][rd.getAction().getId()][rd.getStateAfter().getId()] = rd.getPriceCost();
 			}
@@ -227,12 +229,13 @@ public class LayerMarkovBackward {
 		double resDouble = - Double.MAX_VALUE;
 		int actionId = -1;
 		for (int a : stateNodeArray[i].getChildren()) {
-			double temp = reward_t[i][a];
+//			double temp = reward_t[i][a];
+			double temp = MarkovRecord.getReward_t(i, a);
 			//System.out.println("Reward " + i+ " " + a +  " " + temp);
 			for (int j : actionNodeArray[a].getChildren()) {
-				//System.out.println("IN FOR");
+//				System.out.println("IN FOR " + MarkovRecord.getPosibility(i, a, j));
 //				temp += utility[j] * posibility[i][a][j] * Configs.WEAKEN;
-				temp += utility[j] * sas.getPosibility(i, a, j) * Configs.WEAKEN;
+				temp += utility[j] * MarkovRecord.getPosibility(i, a, j) * Configs.WEAKEN;
 				//System.out.println("IN FOR, temp=" + temp);
 			}
 			//System.out.println("out FOR, temp=" + temp + "\n");

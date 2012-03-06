@@ -17,10 +17,13 @@ public class LayerMarkovBachwardTest {
 		//bd.printRecords();
 		System.out.printf("\nThe best is: %.2f\n", bd.getBestChose());
 		System.out.println("The steps are:");
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < 1; i++) {
 			System.out.println(bd.getResultActions().get(i));
 		}
 		
+//		System.out.println(((long) 18290) << 30);
+//		System.out.println(Long.MAX_VALUE);
+//		System.out.println();
 		
 		//bd.printStateFlow();
 	}
