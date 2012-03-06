@@ -54,8 +54,8 @@ public class GenerateWebService {
 	public static void main(String[] args) {
 //		GenerateWebService gen = new GenerateWebService();
 //		gen.generate(100);
-//		ActivityFlow flow = new ActivityFlow();
-//		flow.printFlow();
+		ActivityFlow flow = new ActivityFlow();
+		flow.printFlow();
 		
 		//int[][] temp = new int[5][5];
 		//System.out.println(temp.length);
