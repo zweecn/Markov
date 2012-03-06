@@ -171,7 +171,7 @@ public class MarkovState extends ActivityFlow {
 //				System.out.println("++++++++++++++++++ " + stateStore.equals(state));
 //				System.out.println(state);
 				if (state == null || this.equals(state)) {
-					System.out.println("In if... " + state);
+					//System.out.println("In if... " + state);
 					return null;
 				}
 				//System.out.println("--------------");

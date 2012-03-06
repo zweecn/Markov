@@ -14,12 +14,13 @@ public class LayerMarkovBachwardTest {
 		//state.printFlow();
 		
 		LayerMarkovBackward bd = new LayerMarkovBackward(state);
-		bd.printRecords();
+		//bd.printRecords();
 		System.out.printf("\nThe best is: %.2f\n", bd.getBestChose());
 		System.out.println("The steps are:");
-		for (String s : bd.getResultActions()) {
-			System.out.println(s);
+		for (int i = 0; i < 2; i++) {
+			System.out.println(bd.getResultActions().get(i));
 		}
+		
 		
 		//bd.printStateFlow();
 	}
