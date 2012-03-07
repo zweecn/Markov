@@ -15,6 +15,8 @@ public class MarkovRecord {
 	private static Map<Long, Double> priceMap = new HashMap<Long, Double>();
 	private static Map<Long, Double> timeMap = new HashMap<Long, Double>();
 	private static Map<Long, Double> reward_tMap = new HashMap<Long, Double>();
+	private static Map<Long, MarkovState> stateMap = new HashMap<Long, MarkovState>();
+	private static Map<Long, MarkovAction> actionMap = new HashMap<Long, MarkovAction>();
 	
 	public MarkovRecord(MarkovState stateBefore, MarkovState stateAfter, 
 			MarkovAction action, double posibility, double priceCost, double timeCost) {
@@ -24,11 +26,19 @@ public class MarkovRecord {
 		this.posibility = posibility;
 		this.priceCost = priceCost;
 		this.timeCost = timeCost;
-		
-		MarkovRecord.setPosibility(stateBefore.getId(), action.getId(), stateAfter.getId(), posibility);
-		MarkovRecord.setPriceCost(stateBefore.getId(), action.getId(), priceCost);
-		MarkovRecord.setTimeCost(stateBefore.getId(), action.getId(), timeCost);
+	
+		init();	
 	}
+	
+	public void init() {
+		MarkovRecord.setPosibility(this.stateBefore.getId(), this.action.getId(), this.stateAfter.getId(), this.posibility);
+		MarkovRecord.setPriceCost(this.stateBefore.getId(), this.action.getId(), this.priceCost);
+		MarkovRecord.setTimeCost(this.stateBefore.getId(), this.action.getId(), this.timeCost);
+		MarkovRecord.setState(this.stateBefore.getId(), this.stateBefore);
+		MarkovRecord.setState(this.stateAfter.getId(), this.stateAfter);
+		MarkovRecord.setAction(this.action.getId(), this.action);
+	}
+	
 	
 	@Override
 	public int hashCode() {
@@ -171,6 +181,7 @@ public class MarkovRecord {
 		result = prime * result + a;
 		MarkovRecord.timeMap.put(result, timeCost);
 	}
+	
 	public static double getReward_t(int i, int a) {
 		final int prime = 31;
 		long result = 1;
@@ -185,5 +196,21 @@ public class MarkovRecord {
 		result = prime * result + i;
 		result = prime * result + a;
 		MarkovRecord.reward_tMap.put(result, reward);
+	}
+	
+	public static MarkovAction getAction(long i) {
+		return MarkovRecord.actionMap.get(i);
+	}
+
+	public static MarkovAction setAction(long i, MarkovAction action) {
+		return MarkovRecord.actionMap.put(i, action);
+	}
+	
+	public static MarkovState getState(long i) {
+		return MarkovRecord.stateMap.get(i);
+	}
+
+	public static MarkovState setState(long i, MarkovState state) {
+		return MarkovRecord.stateMap.put(i, state);
 	}
 }

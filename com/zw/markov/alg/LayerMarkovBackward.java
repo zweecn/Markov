@@ -12,7 +12,6 @@ import java.util.Set;
 
 import com.zw.Configs;
 import com.zw.markov.Markov;
-import com.zw.markov.MarkovAction;
 import com.zw.markov.MarkovRecord;
 import com.zw.markov.MarkovState;
 
@@ -41,8 +40,8 @@ public class LayerMarkovBackward {
 //	private double[][][] timeCost;
 //	private double[][][] priceCost;
 	
-	private MarkovState[] stateArray;
-	private MarkovAction[] actionArray;
+//	private MarkovState[] stateArray;
+//	private MarkovAction[] actionArray;
 	private ActionNode[] actionNodeArray;
 	private StateNode[] stateNodeArray;
 	
@@ -148,16 +147,16 @@ public class LayerMarkovBackward {
 	
 	private void initMarkovInfo() {
 		resultActions = new ArrayList<String>();
-		stateArray = new MarkovState[stateSize];
-		actionArray = new MarkovAction[actionSize];
+//		stateArray = new MarkovState[stateSize];
+//		actionArray = new MarkovAction[actionSize];
 		
-		for (int i = 0; i < allLayerRecords.size(); i++) {
-			for (MarkovRecord rd : allLayerRecords.get(i)) {
-				stateArray[(int) rd.getStateBefore().getId()] = rd.getStateBefore();
-				stateArray[(int) rd.getStateAfter().getId()] = rd.getStateAfter();
-				actionArray[(int) rd.getAction().getId()] = rd.getAction();
-		 	}
-		}
+//		for (int i = 0; i < allLayerRecords.size(); i++) {
+//			for (MarkovRecord rd : allLayerRecords.get(i)) {
+//				stateArray[(int) rd.getStateBefore().getId()] = rd.getStateBefore();
+//				stateArray[(int) rd.getStateAfter().getId()] = rd.getStateAfter();
+//				actionArray[(int) rd.getAction().getId()] = rd.getAction();
+//		 	}
+//		}
 		
 		utility = new double[stateSize];
 //		reward_n = new double[stateSize];
@@ -170,7 +169,8 @@ public class LayerMarkovBackward {
 		for (int i = 0; i < stateSize; i++) {
 			if (!stateNodeArray[i].hasChild()) {
 				//utility[i] = reward_n[i] = getReward(stateArray[i]);
-				utility[i] = getReward(stateArray[i]);
+				//utility[i] = getReward(stateArray[i]);
+				utility[i] = getReward(MarkovRecord.getState(i));
 			} else {
 				//utility[i] = reward_n[i] = - Double.MAX_VALUE;
 				utility[i] = - Double.MAX_VALUE;
@@ -199,15 +199,15 @@ public class LayerMarkovBackward {
 		}
 	}
 	
-	public void printStateFlow() {
-		for (int i = 0; i < stateArray.length; i++) {
-			if (stateArray[i] != null) {
-				System.out.println("------------------------------------------------------------------------");
-				System.out.println("state " + i);
-				stateArray[i].printFlow();
-			}
-		}
-	}
+//	public void printStateFlow() {
+//		for (int i = 0; i < stateArray.length; i++) {
+//			if (stateArray[i] != null) {
+//				System.out.println("------------------------------------------------------------------------");
+//				System.out.println("state " + i);
+//				stateArray[i].printFlow();
+//			}
+//		}
+//	}
 	
 	public double getBestChose() {
 		//printUtility();
@@ -244,7 +244,8 @@ public class LayerMarkovBackward {
 				actionId = a;
 			}
 		}
-		String currStep = "At state=" + String.format("%2d", i) + "  do action=" + actionArray[actionId] + "  current utility=" + String.format("%.2f", resDouble);
+		//String currStep = "At state=" + String.format("%2d", i) + "  do action=" + actionArray[actionId] + "  current utility=" + String.format("%.2f", resDouble);
+		String currStep = "At state=" + String.format("%2d", i) + "  do action=" + MarkovRecord.getAction(actionId) + "  current utility=" + String.format("%.2f", resDouble);
 		resultActions.add(currStep);
 		return resDouble;
 	}
