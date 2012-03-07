@@ -3,6 +3,8 @@ package com.zw.markov;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.zw.ws.ActivityFlow;
+
 public final class Markov extends Object{
 
 //	public static final int MAX_REDO_COUNT = 1;
@@ -78,7 +80,9 @@ public final class Markov extends Object{
 //	}
 	
 	public static List<MarkovRecord> noAction(MarkovState state) {
-		//System.out.println("In noAction:" + state.getId());
+	//	System.out.println("In noAction:" + state);
+		//MarkovState state = state.store();
+		//MarkovState stateStore = state.store();
 		if (state == null || state.getCurrGlobalState() == Markov.S_SUCCEED
 				|| state.isCurrFinished()) {
 			return null;
@@ -92,6 +96,7 @@ public final class Markov extends Object{
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
 
 			records.add(new MarkovRecord(state, state, noAction, 1, 0, 0));
+			//System.out.println("After noAction:" + state);
 			return records;
 		} else {
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
@@ -169,15 +174,21 @@ public final class Markov extends Object{
 			if (states == null) {
 				return null;
 			}
+			
 			ReplaceAction replaceAction = new ReplaceAction(state.getFailedActivity().getNumber(), 
 					Markov.A_REPLACE, state.getFailedActivity().getBlindService().getNumber(),
 					state.getReplaceNewService().getNumber());
 		
-			records.add(new MarkovRecord(state, states.get(0), replaceAction, state.getFreeServiceFinder().getPosibility(),
-					state.getFreeServiceFinder().getPriceCost(), state.getFreeServiceFinder().getTimeCost()));
-			records.add(new MarkovRecord(state, states.get(1), replaceAction, 1 - state.getFreeServiceFinder().getPosibility(),
-					state.getFreeServiceFinder().getPriceCost(), state.getFreeServiceFinder().getTimeCost()));
+//			records.add(new MarkovRecord(state, states.get(0), replaceAction, state.getFreeServiceFinder().getPosibility(),
+//					state.getFreeServiceFinder().getPriceCost(), state.getFreeServiceFinder().getTimeCost()));
+//			records.add(new MarkovRecord(state, states.get(1), replaceAction, 1 - state.getFreeServiceFinder().getPosibility(),
+//					state.getFreeServiceFinder().getPriceCost(), state.getFreeServiceFinder().getTimeCost()));
 
+			records.add(new MarkovRecord(state, states.get(0), replaceAction, state.getReplaceNewService().getQos().getReliability(),
+					state.getReplaceNewService().getQos().getPrice(), state.getReplaceNewService().getQos().getExecTime()));
+			records.add(new MarkovRecord(state, states.get(1), replaceAction, 1 - state.getReplaceNewService().getQos().getReliability(),
+					state.getReplaceNewService().getQos().getPrice(), state.getReplaceNewService().getQos().getExecTime()));
+			
 			return records;
 			
 		} else {
@@ -186,31 +197,50 @@ public final class Markov extends Object{
 	}
 	
 	public static List<MarkovRecord> reComposite(MarkovState state) {
-		if (state == null || state.isCurrFinished()) {
+		MarkovState stateTemp = state.store();
+		//System.out.println("1---stateStore=" + stateStore);
+		if (stateTemp == null || stateTemp.isCurrFinished()) {
 			return null;
 		}
 		
 //		if (!isReCompositeActionCanDo(state.getFailedActivity().getNumber())) {
 //			return null;
 //		}
-		if (state.isCurrFailed()) {
+		if (stateTemp.isCurrFailed()) {
 //			addRecompositeActionUsedCount(state.getFailedActivity().getNumber());
-			
+			//System.out.println("Before ReCom:" + stateStore);
+//			System.out.println("1---state=" + state);
+//			System.out.println("1---stateStore=" + stateStore);
 			List<MarkovRecord> records = new ArrayList<MarkovRecord>();
-			List<MarkovState> states = state.nextStates(Markov.A_RE_COMPOSITE);
+			
+//			ReCompositeAction reCompositeAction = // (ReCompositeAction) stateStore.getReCompositeAction();
+//					(ReCompositeAction) ActivityFlow.recomposite(stateStore);
+//			System.out.println("++++" + stateStore);
+			List<MarkovState> states = stateTemp.nextStates(Markov.A_RE_COMPOSITE);
+//			System.out.println("2---state=" + state);
+//			System.out.println("2---stateStore=" + stateStore);
 			if (states == null) {
 				//System.out.println("Here, states are=" + states);
 				return null;
 			}
-			ReCompositeAction reCompositeAction = new ReCompositeAction(state.getFailedActivity().getNumber(),
-					Markov.A_RE_COMPOSITE, state.getFailedActivity().getBlindService().getNumber());
-			reCompositeAction.setOldNewReplaceServiceMap(state.getReCompositor().getOldNewReplaceMap());
+//			ReCompositeAction reCompositeAction = new ReCompositeAction(state.getFailedActivity().getNumber(),
+//					Markov.A_RE_COMPOSITE, state.getFailedActivity().getBlindService().getNumber());
+			ReCompositeAction reCompositeAction =  (ReCompositeAction) stateTemp.getReCompositeAction();
+//						(ReCompositeAction) ActivityFlow.recomposite(stateStore);
+//			reCompositeAction.setOldNewReplaceServiceMap(state.getReCompositor().getOldNewReplaceMap());
 	
-			records.add(new MarkovRecord(state, states.get(0), reCompositeAction, state.getReCompositor().getPosibility(),
-					state.getReCompositor().getPriceCost(), state.getReCompositor().getTimeCost()));
-			records.add(new MarkovRecord(state, states.get(1), reCompositeAction, 1- state.getReCompositor().getPosibility(),
-					state.getReCompositor().getPriceCost(), state.getReCompositor().getTimeCost()));
+//			records.add(new MarkovRecord(state, states.get(0), reCompositeAction, state.getReCompositor().getPosibility(),
+//					state.getReCompositor().getPriceCost(), state.getReCompositor().getTimeCost()));
+//			records.add(new MarkovRecord(state, states.get(1), reCompositeAction, 1- state.getReCompositor().getPosibility(),
+//					state.getReCompositor().getPriceCost(), state.getReCompositor().getTimeCost()));
 
+//			System.out.println("After ReCom, stateStore" + stateStore);
+//			System.out.println("state=" + state);
+			records.add(new MarkovRecord(state, states.get(0), reCompositeAction, 0,
+					0, 0));
+			records.add(new MarkovRecord(state, states.get(1), reCompositeAction, 0,
+					0, 0));
+			
 			return records;
 			
 		} else {

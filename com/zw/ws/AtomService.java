@@ -90,4 +90,8 @@ public class AtomService{
 		}
 		return true;
 	}
+	
+	public String toString() {
+		return "" + this.number;
+	}
 }

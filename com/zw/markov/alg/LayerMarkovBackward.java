@@ -26,7 +26,7 @@ public class LayerMarkovBackward {
 	private Queue<MarkovState> queue1;
 	private Queue<MarkovState> queue2;
 	private List<List<MarkovRecord>> allLayerRecords;
-	private List<MarkovRecord> oneLayerRecords;
+//	private List<MarkovRecord> oneLayerRecords;
 	private MarkovState state;
 	private List<String> resultActions;
 //	private StateActionState sas; 
@@ -70,25 +70,33 @@ public class LayerMarkovBackward {
 		for (int i = 0; i < Configs.LAYER_SIZE; i++) {
 			queue1 = queue2;
 			queue2 = new LinkedList<MarkovState>();
-			oneLayerRecords = new ArrayList<MarkovRecord>();
+			List<MarkovRecord> oneLayerRecords = new ArrayList<MarkovRecord>();
 			while (!queue1.isEmpty()) {
 				state = queue1.poll();
 				if (!stateSet.contains(state)) {
 					stateSet.add(state);
+//					MarkovState sTemp1 = state.store();
 					List<MarkovRecord> records = Markov.noAction(state);
-					addToRecords(records);
-					records = Markov.terminate(state);
-					addToRecords(records);
-					records = Markov.redo(state);
-					addToRecords(records);
-					records = Markov.replace(state);  
-					addToRecords(records);
+					addToRecords(oneLayerRecords, records);
+//					records = Markov.terminate(state);
+//					addToRecords(records);
+//					records = Markov.redo(state);
+//					addToRecords(records);
+//					records = Markov.replace(state);  
+//					addToRecords(records);
+//					MarkovState sTemp = state.store();
+//					sTemp.init();
 					records = Markov.reComposite(state);
 					//System.out.println("In Layer:" + records);
-					addToRecords(records);
+					addToRecords(oneLayerRecords, records);
 				}
 			}
+//			System.out.println("One Layer Records:");
+//			for (MarkovRecord rd : oneLayerRecords) {
+//				System.out.println(rd);
+//			}
 			allLayerRecords.add(oneLayerRecords);
+			//oneLayerRecords.clear();
 		}
 		stateSize++;
 		actionSize++;
@@ -96,10 +104,21 @@ public class LayerMarkovBackward {
 	}
 
 	
-	private void addToRecords(List<MarkovRecord> records){
-		if (records != null && !records.isEmpty()) {
-			oneLayerRecords.addAll(records);
-			for (MarkovRecord rd : records) {
+	private void addToRecords(List<MarkovRecord>destRecords, List<MarkovRecord> sourceRecord){
+//		System.out.println("\nsource:");
+//		for (MarkovRecord rd : sourceRecord) {
+//			System.out.println(rd.toString());
+//		}
+//		System.out.println("dest:");
+//		for (MarkovRecord rd : destRecords) {
+//			System.out.println(rd.toString());
+//		}
+		if (sourceRecord != null && !sourceRecord.isEmpty()) {
+			for (MarkovRecord rd : sourceRecord) {
+				destRecords.add(rd.clone());
+			}
+			//oneLayerRecords.addAll(records);
+			for (MarkovRecord rd : sourceRecord) {
 				queue2.offer(rd.getStateAfter());
 				if (rd.getStateBefore().getId() > stateSize) {
 					stateSize = (int) rd.getStateBefore().getId();
@@ -112,11 +131,16 @@ public class LayerMarkovBackward {
 				}
 			}
 		}
+//		System.out.println("OneLayerRecords:");
+//		for (MarkovRecord rd : destRecords) {
+//			System.out.println(rd.toString());
+//		}
+//		System.out.println("--------");
 	}
 
 	public void printRecords() {
 		//System.out.println("records size=" + allLayerRecords.size());
-		System.out.println(" StateBefore \t Action \t StateAfter \t Posibility \t Time \t Cost");
+		System.out.println("\n StateBefore \t Action \t StateAfter \t Posibility \t Time \t Cost");
 		for (int i = 0; i < allLayerRecords.size(); i++) {
 			System.out.println("Layer " + i + " >>>>>>>");
 			for (MarkovRecord rd : allLayerRecords.get(i)) {
@@ -166,7 +190,9 @@ public class LayerMarkovBackward {
 //		timeCost = new double[stateSize][actionSize][stateSize];
 //		priceCost = new double[stateSize][actionSize][stateSize];
 		
+		
 		for (int i = 0; i < stateSize; i++) {
+			//System.out.println(stateNodeArray);
 			if (!stateNodeArray[i].hasChild()) {
 				//utility[i] = reward_n[i] = getReward(stateArray[i]);
 				//utility[i] = getReward(stateArray[i]);

@@ -5,19 +5,19 @@ import java.util.List;
 import com.zw.Configs;
 import com.zw.ws.Activity;
 import com.zw.ws.AtomService;
-import com.zw.ws.FreeServiceFinder;
-import com.zw.ws.FreeServiceFinderImpl;
+//import com.zw.ws.FreeServiceFinder;
+//import com.zw.ws.FreeServiceFinderImpl;
 import com.zw.ws.ActivityFlow;
-import com.zw.ws.ReCompositor;
-import com.zw.ws.ReCompositorImpl;
+//import com.zw.ws.ReCompositor;
+//import com.zw.ws.ReCompositorImpl;
 
 public class MarkovState extends ActivityFlow {
 	
 	public MarkovState() {
 		super();
 		this.id = MarkovState.getNextFreeStateID();
-		freeServiceFinder = new FreeServiceFinderImpl();
-		reCompositor = new ReCompositorImpl();
+//		freeServiceFinder = new FreeServiceFinderImpl();
+//		reCompositor = new ReCompositorImpl();
 		init();
 	}
 	
@@ -58,6 +58,7 @@ public class MarkovState extends ActivityFlow {
 					&& isPrefixActivitiesFinished(super.activities.get(i).getNumber())) {
 				nextToDoActivities.add(super.activities.get(i));
 				double timeCostTemp = 0;
+				//System.out.println("super.activities.get(i)=" + super.activities.get(i).getBlindService());
 				if (super.activities.get(i).getX() >=0) {
 					timeCostTemp = (1 - super.activities.get(i).getX())
 						* super.activities.get(i).getBlindService().getQos().getExecTime();
@@ -95,17 +96,17 @@ public class MarkovState extends ActivityFlow {
 	
 	public MarkovState clone() {
 		MarkovState stateNew = new MarkovState(this);
-		stateNew.graph = new int[graph.length][graph.length]; //super graph
-		for (int i = 0; i < graph.length; i++) {
-			for (int j = 0; j < graph.length; j++) {
-				stateNew.graph[i][j] = graph[i][j];
-			}
-		}
+//		stateNew.graph = new int[graph.length][graph.length]; //super graph
+//		for (int i = 0; i < graph.length; i++) {
+//			for (int j = 0; j < graph.length; j++) {
+//				stateNew.graph[i][j] = graph[i][j];
+//			}
+//		}
 		stateNew.activities = new ArrayList<Activity>(); //super activities
 		for (Activity at : super.activities) {
 			stateNew.activities.add(at.clone());
 		}
-		stateNew.services = this.services;
+//		stateNew.services = this.services;
 		stateNew.currGlobalState = this.currGlobalState;
 		stateNew.currTotalTimeCost = this.currTotalTimeCost;
 		stateNew.nextStepTimeCost = this.nextStepTimeCost;
@@ -120,15 +121,17 @@ public class MarkovState extends ActivityFlow {
 		stateNew.replaceNewService = (this.replaceNewService == null) ? null : this.replaceNewService.clone(); 
 		stateNew.replaceAction = (this.replaceAction == null) ? null : this.replaceAction;
 		
-		stateNew.freeServiceFinder = this.freeServiceFinder; // Mark, this is not clone()
-		stateNew.reCompositor = this.reCompositor;
+//		stateNew.freeServiceFinder = this.freeServiceFinder; // Mark, this is not clone()
+//		stateNew.reCompositor = this.reCompositor;
 		
 		return stateNew;
 	}
 	
 	public MarkovState store() {
+		MarkovState.fallbackId(1);
 		MarkovState stateNew = this.clone();
-		fallbackId(1);
+		//System.out.println("1--MarkovState.freeId=" + MarkovState.freeId);
+		//System.out.println("2--MarkovState.freeId=" + MarkovState.freeId);
 		return stateNew;
 	}
 	
@@ -165,20 +168,42 @@ public class MarkovState extends ActivityFlow {
 			}
 		case Markov.A_RE_COMPOSITE:
 			if (this.isCurrFailed()) {
-				//MarkovState stateStore = this.store();
-				MarkovState state = reCompositor.recomposite(this.store());
+				MarkovState stateStore = this.store();
+//				MarkovState state = reCompositor.recomposite(this.store());
+//				System.out.println("3-------BEFORE:" + this);
+				//System.out.println("state=" + state);
 				
+				reCompositeAction = ActivityFlow.recomposite(this);
+//				reCompositeAction = ActivityFlow.recomposite(stateStore);
+//				System.out.println("4-------BEFORE:" + this);
 //				System.out.println("++++++++++++++++++ " + stateStore.equals(state));
-//				System.out.println(state);
-				if (state == null || this.equals(state)) {
-					//System.out.println("In if... " + state);
+				
+				if (reCompositeAction == null) {
 					return null;
 				}
+				
+//				if (state == null || this.equals(state)) {
+//					//System.out.println("In if... " + state);
+//					return null;
+//				}
 				//System.out.println("--------------");
-				state.init();
-				states.add(state.clone());
-				states.add(state.clone());
-				states = state.aStepReComposite(states);
+//				stateStore.init();
+//				states.add(stateStore.clone());
+//				states.add(stateStore.clone());
+//				states = stateStore.aStepReComposite(states);
+				
+				this.init();
+				states.add(this.clone());
+				states.add(this.clone());
+				//System.out.println("5-------BEFORE:" + this);
+				//System.out.println("Before astep:" + this);
+				states = this.aStepReComposite(states);
+//				System.out.println("6-------BEFORE:" + stateStore);
+//				System.out.println("\nAFTER:");
+//				for (MarkovState s : states) {
+//					System.out.println(s);
+//				}
+//				System.out.println();
 				return states;
 			} else {
 				return null;
@@ -187,6 +212,10 @@ public class MarkovState extends ActivityFlow {
 		default:
 			return null;
 		}
+	}
+	
+	public MarkovAction getReCompositeAction() {
+		return reCompositeAction;
 	}
 	
 	
@@ -312,9 +341,9 @@ public class MarkovState extends ActivityFlow {
 		this.currGlobalState = currGlobalState;
 	}
 	
-	public Activity getActivity(int activityNumber) {
-		return super.getActivity(activityNumber);
-	}
+//	public Activity getActivity(int activityNumber) {
+//		return super.getActivity(activityNumber);
+//	}
 
 	public void setActivity(Activity activity) {
 		for (int i = 0; i < super.activities.size(); i++) {
@@ -337,8 +366,9 @@ public class MarkovState extends ActivityFlow {
 	private List<Activity> nextToDoActivities;
 	private ReplaceAction replaceAction;
 	private AtomService replaceNewService;
-	private FreeServiceFinder freeServiceFinder;
-	private ReCompositor reCompositor;
+//	private FreeServiceFinder freeServiceFinder;
+//	private ReCompositor reCompositor;
+	private MarkovAction reCompositeAction;
 	
 	private List<MarkovState> aStepNoAction(List<MarkovState> states) {
 
@@ -388,14 +418,16 @@ public class MarkovState extends ActivityFlow {
 		for (Activity at : this.nextToDoActivities) {
 			Activity runActivity = states.get(0).getActivity(at.getNumber());
 			if (runActivity.getX() < 0) { //这里是假设只同时出现1个结点故障时
-				replaceNewService = freeServiceFinder.nextFreeService(runActivity);
+				//replaceNewService = freeServiceFinder.nextFreeService(runActivity);
+				replaceNewService = ActivityFlow.nextFreeService(runActivity);
 				if (replaceNewService == null) {
 					//System.err.println("Candidate service is all used.");
 					fallbackId(2);
 					return null;
 				}
-				freeServiceFinder.setServiceUsed(replaceNewService.getNumber());
-
+				//freeServiceFinder.setServiceUsed(replaceNewService.getNumber());
+				ActivityFlow.setServiceUsed(replaceNewService.getNumber());
+				
 				states.get(0).getActivity(at.getNumber()).setBlindService(replaceNewService);
 				states.get(0).getActivity(at.getNumber()).setX(1);
 				states.get(0).addCurrTotalTimeCost(replaceNewService.getQos().getExecTime());
@@ -433,13 +465,13 @@ public class MarkovState extends ActivityFlow {
 		return true;
 	}
 
-	public FreeServiceFinder getFreeServiceFinder() {
-		return freeServiceFinder;
-	}
+//	public FreeServiceFinder getFreeServiceFinder() {
+//		return freeServiceFinder;
+//	}
 
-	public ReCompositor getReCompositor() {
-		return reCompositor;
-	}
+//	public ReCompositor getReCompositor() {
+//		return reCompositor;
+//	}
 
 	@Override
 	public int hashCode() {

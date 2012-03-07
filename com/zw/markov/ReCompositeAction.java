@@ -23,6 +23,8 @@ public class ReCompositeAction extends BaseAction implements MarkovAction {
 		this.oldNewReplaceServiceMap = oldNewReplaceServiceMap;
 	}
 	
+	
+	
 	public String toString() {
 		String res = "";
 		String actionText = "";

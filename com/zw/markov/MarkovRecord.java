@@ -39,6 +39,10 @@ public class MarkovRecord {
 		MarkovRecord.setAction(this.action.getId(), this.action);
 	}
 	
+	public MarkovRecord clone() {
+		MarkovRecord record = new MarkovRecord(stateBefore, stateAfter, action, posibility, priceCost, timeCost);
+		return record;
+	}
 	
 	@Override
 	public int hashCode() {
