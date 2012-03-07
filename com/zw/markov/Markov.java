@@ -178,15 +178,15 @@ public final class Markov extends Object{
 					Markov.A_REPLACE, state.getFailedActivity().getBlindService().getNumber(),
 					state.getReplaceNewService().getNumber());
 		
-//			records.add(new MarkovRecord(state, states.get(0), replaceAction, state.getFreeServiceFinder().getPosibility(),
-//					state.getFreeServiceFinder().getPriceCost(), state.getFreeServiceFinder().getTimeCost()));
-//			records.add(new MarkovRecord(state, states.get(1), replaceAction, 1 - state.getFreeServiceFinder().getPosibility(),
-//					state.getFreeServiceFinder().getPriceCost(), state.getFreeServiceFinder().getTimeCost()));
+			records.add(new MarkovRecord(state, states.get(0), replaceAction, state.getFreeServiceFinder().getPosibility(),
+					state.getFreeServiceFinder().getPriceCost(), state.getFreeServiceFinder().getTimeCost()));
+			records.add(new MarkovRecord(state, states.get(1), replaceAction, 1 - state.getFreeServiceFinder().getPosibility(),
+					state.getFreeServiceFinder().getPriceCost(), state.getFreeServiceFinder().getTimeCost()));
 
-			records.add(new MarkovRecord(state, states.get(0), replaceAction, state.getReplaceNewService().getQos().getReliability(),
-					state.getReplaceNewService().getQos().getPrice(), state.getReplaceNewService().getQos().getExecTime()));
-			records.add(new MarkovRecord(state, states.get(1), replaceAction, 1 - state.getReplaceNewService().getQos().getReliability(),
-					state.getReplaceNewService().getQos().getPrice(), state.getReplaceNewService().getQos().getExecTime()));
+//			records.add(new MarkovRecord(state, states.get(0), replaceAction, state.getReplaceNewService().getQos().getReliability(),
+//					state.getReplaceNewService().getQos().getPrice(), state.getReplaceNewService().getQos().getExecTime()));
+//			records.add(new MarkovRecord(state, states.get(1), replaceAction, 1 - state.getReplaceNewService().getQos().getReliability(),
+//					state.getReplaceNewService().getQos().getPrice(), state.getReplaceNewService().getQos().getExecTime()));
 			
 			return records;
 			

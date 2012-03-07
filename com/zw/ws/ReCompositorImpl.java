@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Random;
 
+import com.zw.Configs;
 import com.zw.markov.Markov;
 import com.zw.markov.MarkovAction;
 import com.zw.markov.MarkovState;
@@ -41,6 +42,7 @@ public class ReCompositorImpl implements ReCompositor{
 				}
 				replaceService.setFree(false);
 				//ActivityFlow.setServiceUsed(replaceService.getNumber());
+				//System.out.println("HRERE");
 				oldNewReplaceServiceMap.put(failedService, replaceService);
 				state.getActivity(activity.getNumber()).setBlindService(replaceService);
 
@@ -52,6 +54,7 @@ public class ReCompositorImpl implements ReCompositor{
 				queue.offer(state.getActivity(i));
 			}
 		}
+		//System.out.println(oldNewReplaceServiceMap.size());
 		if (oldNewReplaceServiceMap.isEmpty()) {
 			return null;
 		}
@@ -99,7 +102,7 @@ public class ReCompositorImpl implements ReCompositor{
 
 	private static boolean isReplacedRandom() {
 		Random random = new Random();
-		if (random.nextFloat() > 0) {
+		if (random.nextFloat() > Configs.RANDOM_FIND_FREE_SERVICE) {
 			return true;
 		}
 		return false;

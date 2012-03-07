@@ -5,6 +5,8 @@ import java.util.List;
 import com.zw.Configs;
 import com.zw.ws.Activity;
 import com.zw.ws.AtomService;
+import com.zw.ws.FreeServiceFinder;
+import com.zw.ws.FreeServiceFinderImp;
 import com.zw.ws.ReCompositor;
 import com.zw.ws.ReCompositorImpl;
 //import com.zw.ws.FreeServiceFinder;
@@ -18,7 +20,7 @@ public class MarkovState extends ActivityFlow {
 	public MarkovState() {
 		super();
 		this.id = MarkovState.getNextFreeStateID();
-//		freeServiceFinder = new FreeServiceFinderImpl();
+		freeServiceFinder = new FreeServiceFinderImp();
 		reCompositor = new ReCompositorImpl();
 		init();
 	}
@@ -119,7 +121,7 @@ public class MarkovState extends ActivityFlow {
 		stateNew.replaceNewService = (this.replaceNewService == null) ? null : this.replaceNewService.clone(); 
 		stateNew.replaceAction = (this.replaceAction == null) ? null : this.replaceAction;
 		
-//		stateNew.freeServiceFinder = this.freeServiceFinder; // Mark, this is not clone()
+		stateNew.freeServiceFinder = this.freeServiceFinder; // Mark, this is not clone()
 		stateNew.reCompositor = this.reCompositor;
 		
 		return stateNew;
@@ -166,19 +168,21 @@ public class MarkovState extends ActivityFlow {
 			}
 		case Markov.A_RE_COMPOSITE:
 			if (this.isCurrFailed()) {
-//				MarkovState stateStore = this.store();
+//				MarkovState stateTemp = this.store();
 //				MarkovState state = reCompositor.recomposite(this.store());
 //				System.out.println("3-------BEFORE:" + this);
 				//System.out.println("state=" + state);
 				
 //				reCompositeAction = ActivityFlow.recomposite(this);
-				reCompositor.recomposite(this);
+				
+				MarkovState stateTemp = reCompositor.recomposite(this); //++++
+				//reCompositor.recomposite(stateTemp);
 				//reCompositeAction = ((ReCompositorImpl) reCompositor).getReComAction();
 //				reCompositeAction = ActivityFlow.recomposite(stateStore);
 //				System.out.println("4-------BEFORE:" + this);
 //				System.out.println("++++++++++++++++++ " + stateStore.equals(state));
-				
-				if (((ReCompositorImpl) reCompositor).getReComAction() == null) {
+//				System.out.println(stateTemp);
+				if (stateTemp == null || ((ReCompositorImpl) reCompositor).getReComAction() == null) {
 					return null;
 				}
 				
@@ -365,7 +369,7 @@ public class MarkovState extends ActivityFlow {
 	private List<Activity> nextToDoActivities;
 	private ReplaceAction replaceAction;
 	private AtomService replaceNewService;
-//	private FreeServiceFinder freeServiceFinder;
+	private FreeServiceFinder freeServiceFinder;
 	private ReCompositor reCompositor;
 //	private MarkovAction reCompositeAction;
 	
@@ -417,15 +421,15 @@ public class MarkovState extends ActivityFlow {
 		for (Activity at : this.nextToDoActivities) {
 			Activity runActivity = states.get(0).getActivity(at.getNumber());
 			if (runActivity.getX() < 0) { //这里是假设只同时出现1个结点故障时
-				//replaceNewService = freeServiceFinder.nextFreeService(runActivity);
-				replaceNewService = ActivityFlow.nextFreeService(runActivity);
+				replaceNewService = freeServiceFinder.nextFreeService(runActivity);
+//				replaceNewService = ActivityFlow.nextFreeService(runActivity);
 				if (replaceNewService == null) {
 					//System.err.println("Candidate service is all used.");
 					fallbackId(2);
 					return null;
 				}
-				//freeServiceFinder.setServiceUsed(replaceNewService.getNumber());
-				ActivityFlow.setServiceUsed(replaceNewService.getNumber());
+				freeServiceFinder.setServiceUsed(replaceNewService);
+//				ActivityFlow.setServiceUsed(replaceNewService.getNumber());
 				
 				states.get(0).getActivity(at.getNumber()).setBlindService(replaceNewService);
 				states.get(0).getActivity(at.getNumber()).setX(1);
@@ -500,6 +504,10 @@ public class MarkovState extends ActivityFlow {
 
 	public ReCompositor getReCompositor() {
 		return reCompositor;
+	}
+
+	public FreeServiceFinder getFreeServiceFinder() {
+		return freeServiceFinder;
 	}
 	
 }

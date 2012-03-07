@@ -1,5 +1,6 @@
 package com.zw.test;
 
+import com.zw.Configs;
 import com.zw.markov.Markov;
 import com.zw.markov.MarkovState;
 import com.zw.markov.alg.LayerMarkovBackward;
@@ -17,7 +18,7 @@ public class LayerMarkovBachwardTest {
 		bd.printRecords();
 		System.out.printf("\nThe best is: %.2f\n", bd.getBestChose());
 		System.out.println("The steps are:");
-		for (int i = 0; i < 1; i++) {
+		for (int i = 0; i < bd.getResultActions().size(); i++) {
 			System.out.println(bd.getResultActions().get(i));
 		}
 		

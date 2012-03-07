@@ -11,4 +11,6 @@ public final class Configs {
 	
 	public static final int LAYER_SIZE = 1;
 	
+	public static final double RANDOM_FIND_FREE_SERVICE = 1;
+	
 }
