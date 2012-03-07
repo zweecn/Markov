@@ -7,18 +7,10 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
-import java.util.Random;
 import java.util.Scanner;
-
 import com.zw.Configs;
-import com.zw.markov.Markov;
-import com.zw.markov.MarkovAction;
-import com.zw.markov.MarkovState;
-import com.zw.markov.ReCompositeAction;
 
 public class ActivityFlow {
 	public ActivityFlow() {
@@ -289,7 +281,6 @@ public class ActivityFlow {
 	}
 	
 	public static AtomService nextFreeService(Activity activity) {
-//		oldActivity = activity.clone();
 		for (int i = 0; i < ActivityFlow.services.size(); i++) {
 			if (ActivityFlow.services.get(i).isFree()) { 
 				return ActivityFlow.services.get(i);
@@ -299,10 +290,6 @@ public class ActivityFlow {
 	}
 
 	public static void setServiceUsed(int number) {
-//		if (serviceNew != null && serviceNew.getNumber() == number) {
-//			serviceNew.setFree(false);
-//			return;
-//		}
 		for (int i = 0; i < ActivityFlow.services.size(); i++) {
 			if (ActivityFlow.services.get(i).getNumber() == number) {
 				ActivityFlow.services.get(i).setFree(false);
@@ -310,8 +297,11 @@ public class ActivityFlow {
 		}
 	}
 	
+	public static void setServiceUsed(AtomService service) {
+		service.setFree(false);
+	}
+	/*
 	public static MarkovAction recomposite(MarkovState state) {
-		//System.out.println("Old=" + state);
 		Map<AtomService, AtomService> oldNewReplaceServiceMap = new HashMap<AtomService, AtomService>();
 		if (state.getFailedActivity() == null) {
 			return null;
@@ -324,33 +314,21 @@ public class ActivityFlow {
 		
 		Queue<Activity> queue = new LinkedList<Activity>();
 		queue.offer(failedActivity);
-		//MarkovState stateNew = state.clone(); //old
-		//MarkovState stateNew = state; // New
-		//MarkovState stateNew = state.store();
 		while (!queue.isEmpty()) {
 			Activity activity = queue.poll();
 			AtomService failedService = activity.getBlindService();
 			if (isReplacedRandom()) {
-				//System.out.println("IN IF");
-				//AtomService replaceService = state.getFreeServiceFinder().nextFreeService(activity);
 				AtomService replaceService = ActivityFlow.nextFreeService(activity);
 				if (replaceService == null) {
 					break;
 				}
-				//state.getFreeServiceFinder().setServiceUsed(replaceService.getNumber());
 				ActivityFlow.setServiceUsed(replaceService.getNumber());
 				oldNewReplaceServiceMap.put(failedService, replaceService);
-				//System.out.println("1---state=" + state + " " + replaceService);
-//				Activity tempActivity = state.getActivity(activity.getNumber());
-//				tempActivity.setBlindService(replaceService);
-//				state.setActivity(tempActivity);
 				state.getActivity(activity.getNumber()).setBlindService(replaceService);
-//				System.out.println("2---state=" + state);
 			} else {
 				break;
 			}
 			
-			//for (Integer i : state.getSuffixActivityNumbers(activity.getNumber())) {
 			for (Integer i : ActivityFlow.getSuffixActivityNumbers(activity.getNumber())) {
 				queue.offer(state.getActivity(i));
 			}
@@ -358,9 +336,7 @@ public class ActivityFlow {
 		if (oldNewReplaceServiceMap.isEmpty()) {
 			return null;
 		}
-		
-		//System.out.println("New=" + state);
-//		System.out.println("recomposite map=" + oldNewReplaceServiceMap + "\n");
+
 		return reComAction;
 	}
 	
@@ -370,5 +346,5 @@ public class ActivityFlow {
 			return true;
 		}
 		return false;
-	}
+	}*/
 }

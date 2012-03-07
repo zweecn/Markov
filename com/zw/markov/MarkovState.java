@@ -5,6 +5,8 @@ import java.util.List;
 import com.zw.Configs;
 import com.zw.ws.Activity;
 import com.zw.ws.AtomService;
+import com.zw.ws.ReCompositor;
+import com.zw.ws.ReCompositorImpl;
 //import com.zw.ws.FreeServiceFinder;
 //import com.zw.ws.FreeServiceFinderImpl;
 import com.zw.ws.ActivityFlow;
@@ -17,7 +19,7 @@ public class MarkovState extends ActivityFlow {
 		super();
 		this.id = MarkovState.getNextFreeStateID();
 //		freeServiceFinder = new FreeServiceFinderImpl();
-//		reCompositor = new ReCompositorImpl();
+		reCompositor = new ReCompositorImpl();
 		init();
 	}
 	
@@ -26,9 +28,6 @@ public class MarkovState extends ActivityFlow {
 		this.id = MarkovState.getNextFreeStateID();
 	}
 	
-//	public MarkovState(boolean isStore) {
-//		super();
-//	}
 	
 	private static long freeId;
 	private static long getNextFreeStateID() {
@@ -37,7 +36,6 @@ public class MarkovState extends ActivityFlow {
 	private static void fallbackId(long num) {
 		freeId -= num;
 	}
-	
 	
 	public MarkovState init() {
 		nextToDoActivity = null;
@@ -122,7 +120,7 @@ public class MarkovState extends ActivityFlow {
 		stateNew.replaceAction = (this.replaceAction == null) ? null : this.replaceAction;
 		
 //		stateNew.freeServiceFinder = this.freeServiceFinder; // Mark, this is not clone()
-//		stateNew.reCompositor = this.reCompositor;
+		stateNew.reCompositor = this.reCompositor;
 		
 		return stateNew;
 	}
@@ -168,17 +166,19 @@ public class MarkovState extends ActivityFlow {
 			}
 		case Markov.A_RE_COMPOSITE:
 			if (this.isCurrFailed()) {
-				MarkovState stateStore = this.store();
+//				MarkovState stateStore = this.store();
 //				MarkovState state = reCompositor.recomposite(this.store());
 //				System.out.println("3-------BEFORE:" + this);
 				//System.out.println("state=" + state);
 				
-				reCompositeAction = ActivityFlow.recomposite(this);
+//				reCompositeAction = ActivityFlow.recomposite(this);
+				reCompositor.recomposite(this);
+				//reCompositeAction = ((ReCompositorImpl) reCompositor).getReComAction();
 //				reCompositeAction = ActivityFlow.recomposite(stateStore);
 //				System.out.println("4-------BEFORE:" + this);
 //				System.out.println("++++++++++++++++++ " + stateStore.equals(state));
 				
-				if (reCompositeAction == null) {
+				if (((ReCompositorImpl) reCompositor).getReComAction() == null) {
 					return null;
 				}
 				
@@ -214,10 +214,9 @@ public class MarkovState extends ActivityFlow {
 		}
 	}
 	
-	public MarkovAction getReCompositeAction() {
-		return reCompositeAction;
-	}
-	
+//	public MarkovAction getReCompositeAction() {
+//		return reCompositeAction;
+//	}
 	
 	public Activity getFailedActivity() {
 		for (int i = 0; i < nextToDoActivities.size(); i++) {
@@ -367,8 +366,8 @@ public class MarkovState extends ActivityFlow {
 	private ReplaceAction replaceAction;
 	private AtomService replaceNewService;
 //	private FreeServiceFinder freeServiceFinder;
-//	private ReCompositor reCompositor;
-	private MarkovAction reCompositeAction;
+	private ReCompositor reCompositor;
+//	private MarkovAction reCompositeAction;
 	
 	private List<MarkovState> aStepNoAction(List<MarkovState> states) {
 
@@ -497,6 +496,10 @@ public class MarkovState extends ActivityFlow {
 			return false;
 		}
 		return true;
+	}
+
+	public ReCompositor getReCompositor() {
+		return reCompositor;
 	}
 	
 }

@@ -2,8 +2,7 @@ package com.zw.markov;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import com.zw.ws.ActivityFlow;
+import com.zw.ws.ReCompositorImpl;
 
 public final class Markov extends Object{
 
@@ -225,7 +224,10 @@ public final class Markov extends Object{
 			}
 //			ReCompositeAction reCompositeAction = new ReCompositeAction(state.getFailedActivity().getNumber(),
 //					Markov.A_RE_COMPOSITE, state.getFailedActivity().getBlindService().getNumber());
-			ReCompositeAction reCompositeAction =  (ReCompositeAction) stateTemp.getReCompositeAction();
+//			ReCompositeAction reCompositeAction =  (ReCompositeAction) stateTemp.getReCompositeAction();
+			ReCompositorImpl reCompositor = ((ReCompositorImpl) stateTemp.getReCompositor());			
+			ReCompositeAction reCompositeAction =  (ReCompositeAction) reCompositor.getReComAction();
+			
 //						(ReCompositeAction) ActivityFlow.recomposite(stateStore);
 //			reCompositeAction.setOldNewReplaceServiceMap(state.getReCompositor().getOldNewReplaceMap());
 	
@@ -236,10 +238,10 @@ public final class Markov extends Object{
 
 //			System.out.println("After ReCom, stateStore" + stateStore);
 //			System.out.println("state=" + state);
-			records.add(new MarkovRecord(state, states.get(0), reCompositeAction, 0,
-					0, 0));
-			records.add(new MarkovRecord(state, states.get(1), reCompositeAction, 0,
-					0, 0));
+			records.add(new MarkovRecord(state, states.get(0), reCompositeAction, reCompositor.getPosibility(),
+					reCompositor.getPriceCost(), reCompositor.getTimeCost()));
+			records.add(new MarkovRecord(state, states.get(1), reCompositeAction, 1 - reCompositor.getPosibility(),
+					reCompositor.getPriceCost(), reCompositor.getTimeCost()));
 			
 			return records;
 			

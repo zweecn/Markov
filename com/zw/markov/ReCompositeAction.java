@@ -13,7 +13,7 @@ public class ReCompositeAction extends BaseAction implements MarkovAction {
 	}
 	
 	private Map<AtomService, AtomService> oldNewReplaceServiceMap;
-
+	
 	public Map<AtomService, AtomService> getOldNewReplaceServiceMap() {
 		return oldNewReplaceServiceMap;
 	}
@@ -22,8 +22,6 @@ public class ReCompositeAction extends BaseAction implements MarkovAction {
 			Map<AtomService, AtomService> oldNewReplaceServiceMap) {
 		this.oldNewReplaceServiceMap = oldNewReplaceServiceMap;
 	}
-	
-	
 	
 	public String toString() {
 		String res = "";
