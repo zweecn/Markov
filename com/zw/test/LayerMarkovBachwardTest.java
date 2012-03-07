@@ -1,11 +1,14 @@
 package com.zw.test;
 
+
 import com.zw.markov.Markov;
 import com.zw.markov.MarkovState;
 import com.zw.markov.alg.LayerMarkovBackward;
 
 public class LayerMarkovBachwardTest {
 	public static void main(String[] args) {
+		long startTime=System.currentTimeMillis();   
+
 		MarkovState state = new MarkovState();
 		state.setCurrGlobalState(Markov.S_UNKNOWN);
 		state.getActivity(0).setX(-1);
@@ -28,5 +31,8 @@ public class LayerMarkovBachwardTest {
 //		System.out.println();
 		
 		//bd.printStateFlow();
+		long endTime=System.currentTimeMillis();
+		System.out.println("\nRunTime: "+(endTime - startTime) + " ms");
+
 	}
 }
