@@ -9,8 +9,6 @@ public final class Configs {
 	public static final double WEAKEN = 0.8;
 	public static final double TIME_STEP = Double.MAX_VALUE;
 	
-	public static final int LAYER_SIZE = 1;
-	
-	public static final double RANDOM_FIND_FREE_SERVICE = 1;
-	
+	public static final double RANDOM_FIND_FREE_SERVICE = 0.2;
+	public static final int LAYER_SIZE = 10;
 }
