@@ -113,11 +113,12 @@ public class LayerMarkovBackward {
 //		for (MarkovRecord rd : destRecords) {
 //			System.out.println(rd.toString());
 //		}
-		if (sourceRecord != null && !sourceRecord.isEmpty()) {
-			for (MarkovRecord rd : sourceRecord) {
-				destRecords.add(rd.clone());
-			}
-			//oneLayerRecords.addAll(records);
+		if (sourceRecord != null && !sourceRecord.isEmpty() && destRecords != null) {
+//			for (MarkovRecord rd : sourceRecord) {
+//				destRecords.add(rd.clone());
+//			}
+//			oneLayerRecords.addAll(records);
+			destRecords.addAll(sourceRecord);
 			for (MarkovRecord rd : sourceRecord) {
 				queue2.offer(rd.getStateAfter());
 				if (rd.getStateBefore().getId() > stateSize) {
