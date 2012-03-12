@@ -23,7 +23,7 @@ public class Activity {
 	private double x;
 	private int redoCount;
 	private int replaceCount;
-	private int id;
+	//private int id;
 	
 	private double predictTimeCost;
 	private double predictPriceCost;
@@ -58,9 +58,9 @@ public class Activity {
 		}
 	}
 	
-	public int getId() {
-		return id;
-	}
+//	public int getId() {
+//		return id;
+//	}
 	
 	public Activity clone() {
 		Activity activityTemp = new Activity();
@@ -87,8 +87,6 @@ public class Activity {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((blindService == null) ? 0 : blindService.hashCode());
 		result = prime * result + number;
 		long temp;
 		temp = Double.doubleToLongBits(x);
@@ -107,13 +105,6 @@ public class Activity {
 			return false;
 		}
 		Activity other = (Activity) obj;
-		if (blindService == null) {
-			if (other.blindService != null) {
-				return false;
-			}
-		} else if (!blindService.equals(other.blindService)) {
-			return false;
-		}
 		if (number != other.number) {
 			return false;
 		}
@@ -122,6 +113,15 @@ public class Activity {
 		}
 		return true;
 	}
+	
+	public String toString() {
+		String res = "";
+		res += "[Activity " + String.format("%2d", this.getNumber());
+		res += " x=" + String.format("%.2f", x) + "]";
+		
+		return res;
+	}
+	
 	public double getPredictTimeCost() {
 		return predictTimeCost;
 	}

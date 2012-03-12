@@ -65,10 +65,14 @@ public class ActivityFlow {
 			return;
 		}
 		for (int i = 0; i < this.activities.size(); i++) {
-			if (this.activities.get(i).getId() == activity.getId()) {
+			if (this.activities.get(i).getNumber()== activity.getNumber()) {
 				this.activities.set(i, activity);
 			}
 		}
+	}
+	
+	public List<Activity> getActivities() {
+		return activities;
 	}
 	
 	public void printFlow() {
@@ -95,6 +99,37 @@ public class ActivityFlow {
 			}
 		}
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((activities == null) ? 0 : activities.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (!(obj instanceof ActivityFlow)) {
+			return false;
+		}
+		ActivityFlow other = (ActivityFlow) obj;
+		if (activities == null) {
+			if (other.activities != null) {
+				return false;
+			}
+		} else if (!activities.equals(other.activities)) {
+			return false;
+		}
+		return true;
+	}
 
 /*
  * 
@@ -114,6 +149,10 @@ public class ActivityFlow {
 		readGraphInfo();
 		readBlindService();
 		initPrefixSuffix();
+//		System.out.println("in static");
+//		for (Activity ac : ActivityFlow.staticActivities) {
+//			System.out.println(ac.getNumber());
+//		}
 	}
 	
 	private static void readCandidateServices() {
@@ -347,4 +386,8 @@ public class ActivityFlow {
 		}
 		return false;
 	}*/
+
+	
+
+	
 }

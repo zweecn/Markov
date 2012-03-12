@@ -1,5 +1,7 @@
 package com.zw.markov;
 
+import com.zw.ws.FreeServiceFinder;
+
 public class ReplaceAction extends BaseAction implements MarkovAction{
 	public ReplaceAction(int activityNumber, int opNumber, int oldServiceNumber, int newServiceNumber) {
 		super(activityNumber, opNumber, oldServiceNumber);
@@ -9,6 +11,7 @@ public class ReplaceAction extends BaseAction implements MarkovAction{
 	
 	private int oldServiceNumber;
 	private int newServiceNumber;
+	private FreeServiceFinder freeServiceFinder;
 	
 	public int getOldServiceNumber() {
 		return oldServiceNumber;
@@ -85,6 +88,24 @@ public class ReplaceAction extends BaseAction implements MarkovAction{
 		}
 		return true;
 	}
+
+	public FreeServiceFinder getFreeServiceFinder() {
+		return freeServiceFinder;
+	}
+
+	public void setFreeServiceFinder(FreeServiceFinder freeServiceFinder) {
+		this.freeServiceFinder = freeServiceFinder;
+	}
 	
+	public double getPosibility() {
+		return this.freeServiceFinder.getPosibility();
+	}
 	
+	public double getPriceCost() {
+		return this.freeServiceFinder.getPriceCost();
+	}
+	
+	public double getTimeCost() {
+		return this.freeServiceFinder.getTimeCost();
+	}
 }

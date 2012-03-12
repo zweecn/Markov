@@ -1,243 +1,185 @@
 package com.zw.markov;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.zw.Configs;
-import com.zw.ws.Activity;
-import com.zw.ws.AtomService;
-import com.zw.ws.FreeServiceFinder;
-import com.zw.ws.FreeServiceFinderImp;
-import com.zw.ws.ReCompositor;
-import com.zw.ws.ReCompositorImpl;
-//import com.zw.ws.FreeServiceFinder;
-//import com.zw.ws.FreeServiceFinderImpl;
-import com.zw.ws.ActivityFlow;
-//import com.zw.ws.ReCompositor;
-//import com.zw.ws.ReCompositorImpl;
+import com.zw.ws.*;
+import java.util.*;
 
 public class MarkovState extends ActivityFlow {
-	
 	public MarkovState() {
 		super();
-		this.id = MarkovState.getNextFreeStateID();
-		freeServiceFinder = new FreeServiceFinderImp();
-		reCompositor = new ReCompositorImpl();
 		init();
 	}
 	
-	public MarkovState(MarkovState state) {
-		super();
-		this.id = MarkovState.getNextFreeStateID();
-	}
+	private Activity faultActivity;
+	private int faultActivityState;
+	private int globalState;
 	
+	private int id;
+	private boolean finished;
+	private MarkovState[] nextStateArray;
+	private List<Activity> nextToDoActivityList;
+	private Activity nextToDoActivity;
 	
-	private static long freeId;
-	private static long getNextFreeStateID() {
-		return freeId++; 
-	}
-	private static void fallbackId(long num) {
-		freeId -= num;
-	}
-	
-	public MarkovState init() {
+	public void init() {
+		finished = true;
+		boolean failed = false;
+		nextToDoActivityList = new ArrayList<Activity>();
 		nextToDoActivity = null;
-		currFailed = false;
-
-		currFinished = true;
-		nextStepTimeCost = -1;
-		nextToDoActivities = new ArrayList<Activity>();
-		for (int i = 0; i < super.getActivitySize(); i++) {
-			if (super.activities.get(i).getX() < 1) {
-				currFinished = false;
+//		System.out.println();
+//		System.out.println("Here this=" + this);
+		for (Activity ac : this.activities) {
+			//System.out.println("ac=" + ac.getNumber() + " ac.x=" + ac.getX());
+			if (ac.getX() < 0) {
+				faultActivity = ac;
+				failed = true;
 			}
-			if (super.activities.get(i).getX() < 0) {
-				currFailed = true;
-				this.currGlobalState = Markov.S_FAILED;
-			}
-			if ((super.activities.get(i).getX() < 1) 
-					&& isPrefixActivitiesFinished(super.activities.get(i).getNumber())) {
-				nextToDoActivities.add(super.activities.get(i));
-				double timeCostTemp = 0;
-				//System.out.println("super.activities.get(i)=" + super.activities.get(i).getBlindService());
-				if (super.activities.get(i).getX() >=0) {
-					timeCostTemp = (1 - super.activities.get(i).getX())
-						* super.activities.get(i).getBlindService().getQos().getExecTime();
-				} else {
-					timeCostTemp = super.activities.get(i).getBlindService().getQos().getExecTime();
-				}
-				if (nextStepTimeCost > timeCostTemp || nextStepTimeCost == -1) {
-					nextStepTimeCost = timeCostTemp;
-					nextToDoActivity = super.activities.get(i);
-				}
+			if (ac.getX() < 1 && isPrefixActivitiesFinished(ac.getNumber())) {
+				//System.out.println("ac=" + ac.getNumber() + " x=" + ac.getX());
+				nextToDoActivityList.add(ac);
+				finished = false;
 			}
 		}
-
-		if (nextStepTimeCost > Configs.TIME_STEP) {
-			nextStepTimeCost = Configs.TIME_STEP;
-		}
-		if (currFinished && currFailed) {
-			nextStepTimeCost = 0;
-			this.currGlobalState = Markov.S_FAILED;
-		}
-		if (currFinished && !currFailed) {
-			nextStepTimeCost = 0;
-			this.currGlobalState = Markov.S_SUCCEED;
-		}
-		if (!currFinished && !currFailed) {
-			this.currGlobalState = Markov.S_UNKNOWN;
+		//System.out.println();
+		for (Activity ac : nextToDoActivityList) {
+			if (nextToDoActivity == null || ac.getX() * nextToDoActivity.getBlindService().getQos().getExecTime() 
+					< nextToDoActivity.getX() * nextToDoActivity.getBlindService().getQos().getExecTime()) {
+				nextToDoActivity = ac;
+			}
 		}
 		
-		return this;
-	}
-	
-	public int getId() {
-		return (int) id;
+		if (faultActivity == null) {
+			this.faultActivityState = Markov.S_NORMAL;
+		} else if (faultActivity.getX() < 0) {
+			this.faultActivityState = Markov.S_FAILED;
+		}
+		
+		if (failed) {
+			this.globalState = Markov.S_FAILED;
+		}
+		if (finished && !failed) {
+			this.globalState = Markov.S_SUCCEED;
+		}
+		if (!finished && !failed) {
+			this.globalState = Markov.S_NORMAL;
+		}
+		//System.out.println("finished=" + finished + " failed=" + failed);
 	}
 	
 	public MarkovState clone() {
-		MarkovState stateNew = new MarkovState(this);
-//		stateNew.graph = new int[graph.length][graph.length]; //super graph
-//		for (int i = 0; i < graph.length; i++) {
-//			for (int j = 0; j < graph.length; j++) {
-//				stateNew.graph[i][j] = graph[i][j];
-//			}
-//		}
-		stateNew.activities = new ArrayList<Activity>(); //super activities
-		for (Activity at : super.activities) {
-			stateNew.activities.add(at.clone());
+		MarkovState state = new MarkovState();
+		state.id = this.id;
+		state.faultActivity =  null;
+//		state.faultActivity = (this.faultActivity == null ? null : this.faultActivity.clone());
+		state.activities.clear();
+		for (Activity ac : this.activities) {
+			state.activities.add(ac.clone());
 		}
-//		stateNew.services = this.services;
-		stateNew.currGlobalState = this.currGlobalState;
-		stateNew.currTotalTimeCost = this.currTotalTimeCost;
-		stateNew.nextStepTimeCost = this.nextStepTimeCost;
-		stateNew.currFailed = this.currFailed;
-		stateNew.currFinished = this.currFinished;
-		stateNew.redoTimeCost = this.redoTimeCost;
-		stateNew.nextToDoActivities = new ArrayList<Activity>();
-		for (Activity at : this.nextToDoActivities) {
-			stateNew.nextToDoActivities.add(at.clone());
-		}
-		stateNew.nextToDoActivity = (this.nextToDoActivity == null) ? null : this.nextToDoActivity.clone();
-		stateNew.replaceNewService = (this.replaceNewService == null) ? null : this.replaceNewService.clone(); 
-		stateNew.replaceAction = (this.replaceAction == null) ? null : this.replaceAction;
-		
-		stateNew.freeServiceFinder = this.freeServiceFinder; // Mark, this is not clone()
-		stateNew.reCompositor = this.reCompositor;
-		
-		return stateNew;
+		state.init();
+		return state;
 	}
 	
-	public MarkovState store() {
-		MarkovState.fallbackId(1);
-		MarkovState stateNew = this.clone();
-		//System.out.println("1--MarkovState.freeId=" + MarkovState.freeId);
-		//System.out.println("2--MarkovState.freeId=" + MarkovState.freeId);
-		return stateNew;
-	}
-	
-	public List<MarkovState> nextStates(int opNumber) {
-		List<MarkovState> states = new ArrayList<MarkovState>();
-		switch (opNumber) {
-		case Markov.A_NO_ACTION:
-			if (this.isCurrFailed()) {
-				states.add(this);
-			} else {
-				states.add(this.clone());
-				states.add(this.clone());
-				states = aStepNoAction(states);
-			}
-			return states;
-		case Markov.A_RE_DO:
-			if (this.isCurrFailed()) {
-				states.add(this.clone());
-				states.add(this.clone());
-				states = aStepReDo(states);
-				return states;
-			} else {
-				return null;
-			}
-		case Markov.A_REPLACE:
-
-			if (this.isCurrFailed()) {
-				states.add(this.clone());
-				states.add(this.clone());
-				states = aStepReplace(states);
-				return states;
-			} else {
-				return null;
-			}
-		case Markov.A_RE_COMPOSITE:
-			if (this.isCurrFailed()) {
-//				MarkovState stateTemp = this.store();
-//				MarkovState state = reCompositor.recomposite(this.store());
-//				System.out.println("3-------BEFORE:" + this);
-				//System.out.println("state=" + state);
-				
-//				reCompositeAction = ActivityFlow.recomposite(this);
-				
-				MarkovState stateTemp = reCompositor.recomposite(this); //++++
-				//reCompositor.recomposite(stateTemp);
-				//reCompositeAction = ((ReCompositorImpl) reCompositor).getReComAction();
-//				reCompositeAction = ActivityFlow.recomposite(stateStore);
-//				System.out.println("4-------BEFORE:" + this);
-//				System.out.println("++++++++++++++++++ " + stateStore.equals(state));
-//				System.out.println(stateTemp);
-				if (stateTemp == null || ((ReCompositorImpl) reCompositor).getReComAction() == null) {
-					return null;
-				}
-				
-//				if (state == null || this.equals(state)) {
-//					//System.out.println("In if... " + state);
-//					return null;
-//				}
-				//System.out.println("--------------");
-//				stateStore.init();
-//				states.add(stateStore.clone());
-//				states.add(stateStore.clone());
-//				states = stateStore.aStepReComposite(states);
-				
-				this.init();
-				states.add(this.clone());
-				states.add(this.clone());
-				//System.out.println("5-------BEFORE:" + this);
-				//System.out.println("Before astep:" + this);
-				states = this.aStepReComposite(states);
-//				System.out.println("6-------BEFORE:" + stateStore);
-//				System.out.println("\nAFTER:");
-//				for (MarkovState s : states) {
-//					System.out.println(s);
-//				}
-//				System.out.println();
-				return states;
-			} else {
-				return null;
-			}
+	public MarkovState[] getNextTwoStates() {
+		//System.out.println("this=" + this);
+		//this.init();
+		//System.out.println("nextToDoActivity=" +nextToDoActivityList.get(0).getNumber());
+		if (this.isFailed()) {
+			nextStateArray = new MarkovState[1];
+			nextStateArray[0] = this.clone();
+			return nextStateArray;
+		} else {
+			nextStateArray = new MarkovState[2];
+			nextStateArray[0] = this.clone();
+			nextStateArray[1] = this.clone();
 			
-		default:
-			return null;
+			if (nextToDoActivityList.size() == 1) { //Seq
+				nextStateArray[0].getActivity(nextToDoActivity.getNumber()).setX(1);
+				nextStateArray[1].getActivity(nextToDoActivity.getNumber()).setX(-1);
+			} else { //Ban
+				double timeCostTemp = (1 - this.nextToDoActivity.getX()) * this
+						.nextToDoActivity.getBlindService().getQos().getExecTime();
+				for (Activity ac : this.nextToDoActivityList) {
+					double xTemp = (timeCostTemp + ac.getX() * ac.getBlindService()
+							.getQos().getExecTime()) / ac.getBlindService().getQos().getExecTime();
+					if (xTemp >= 1) {
+						nextStateArray[0].getActivity(ac.getNumber()).setX(1);
+					} else {
+						nextStateArray[0].getActivity(ac.getNumber()).setX(xTemp);
+					}
+				}
+				nextStateArray[0].getActivity(nextToDoActivity.getNumber()).setX(1);
+				nextStateArray[1].getActivity(nextToDoActivity.getNumber()).setX(-1);
+			}
+			nextStateArray[0].init();
+			nextStateArray[1].init();
+			
+//			System.out.println("nextStateArray[0]=" + nextStateArray[0].getActivities());
+//			System.out.println("nextStateArray[1]=" + nextStateArray[1].getActivities());
+			return nextStateArray;
 		}
 	}
 	
-//	public MarkovAction getReCompositeAction() {
-//		return reCompositeAction;
-//	}
 	
-	public Activity getFailedActivity() {
-		for (int i = 0; i < nextToDoActivities.size(); i++) {
-			if (nextToDoActivities.get(i).getX() < 0) {
-				return nextToDoActivities.get(i);
+	public boolean isPrefixActivitiesFinished(int currActivityNumber) {
+		List<Integer> prefixActivityNumbers = super.getPrefixActivityNumbers(currActivityNumber);
+		if (prefixActivityNumbers != null && !prefixActivityNumbers.isEmpty()) {
+			for (Integer it : prefixActivityNumbers) {
+				if (super.getActivity(it).getX() != 1) {
+					return false;
+				}
 			}
 		}
-		return nextToDoActivity;
+		return true;
+	}
+	
+	
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result
+				+ ((faultActivity == null) ? 0 : faultActivity.hashCode());
+		result = prime * result 
+				+ ((super.activities == null) ? 0 : super.activities.hashCode());
+		return result;
 	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (!(obj instanceof MarkovState)) {
+			return false;
+		}
+		MarkovState other = (MarkovState) obj;
+		if (faultActivity == null) {
+			if (other.faultActivity != null) {
+				return false;
+			}
+		} else if (!faultActivity.equals(other.faultActivity)) {
+			return false;
+		}
+		if (super.activities == null) {
+			if (other.activities != null) {
+				return false;
+			}
+		} else if (!super.activities.equals(other.activities)) {
+			return false;
+		}
+		
+		return true;
+	}
+	
 	public String toString() {
 		String res = "[State " + String.format("%3d", this.id) + ":";
 		
 		String stateText = "";
-		switch (currGlobalState) {
-		case Markov.S_UNKNOWN:
-			stateText += "UNKNOW";
+		switch (globalState) {
+		case Markov.S_NORMAL:
+			stateText += "NORMAL";
 			break;
 		case Markov.S_FAILED:
 			stateText += "FAILED";
@@ -260,254 +202,65 @@ public class MarkovState extends ActivityFlow {
 					+  " x=" + String.format("%5.2f", at.getX()) + ") ";
 		}
 		res = res.trim() + "] Global_state=";
-		stateText = String.format("%-8s", stateText);
-		res += stateText + " currTimeCost=" + String.format("%7.2f", currTotalTimeCost) + ", nextTimeCost=" 
-				+ String.format("%6.2f", nextStepTimeCost);
-		res = res.trim() + "]";
+		stateText = String.format("%-7s", stateText);
+		res += stateText;
+		res = res + "]";
 		return res;
 	}
-//
-//	public String toString() {
-//		String res = "[State " + String.format("%3d", this.id) + ":";
-//		
-//		String stateText = "";
-//		switch (currGlobalState) {
-//		case Markov.S_UNKNOWN:
-//			stateText += "UNKNOW";
-//			break;
-//		case Markov.S_FAILED:
-//			stateText += "FAILED";
-//			break;
-//		case Markov.S_SUCCEED:
-//			stateText += "SUCCEED";
-//			break;
-//		case Markov.S_DELAYED:
-//			stateText += "DELAYED";
-//			break;
-//		case Markov.S_PRICE_UP:
-//			stateText += "PRICE_UP";
-//			break;
-//		default:
-//			break;
-//		}
-//		res += " Global_state=";
-//		stateText = String.format("%-8s", stateText);
-//		res = res.trim() + stateText + "]";
-//		return res;
-//	}
-	
-	public int getCurrGlobalState() {
-		return currGlobalState;
+
+	public Activity getFaultActivity() {
+		return faultActivity;
 	}
 
-	public double getCurrTotalTimeCost() {
-		return currTotalTimeCost;
+	public void setFaultActivity(Activity faultActivity) {
+		this.faultActivity = faultActivity;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 	
-	public void addCurrTotalTimeCost(double cost) {
-		this.currTotalTimeCost += cost;
-	}
-	
-	public double getNextStepTimeCost() {
-		return nextStepTimeCost;
-	}
-
-	public boolean isCurrFailed() {
-		return currFailed;
-	}
-
-	public boolean isCurrFinished() {
-		return currFinished;
-	}
-
-	public double getRedoTimeCost() {
-		return redoTimeCost;
-	}
-
 	public Activity getNextToDoActivity() {
 		return nextToDoActivity;
 	}
 
-	public List<Activity> getNextToDoActivities() {
-		return nextToDoActivities;
+	public void setNextToDoActivity(Activity nextToDoActivity) {
+		this.nextToDoActivity = nextToDoActivity;
 	}
 
-	public ReplaceAction getReplaceAction() {
-		return replaceAction;
+	public int getFaultActivityState() {
+		return faultActivityState;
 	}
 
-	public AtomService getNextFreeService() {
-		return replaceNewService;
+	public void setFaultActivityState(int faultActivityState) {
+		this.faultActivityState = faultActivityState;
 	}
 
-	public void setCurrGlobalState(int currGlobalState) {
-		this.currGlobalState = currGlobalState;
-	}
-	
-//	public Activity getActivity(int activityNumber) {
-//		return super.getActivity(activityNumber);
-//	}
-
-	public void setActivity(Activity activity) {
-		for (int i = 0; i < super.activities.size(); i++) {
-			if (super.activities.get(i).getNumber() == activity.getNumber()) {
-				super.activities.set(i, activity);
-			}
-		}
-	}
-	
-	
-	private long id;
-	private int currGlobalState;
-	private double currTotalTimeCost; 
-	private double nextStepTimeCost;
-	private boolean currFailed;
-	private boolean currFinished;
-	private double redoTimeCost;
-	
-	private Activity nextToDoActivity;
-	private List<Activity> nextToDoActivities;
-	private ReplaceAction replaceAction;
-	private AtomService replaceNewService;
-	private FreeServiceFinder freeServiceFinder;
-	private ReCompositor reCompositor;
-//	private MarkovAction reCompositeAction;
-	
-	private List<MarkovState> aStepNoAction(List<MarkovState> states) {
-
-		for (Activity at : this.nextToDoActivities) {
-			for (int i = 0; i < states.size(); i++) {
-				Activity runActivity = states.get(i).getActivity(at.getNumber());
-				runActivity.addX(nextStepTimeCost / runActivity.getBlindService().getQos().getExecTime());
-			}
-		}
-		states.get(0).addCurrTotalTimeCost(nextStepTimeCost);
-		states.get(1).addCurrTotalTimeCost(nextStepTimeCost);
-		
-		states.get(1).getActivity(this.nextToDoActivity.getNumber()).setX(-1); //Mark
-		for (int i = 0; i < states.size(); i++) {
-			states.get(i).init();
-		}
-
-		return states;
-	}
-	
-	private List<MarkovState> aStepReDo(List<MarkovState> states) {
-
-		for (Activity at : this.nextToDoActivities) {
-			for (int i = 0; i < states.size(); i++) {
-				Activity runActivity = states.get(i).getActivity(at.getNumber());
-				if (runActivity.getX() < 0) {
-					redoTimeCost = Math.abs(runActivity.getX() * runActivity.getBlindService()
-							.getQos().getExecTime());
-				}
-				runActivity.addX(nextStepTimeCost / runActivity.getBlindService().getQos().getExecTime());
-			}
-		}
-		states.get(0).addCurrTotalTimeCost(nextStepTimeCost);
-
-		states.get(1).addCurrTotalTimeCost(nextStepTimeCost);
-		states.get(1).getActivity(this.nextToDoActivity.getNumber()).setX(-1); //Mark
-
-		for (int i = 0; i < states.size(); i++) {
-			states.get(i).init();
-		} 
-
-		return states;
+	public int getGlobalState() {
+		return globalState;
 	}
 
-	private List<MarkovState> aStepReplace(List<MarkovState> states) {
-		
-		for (Activity at : this.nextToDoActivities) {
-			Activity runActivity = states.get(0).getActivity(at.getNumber());
-			if (runActivity.getX() < 0) { //这里是假设只同时出现1个结点故障时
-				replaceNewService = freeServiceFinder.nextFreeService(runActivity);
-//				replaceNewService = ActivityFlow.nextFreeService(runActivity);
-				if (replaceNewService == null) {
-					//System.err.println("Candidate service is all used.");
-					fallbackId(2);
-					return null;
-				}
-				freeServiceFinder.setServiceUsed(replaceNewService);
-//				ActivityFlow.setServiceUsed(replaceNewService.getNumber());
-				
-				states.get(0).getActivity(at.getNumber()).setBlindService(replaceNewService);
-				states.get(0).getActivity(at.getNumber()).setX(1);
-				states.get(0).addCurrTotalTimeCost(replaceNewService.getQos().getExecTime());
-				states.get(1).getActivity(at.getNumber()).setBlindService(replaceNewService);
-				states.get(1).getActivity(at.getNumber()).setX(-1);
-				states.get(1).addCurrTotalTimeCost(replaceNewService.getQos().getExecTime());
-				break;
-			}
-		}
-		for (int i = 0; i < states.size(); i++) {
-			states.get(i).init();
-		}
-		return states;
-	}
-	
-	private List<MarkovState> aStepReComposite(List<MarkovState> states) {	
-		//System.out.println("In aStepReComposite:" + aStepNoAction(states));
-		return aStepNoAction(states);
-	}
-	
-	public AtomService getReplaceNewService() {
-		return (replaceNewService);
-	}
-	
-	
-	private boolean isPrefixActivitiesFinished(int currActivityNumber) {
-		List<Integer> prefixActivityNumbers = super.getPrefixActivityNumbers(currActivityNumber);
-		if (prefixActivityNumbers != null && !prefixActivityNumbers.isEmpty()) {
-			for (Integer it : prefixActivityNumbers) {
-				if (super.getActivity(it).getX() != 1) {
-					return false;
-				}
-			}
-		}
-		return true;
+	public void setGlobalState(int globalState) {
+		this.globalState = globalState;
 	}
 
-//	public FreeServiceFinder getFreeServiceFinder() {
-//		return freeServiceFinder;
-//	}
-
-//	public ReCompositor getReCompositor() {
-//		return reCompositor;
-//	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (int) (id ^ (id >>> 32));
-		return result;
+	public boolean isFinished() {
+		return finished;
 	}
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (obj == null) {
-			return false;
-		}
-		if (!(obj instanceof MarkovState)) {
-			return false;
-		}
-		MarkovState other = (MarkovState) obj;
-		if (id != other.id) {
-			return false;
-		}
-		return true;
+	public void setFinished(boolean finished) {
+		this.finished = finished;
 	}
 
-	public ReCompositor getReCompositor() {
-		return reCompositor;
+	public boolean isFailed() {
+		return this.globalState == Markov.S_FAILED;
 	}
 
-	public FreeServiceFinder getFreeServiceFinder() {
-		return freeServiceFinder;
+	public void setFailed(boolean failed) {
+		this.globalState = Markov.S_FAILED;
 	}
-	
 }

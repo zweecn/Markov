@@ -18,9 +18,17 @@ import com.zw.markov.MarkovState;
 public class LayerMarkovBackward {
 	public LayerMarkovBackward(MarkovState state) {
 		this.state = state;
+		long t1 = System.currentTimeMillis();
 		generateLayerRecords();
+		long t2 = System.currentTimeMillis();
 		initTree();
+		long t3 = System.currentTimeMillis();
 		initMarkovInfo();
+		long t4 = System.currentTimeMillis();
+		
+		System.out.println("Run time, Gen Record :" + (t2-t1));
+		System.out.println("Run time, Init Tree  :" + (t3-t2));
+		System.out.println("Run time, Init Markov:" + (t4-t3));
 	}
 	
 	private Queue<MarkovState> queue1;
@@ -60,34 +68,39 @@ public class LayerMarkovBackward {
 	
 	private void generateLayerRecords() {
 		allLayerRecords = new ArrayList<List<MarkovRecord>>();
-		state.setCurrGlobalState(Markov.S_UNKNOWN);
+		state.setGlobalState(Markov.S_NORMAL);
 		state.getActivity(0).setX(-1);
 		state.init();
 		
 		queue2 = new LinkedList<MarkovState>();
 		queue2.offer(state);
 		Set<MarkovState> stateSet = new HashSet<MarkovState>();
-		for (int i = 0; i < Configs.LAYER_SIZE; i++) {
+		for (;;) {
 			queue1 = queue2;
 			queue2 = new LinkedList<MarkovState>();
 			List<MarkovRecord> oneLayerRecords = new ArrayList<MarkovRecord>();
 			while (!queue1.isEmpty()) {
 				state = queue1.poll();
+				//System.out.println("state=" + state);
 				if (!stateSet.contains(state)) {
+					//System.out.println("In if...");
 					stateSet.add(state);
 //					MarkovState sTemp1 = state.store();
-					List<MarkovRecord> records = Markov.noAction(state);
+					/*List<MarkovRecord> records = Markov.noActionRecords(state);
 					addToRecords(oneLayerRecords, records);
-					records = Markov.terminate(state);
+					records = Markov.terminateRecords(state);
 					addToRecords(oneLayerRecords, records);
-					records = Markov.redo(state);
+					records = Markov.redoRecords(state);
 					addToRecords(oneLayerRecords, records);
-					records = Markov.replace(state);  
+					records = Markov.replaceRecords(state);  
 					addToRecords(oneLayerRecords, records);
-					MarkovState sTemp = state.store();
+					MarkovState sTemp = state.clone();
 					sTemp.init();
-					records = Markov.reComposite(state);
-					//System.out.println("In Layer:" + records);
+					records = Markov.reCompositeRecords(state); */
+					
+					//System.out.println("state=" + state);
+					List<MarkovRecord> records = Markov.getRecords(state);
+					//System.out.println("In Layer:" + records + "\n");
 					addToRecords(oneLayerRecords, records);
 				}
 			}
@@ -95,6 +108,10 @@ public class LayerMarkovBackward {
 //			for (MarkovRecord rd : oneLayerRecords) {
 //				System.out.println(rd);
 //			}
+			//System.out.println("oneLayerRecords=" + oneLayerRecords);
+			if (oneLayerRecords.isEmpty()) {
+				break;
+			}
 			allLayerRecords.add(oneLayerRecords);
 			//oneLayerRecords.clear();
 		}
@@ -238,12 +255,15 @@ public class LayerMarkovBackward {
 	
 	public double getBestChose() {
 		//printUtility();
+		long t1 = System.currentTimeMillis();
 		for (int i = stateSize-1; i >= 0; i--) {
 			if (stateNodeArray[i].hasChild()) { //Fix the bug: rewrite utility[i]
 				//System.out.println("In state has child, i=" + i);
 				utility[i] = max(i);
 			}
 		}
+		long t2 = System.currentTimeMillis();
+		System.out.println("Run time, Get Best :" + (t2-t1));
 		Collections.reverse(resultActions);
 		return utility[0];
 	}
@@ -319,14 +339,14 @@ public class LayerMarkovBackward {
 	}
 	
 	private double getReward(MarkovState state) {
-		switch (state.getCurrGlobalState()) {
+		switch (state.getGlobalState()) {
 		case Markov.S_SUCCEED:
 			return ( 10 );
 		case Markov.S_DELAYED:
 			return ( 10 );
 		case Markov.S_PRICE_UP:
 			return ( 10 );
-		case Markov.S_UNKNOWN:
+		case Markov.S_NORMAL:
 			return ( 10 );
 			
 		case Markov.S_FAILED:

@@ -1,7 +1,7 @@
 package com.zw.markov;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+
 
 public class MarkovRecord {
 	private MarkovState stateBefore;
@@ -17,6 +17,68 @@ public class MarkovRecord {
 	private static Map<Long, Double> reward_tMap = new HashMap<Long, Double>();
 	private static Map<Long, MarkovState> stateMap = new HashMap<Long, MarkovState>();
 	private static Map<Long, MarkovAction> actionMap = new HashMap<Long, MarkovAction>();
+	private static List<MarkovState> stateList = new ArrayList<MarkovState>();
+	private static Set<MarkovState> stateBeforeSet = new HashSet<MarkovState>();
+	private static Map<StateAction, Double> stateAction2PriceCostMap = new HashMap<MarkovRecord.StateAction, Double>();
+	private static Map<StateAction, Double> stateAction2TimeCostMap = new HashMap<MarkovRecord.StateAction, Double>();
+	
+	//StateAction sa = new StateAction(null, null);
+	
+	private static class StateAction {
+		public StateAction(MarkovState state, MarkovAction action) {
+		//	super();
+			this.state = state;
+			this.action = action;
+		}
+		
+		private MarkovState state;
+		private MarkovAction action;
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+		//	result = prime * result + getOuterType().hashCode();
+			result = prime * result
+					+ ((action == null) ? 0 : action.hashCode());
+			result = prime * result + ((state == null) ? 0 : state.hashCode());
+			return result;
+		}
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (!(obj instanceof StateAction)) {
+				return false;
+			}
+			StateAction other = (StateAction) obj;
+//			if (!getOuterType().equals(other.getOuterType())) {
+//				return false;
+//			}
+			if (action == null) {
+				if (other.action != null) {
+					return false;
+				}
+			} else if (!action.equals(other.action)) {
+				return false;
+			}
+			if (state == null) {
+				if (other.state != null) {
+					return false;
+				}
+			} else if (!state.equals(other.state)) {
+				return false;
+			}
+			return true;
+		}
+//		private MarkovRecord getOuterType() {
+//			return MarkovRecord.this;
+//		}
+	}
 	
 	public MarkovRecord(MarkovState stateBefore, MarkovState stateAfter, 
 			MarkovAction action, double posibility, double priceCost, double timeCost) {
@@ -37,6 +99,8 @@ public class MarkovRecord {
 		MarkovRecord.setState(this.stateBefore.getId(), this.stateBefore);
 		MarkovRecord.setState(this.stateAfter.getId(), this.stateAfter);
 		MarkovRecord.setAction(this.action.getId(), this.action);
+		MarkovRecord.addStateAction(this.stateBefore, this.action, this.priceCost, this.timeCost);
+		MarkovRecord.stateBeforeSet.add(this.stateBefore);
 	}
 	
 	public MarkovRecord clone() {
@@ -216,5 +280,44 @@ public class MarkovRecord {
 
 	public static MarkovState setState(long i, MarkovState state) {
 		return MarkovRecord.stateMap.put(i, state);
+	}
+	
+	public static boolean hasState(MarkovState state) {
+		return stateList.contains(state);
+	}
+	
+	public static void addState(MarkovState state) {
+		int i = stateList.size();
+		state.setId(i);
+		stateList.add(state);
+	}
+	
+	public static MarkovState getState(MarkovState state) {
+		if (stateList.contains(state)) {
+			for (int i = 0; i < stateList.size(); i++) {
+				if (state.equals(stateList.get(i))) {
+					return stateList.get(i);
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static boolean hasStateBefore(MarkovState state) {
+		return stateBeforeSet.contains(state);
+	}
+	
+	public static boolean hasStateAction(MarkovState state, MarkovAction action) {
+		StateAction sa = new StateAction(state, action);
+		if (stateAction2PriceCostMap.get(sa) == null) {
+			return false;
+		}
+		return true;
+	}
+	
+	public static void addStateAction(MarkovState state, MarkovAction action, double price, double time) {
+		StateAction sa = new StateAction(state, action);
+		stateAction2PriceCostMap.put(sa, price);
+		stateAction2TimeCostMap.put(sa, time);
 	}
 }

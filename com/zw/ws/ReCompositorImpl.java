@@ -21,11 +21,11 @@ public class ReCompositorImpl implements ReCompositor{
 	@Override
 	public MarkovState recomposite(MarkovState state) {
 		oldNewReplaceServiceMap = new HashMap<AtomService, AtomService>();
-		if (state.getFailedActivity() == null) {
+		if (state.getFaultActivity() == null) {
 			return null;
 		}
-		failedActivity = state.getFailedActivity().clone();
-		reComAction = new ReCompositeAction(failedActivity.getId(), Markov.A_RE_COMPOSITE,
+		failedActivity = state.getFaultActivity().clone();
+		reComAction = new ReCompositeAction(failedActivity.getNumber(), Markov.A_RE_COMPOSITE,
 				failedActivity.getBlindService().getNumber());
 		
 		((ReCompositeAction)reComAction).setOldNewReplaceServiceMap(oldNewReplaceServiceMap);
@@ -33,7 +33,9 @@ public class ReCompositorImpl implements ReCompositor{
 		Queue<Activity> queue = new LinkedList<Activity>();
 		queue.offer(failedActivity);
 		while (!queue.isEmpty()) {
+			//System.out.println("queue=" + queue);
 			Activity activity = queue.poll();
+			//System.out.println("activity=" + activity);
 			AtomService failedService = activity.getBlindService();
 			if (isReplacedRandom()) {
 				AtomService replaceService = ActivityFlow.nextFreeService(activity);
@@ -44,20 +46,26 @@ public class ReCompositorImpl implements ReCompositor{
 				//ActivityFlow.setServiceUsed(replaceService.getNumber());
 				//System.out.println("HRERE");
 				oldNewReplaceServiceMap.put(failedService, replaceService);
-				state.getActivity(activity.getNumber()).setBlindService(replaceService);
+				Activity ac = state.getActivity(activity.getNumber());
+				ac.setBlindService(replaceService);
+				ac.setX(0);
 
 			} else {
 				break;
 			}
 			
 			for (Integer i : ActivityFlow.getSuffixActivityNumbers(activity.getNumber())) {
-				queue.offer(state.getActivity(i));
+				Activity ac = state.getActivity(i);
+				if (ac != null) {
+					queue.offer(ac);
+				}
 			}
 		}
 		//System.out.println(oldNewReplaceServiceMap.size());
 		if (oldNewReplaceServiceMap.isEmpty()) {
 			return null;
 		}
+		state.init();
 		return state;		
 	}
 

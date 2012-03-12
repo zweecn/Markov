@@ -28,7 +28,7 @@ public class GenerateMarkovRecords {
 		MarkovState state = new MarkovState();
 		
 		//state.printFlow();
-		state.setCurrGlobalState(Markov.S_UNKNOWN);
+		//state.setGlobalState(Markov.S_NORMAL);
 		state.getActivity(0).setX(-1);
 		state.init();
 		stateSet.add(state);
@@ -44,15 +44,15 @@ public class GenerateMarkovRecords {
 			oneLayerRecords = new ArrayList<MarkovRecord>();
 			while (!queue.isEmpty()) {
 				state = queue.poll();
-				List<MarkovRecord> records = Markov.noAction(state);
+				List<MarkovRecord> records = Markov.noActionRecords(state);
 				addToRecords(records);
-				records = Markov.terminate(state);
+				records = Markov.terminateRecords(state);
 				addToRecords(records);
-				records = Markov.redo(state);
+				records = Markov.redoRecords(state);
 				addToRecords(records);
-				records = Markov.replace(state);  
+				records = Markov.replaceRecords(state);  
 				addToRecords(records);
-				records = Markov.reComposite(state);
+				records = Markov.reCompositeRecords(state);
 				addToRecords(records);
 			}
 			totalLayerRecords.add(oneLayerRecords);

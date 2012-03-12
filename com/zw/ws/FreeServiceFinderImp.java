@@ -5,7 +5,9 @@ public class FreeServiceFinderImp implements FreeServiceFinder{
 	private AtomService serviceNew;
 	
 	public AtomService nextFreeService(Activity activity) {
-		return ActivityFlow.nextFreeService(activity);
+		this.oldActivity = activity.clone();
+		this.serviceNew = ActivityFlow.nextFreeService(activity);
+		return serviceNew;
 	}
 
 
@@ -15,9 +17,11 @@ public class FreeServiceFinderImp implements FreeServiceFinder{
 
 	@Override
 	public double getPosibility() {
+		//System.out.println("serviceNew=" + serviceNew);
 		if (serviceNew != null) {
 			return serviceNew.getQos().getReliability();
 		}
+		
 		return 0;
 	}
 

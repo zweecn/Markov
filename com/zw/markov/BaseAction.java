@@ -1,5 +1,7 @@
 package com.zw.markov;
 
+import com.zw.ws.ActivityFlow;
+
 public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 	public BaseAction(int activityNumber, int opNumber, int oldServiceNumber) {
 		this.currActivityNumber = activityNumber;
@@ -100,4 +102,20 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 	public int getId() {
 		return this.id;
 	}
+
+	/*
+	@Override
+	public double getPriceCost() {
+		return ActivityFlow.getService(oldServiceNumber).getQos().getPrice();
+	}
+
+	@Override
+	public double getTimeCost() {
+		return ActivityFlow.getService(oldServiceNumber).getQos().getExecTime();
+	}
+
+	@Override
+	public double getPosibility() {
+		return ActivityFlow.getService(oldServiceNumber).getQos().getReliability();
+	}*/
 }

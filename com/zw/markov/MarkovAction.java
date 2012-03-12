@@ -7,4 +7,8 @@ public interface MarkovAction {
 	String toString();
 	int hashCode();
 	boolean equals(Object obj);
+	
+	/*double getPriceCost();
+	double getTimeCost();
+	double getPosibility();*/
 }

@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.zw.ws.AtomService;
+import com.zw.ws.ReCompositor;
 
 public class ReCompositeAction extends BaseAction implements MarkovAction {
 	public ReCompositeAction(int activityNumber, int opNumber,
@@ -13,6 +14,7 @@ public class ReCompositeAction extends BaseAction implements MarkovAction {
 	}
 	
 	private Map<AtomService, AtomService> oldNewReplaceServiceMap;
+	private ReCompositor reCompositor;
 	
 	public Map<AtomService, AtomService> getOldNewReplaceServiceMap() {
 		return oldNewReplaceServiceMap;
@@ -98,4 +100,13 @@ public class ReCompositeAction extends BaseAction implements MarkovAction {
 		}
 		return true;
 	}
+
+	public ReCompositor getReCompositor() {
+		return reCompositor;
+	}
+
+	public void setReCompositor(ReCompositor reCompositor) {
+		this.reCompositor = reCompositor;
+	}
+
 }
