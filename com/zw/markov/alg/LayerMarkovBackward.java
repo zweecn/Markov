@@ -3,7 +3,6 @@ package com.zw.markov.alg;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -21,9 +20,9 @@ public class LayerMarkovBackward {
 		long t1 = System.currentTimeMillis();
 		generateLayerRecords();
 		long t2 = System.currentTimeMillis();
-//		initTree();
+		initTree();
 		long t3 = System.currentTimeMillis();
-//		initMarkovInfo();
+		initMarkovInfo();
 		long t4 = System.currentTimeMillis();
 		
 		System.out.println("Run time, Gen Record :" + (t2-t1));
@@ -34,111 +33,13 @@ public class LayerMarkovBackward {
 	private Queue<MarkovState> queue1;
 	private Queue<MarkovState> queue2;
 	private List<List<MarkovRecord>> allLayerRecords;
-//	private List<MarkovRecord> oneLayerRecords;
 	private MarkovState state;
-	private List<String> resultActions;
-//	private StateActionState sas; 
-	
-	private int stateSize;
-	private int actionSize;
-	private double[] utility;
-//	private double[][] reward_t;
-//	private double[] reward_n;
-//	private double[][][] posibility;
-//	private double[][][] timeCost;
-//	private double[][][] priceCost;
-	
-//	private MarkovState[] stateArray;
-//	private MarkovAction[] actionArray;
-	private ActionNode[] actionNodeArray;
-	private StateNode[] stateNodeArray;
-	
-//	private class StateActionState {
-//		private Map<String, Double> pMap;
-//		public StateActionState() {
-//			pMap = new HashMap<String, Double>();
-//		}
-//		public double getPosibility(int i, int a, int j) {
-//			return pMap.get(i + "-" + a + "-" + j);
-//		}
-//		public void setPosibility(int i, int a, int j, double p) {
-//			pMap.put(i + "-" + a + "-" + j, p);
-//		}
-//	}
-	
-	private void generateLayerRecords() {
-		allLayerRecords = new ArrayList<List<MarkovRecord>>();
-		state.setGlobalState(Markov.S_NORMAL);
-		state.getActivity(0).setX(-1);
-		state.init();
-		
-		queue2 = new LinkedList<MarkovState>();
-		queue2.offer(state);
-		Set<MarkovState> stateSet = new HashSet<MarkovState>();
-		for (;;) {
-			queue1 = queue2;
-			queue2 = new LinkedList<MarkovState>();
-			List<MarkovRecord> oneLayerRecords = new ArrayList<MarkovRecord>();
-			while (!queue1.isEmpty()) {
-				state = queue1.poll();
-				//System.out.println("state=" + state);
-				if (!stateSet.contains(state)) {
-					//System.out.println("In if...");
-					stateSet.add(state);
-//					MarkovState sTemp1 = state.store();
-					/*List<MarkovRecord> records = Markov.noActionRecords(state);
-					addToRecords(oneLayerRecords, records);
-					records = Markov.terminateRecords(state);
-					addToRecords(oneLayerRecords, records);
-					records = Markov.redoRecords(state);
-					addToRecords(oneLayerRecords, records);
-					records = Markov.replaceRecords(state);  
-					addToRecords(oneLayerRecords, records);
-					MarkovState sTemp = state.clone();
-					sTemp.init();
-					records = Markov.reCompositeRecords(state); */
-					
-					//System.out.println("state=" + state);
-					List<MarkovRecord> records = Markov.getRecords(state);
-					//System.out.println("In Layer:" + records + "\n");
-					addToRecords(oneLayerRecords, records);
-				}
-			}
-//			System.out.println("One Layer Records:");
-//			for (MarkovRecord rd : oneLayerRecords) {
-//				System.out.println(rd);
-//			}
-			//System.out.println("oneLayerRecords=" + oneLayerRecords);
-			if (oneLayerRecords.isEmpty()) {
-				break;
-			}
-			allLayerRecords.add(oneLayerRecords);
-			//oneLayerRecords.clear();
-		}
-		stateSize++;
-		actionSize++;
-		//System.out.println("state size=" + stateSize);
-	}
 
-	
-	private void addToRecords(List<MarkovRecord>destRecords, List<MarkovRecord> sourceRecord){
-		if (sourceRecord != null && !sourceRecord.isEmpty() && destRecords != null) {
-			destRecords.addAll(sourceRecord);
-			for (MarkovRecord rd : sourceRecord) {
-				queue2.offer(rd.getStateAfter());
-				if (rd.getStateBefore().getId() > stateSize) {
-					stateSize = (int) rd.getStateBefore().getId();
-				}
-				if (rd.getStateAfter().getId() > stateSize) {
-					stateSize = (int) rd.getStateAfter().getId();
-				}
-				if (rd.getAction().getId() > actionSize) {
-					actionSize = (int) rd.getAction().getId();
-				}
-			}
-		}
-	}
 
+	private double[][] utility;
+	private TreeNode[] actionNodeArray;
+	private TreeNode[] stateNodeArray;
+	
 	public void printRecords() {
 		//System.out.println("records size=" + allLayerRecords.size());
 		System.out.println("\n StateBefore \t Action \t StateAfter \t Posibility \t Time \t Cost");
@@ -167,6 +68,105 @@ public class LayerMarkovBackward {
 			e.printStackTrace();
 		}
 	}
+	
+	private void generateLayerRecords() {
+		allLayerRecords = new ArrayList<List<MarkovRecord>>();
+		state.setGlobalState(Markov.S_NORMAL);
+		state.getActivity(0).setX(-1);
+		state.init();
+		
+		queue2 = new LinkedList<MarkovState>();
+		queue2.offer(state);
+		Set<MarkovState> stateSet = new HashSet<MarkovState>();
+		for (;;) {
+			queue1 = queue2;
+			queue2 = new LinkedList<MarkovState>();
+			List<MarkovRecord> oneLayerRecords = new ArrayList<MarkovRecord>();
+			while (!queue1.isEmpty()) {
+				state = queue1.poll();
+				if (!stateSet.contains(state)) {
+					stateSet.add(state);
+					List<MarkovRecord> records = Markov.getRecords(state);
+					addToRecords(oneLayerRecords, records);
+				}
+			}
+			if (oneLayerRecords.isEmpty()) {
+				break;
+			}
+			allLayerRecords.add(oneLayerRecords);
+		}
+	}
+
+	
+	private void addToRecords(List<MarkovRecord>destRecords, List<MarkovRecord> sourceRecord){
+		if (sourceRecord != null && !sourceRecord.isEmpty() && destRecords != null) {
+			destRecords.addAll(sourceRecord);
+			for (MarkovRecord rd : sourceRecord) {
+				queue2.offer(rd.getStateAfter());
+			}
+		}
+	}
+
+	private void initTree() {
+		stateNodeArray = new TreeNode[MarkovRecord.getStateSize()];
+		actionNodeArray = new TreeNode[MarkovRecord.getActionSize()];
+		for (List<MarkovRecord> rds : allLayerRecords) { 
+			for (MarkovRecord rd : rds) {
+				if (stateNodeArray[rd.getStateAfter().getId()] == null) {
+					stateNodeArray[rd.getStateAfter().getId()] = new TreeNode(rd.getStateAfter().getId());
+				}
+				if (stateNodeArray[rd.getStateBefore().getId()] == null) {
+					stateNodeArray[rd.getStateBefore().getId()] = new TreeNode(rd.getStateBefore().getId());
+				}
+				if (actionNodeArray[rd.getAction().getId()] == null) {
+					actionNodeArray[rd.getAction().getId()] = new TreeNode(rd.getAction().getId());
+				}
+				actionNodeArray[rd.getAction().getId()].setParent(rd.getStateBefore().getId());
+				if (!actionNodeArray[rd.getAction().getId()].getChildren().contains(rd.getStateAfter().getId())) {
+					actionNodeArray[rd.getAction().getId()].addChild(rd.getStateAfter().getId());
+				}
+				stateNodeArray[rd.getStateAfter().getId()].setParent(rd.getAction().getId());
+				if (!stateNodeArray[rd.getStateBefore().getId()].getChildren().contains(rd.getAction().getId())) {
+					stateNodeArray[rd.getStateBefore().getId()].addChild(rd.getAction().getId());
+				}
+				
+			}
+		}	
+	}
+	
+	private int getTsize() {
+		return allLayerRecords.size();
+	}
+	
+	private double getReward(MarkovState state) {
+		switch (state.getGlobalState()) {
+		case Markov.S_SUCCEED:
+			return ( 10 );
+		case Markov.S_DELAYED:
+			return ( 10 );
+		case Markov.S_PRICE_UP:
+			return ( 10 );
+		case Markov.S_NORMAL:
+			return ( 10 );
+			
+		case Markov.S_FAILED:
+			return (-12);
+		default:
+			return 0;
+		}
+	}
+	
+	private void initMarkovInfo() {
+		utility = new double[this.getTsize()][MarkovRecord.getStateSize()];
+		for (int i = 0; i < MarkovRecord.getStateSize(); i++) {
+			if (!stateNodeArray[i].hasChild()) {
+				utility[this.getTsize()-1][i] = getReward(MarkovRecord.getState(i));
+			} else {
+				utility[this.getTsize()-1][i] = - Double.MAX_VALUE;
+			}
+		}
+	}
+}
 	
 	
 /*
@@ -339,4 +339,6 @@ public class LayerMarkovBackward {
 		}
 	}
 	*/
-}
+	
+
+

@@ -298,6 +298,17 @@ public class MarkovRecord {
 		return null;
 	}
 	
+	public static MarkovState getState(int i) {
+		if (i < stateList.size()) {
+			return stateList.get(i);
+		}
+		return null;
+	}
+	
+	public static int getStateSize() {
+		return stateList.size();
+	}
+	
 	public static boolean hasAction(MarkovAction action) {
 		return actionList.contains(action);
 	}
@@ -317,6 +328,17 @@ public class MarkovRecord {
 			}
 		}
 		return null;
+	}
+	
+	public static MarkovAction getAction(int i) {
+		if (i < actionList.size()) {
+			return actionList.get(i);
+		}
+		return null;
+	}
+	
+	public static int getActionSize() {
+		return actionList.size();
 	}
 	
 	public static boolean hasStateBefore(MarkovState state) {
