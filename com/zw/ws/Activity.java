@@ -108,6 +108,9 @@ public class Activity {
 		if (number != other.number) {
 			return false;
 		}
+		if (blindService.getNumber() != other.blindService.getNumber()) {
+			return false;
+		}
 		if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x)) {
 			return false;
 		}
