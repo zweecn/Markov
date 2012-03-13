@@ -5,19 +5,19 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 		this.currActivityNumber = activityNumber;
 		this.opNumber = opNumber;
 		this.oldServiceNumber = oldServiceNumber;
-		id = BaseAction.getNextFreeId();
+//		id = BaseAction.getNextFreeId();
 	}
 	
 	private int id;
-	private static int freeid = 0;
+//	private static int freeid = 0;
 	
 	protected int currActivityNumber;
 	protected int opNumber;
 	protected int oldServiceNumber;
 
-	public static int getNextFreeId() {
-		return freeid++;
-	}
+//	public static int getNextFreeId() {
+//		return freeid++;
+//	}
 	
 	public int getCurrActivityNumber() {
 		return currActivityNumber;
@@ -62,6 +62,18 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 		return res;
 	}
 
+
+
+	@Override
+	public int getId() {
+		return this.id;
+	}
+	
+	@Override
+	public void setId(int id) {
+		this.id = id;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -94,11 +106,6 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 			return false;
 		}
 		return true;
-	}
-
-	@Override
-	public int getId() {
-		return this.id;
 	}
 
 	/*

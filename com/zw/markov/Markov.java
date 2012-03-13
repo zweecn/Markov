@@ -163,10 +163,17 @@ public final class Markov extends Object{
 		List<MarkovRecord> records = null;
 		if (stateAfter.getGlobalState() == Markov.S_FAILED) {
 			records = new ArrayList<MarkovRecord>();
-			records.add(new MarkovRecord(stateAfter, stateAfter, noAction, 1, 0, 0));
 			if (!MarkovRecord.hasState(stateAfter)) {
 				MarkovRecord.addState(stateAfter);
+			} else {
+				stateAfter = MarkovRecord.getState(stateAfter);
 			}
+			if (!MarkovRecord.hasAction(noAction)) {
+				MarkovRecord.addAction(noAction);
+			} else {
+				noAction= (BaseAction) MarkovRecord.getAction(noAction);
+			}
+			records.add(new MarkovRecord(stateAfter, stateAfter, noAction, 1, 0, 0));
 			return records;
 		}  else {  
 			records = new ArrayList<MarkovRecord>();
@@ -186,7 +193,11 @@ public final class Markov extends Object{
 			} else {
 				stateAfter2 = MarkovRecord.getState(stateAfter2);
 			}
-
+			if (!MarkovRecord.hasAction(noAction)) {
+				MarkovRecord.addAction(noAction);
+			} else {
+				noAction= (BaseAction) MarkovRecord.getAction(noAction);
+			}
 			records.add(new MarkovRecord(state, stateAfter1, noAction, 
 					stateAfter.getNextToDoActivity().getBlindService().getQos().getReliability(), 0, 0));
 			records.add(new MarkovRecord(state, stateAfter2, noAction, 
@@ -230,6 +241,11 @@ public final class Markov extends Object{
 		} else {
 			MarkovRecord.addState(stateAfter);
 		}
+		if (!MarkovRecord.hasAction(terminateAction)) {
+			MarkovRecord.addAction(terminateAction);
+		} else {
+			terminateAction = (BaseAction) MarkovRecord.getAction(terminateAction);
+		}
 		records.add(new MarkovRecord(state, stateAfter, terminateAction, 1, 0, 0));
 		return records;
 	}
@@ -268,6 +284,11 @@ public final class Markov extends Object{
 				MarkovRecord.addState(stateAfter2);
 			} else {
 				stateAfter2 = MarkovRecord.getState(stateAfter2);
+			}
+			if (!MarkovRecord.hasAction(redoAction)) {
+				MarkovRecord.addAction(redoAction);
+			} else {
+				redoAction = (BaseAction) MarkovRecord.getAction(redoAction);
 			}
 			
 			records.add(new MarkovRecord(state, stateAfter1, redoAction, 
@@ -320,6 +341,11 @@ public final class Markov extends Object{
 			MarkovRecord.addState(stateAfter2);
 		} else {
 			stateAfter2 = MarkovRecord.getState(stateAfter2);
+		}
+		if (!MarkovRecord.hasAction(replaceAction)) {
+			MarkovRecord.addAction(replaceAction);
+		} else {
+			replaceAction = (ReplaceAction) MarkovRecord.getAction(replaceAction);
 		}
 
 		//Mark
@@ -395,7 +421,12 @@ public final class Markov extends Object{
 		} else {
 			stateAfter2 = MarkovRecord.getState(stateAfter2);
 		}
-
+		if (!MarkovRecord.hasAction(reCompositeAction)) {
+			MarkovRecord.addAction(reCompositeAction);
+		} else {
+			reCompositeAction = (ReCompositeAction) MarkovRecord.getAction(reCompositeAction);
+		}
+		
 		//						(ReCompositeAction) ActivityFlow.recomposite(stateStore);
 		//			reCompositeAction.setOldNewReplaceServiceMap(state.getReCompositor().getOldNewReplaceMap());
 

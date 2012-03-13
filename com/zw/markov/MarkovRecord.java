@@ -11,22 +11,22 @@ public class MarkovRecord {
 	private double priceCost;
 	private double timeCost;
 	
-	private static Map<Long, Double> posibilityMap = new HashMap<Long, Double>();
-	private static Map<Long, Double> priceMap = new HashMap<Long, Double>();
-	private static Map<Long, Double> timeMap = new HashMap<Long, Double>();
-	private static Map<Long, Double> reward_tMap = new HashMap<Long, Double>();
-	private static Map<Long, MarkovState> stateMap = new HashMap<Long, MarkovState>();
-	private static Map<Long, MarkovAction> actionMap = new HashMap<Long, MarkovAction>();
+//	private static Map<Long, Double> posibilityMap = new HashMap<Long, Double>();
+//	private static Map<Long, Double> priceMap = new HashMap<Long, Double>();
+//	private static Map<Long, Double> timeMap = new HashMap<Long, Double>();
+//	private static Map<Long, Double> reward_tMap = new HashMap<Long, Double>();
+//	private static Map<Long, MarkovState> stateMap = new HashMap<Long, MarkovState>();
+//	private static Map<Long, MarkovAction> actionMap = new HashMap<Long, MarkovAction>();
+	
 	private static List<MarkovState> stateList = new ArrayList<MarkovState>();
+	private static List<MarkovAction> actionList = new ArrayList<MarkovAction>();
 	private static Set<MarkovState> stateBeforeSet = new HashSet<MarkovState>();
 	private static Map<StateAction, Double> stateAction2PriceCostMap = new HashMap<MarkovRecord.StateAction, Double>();
 	private static Map<StateAction, Double> stateAction2TimeCostMap = new HashMap<MarkovRecord.StateAction, Double>();
-	
-	//StateAction sa = new StateAction(null, null);
-	
+
 	private static class StateAction {
 		public StateAction(MarkovState state, MarkovAction action) {
-		//	super();
+			super();
 			this.state = state;
 			this.action = action;
 		}
@@ -38,7 +38,6 @@ public class MarkovRecord {
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-		//	result = prime * result + getOuterType().hashCode();
 			result = prime * result
 					+ ((action == null) ? 0 : action.hashCode());
 			result = prime * result + ((state == null) ? 0 : state.hashCode());
@@ -56,9 +55,6 @@ public class MarkovRecord {
 				return false;
 			}
 			StateAction other = (StateAction) obj;
-//			if (!getOuterType().equals(other.getOuterType())) {
-//				return false;
-//			}
 			if (action == null) {
 				if (other.action != null) {
 					return false;
@@ -75,9 +71,6 @@ public class MarkovRecord {
 			}
 			return true;
 		}
-//		private MarkovRecord getOuterType() {
-//			return MarkovRecord.this;
-//		}
 	}
 	
 	public MarkovRecord(MarkovState stateBefore, MarkovState stateAfter, 
@@ -93,14 +86,16 @@ public class MarkovRecord {
 	}
 	
 	public void init() {
-		MarkovRecord.setPosibility(this.stateBefore.getId(), this.action.getId(), this.stateAfter.getId(), this.posibility);
-		MarkovRecord.setPriceCost(this.stateBefore.getId(), this.action.getId(), this.priceCost);
-		MarkovRecord.setTimeCost(this.stateBefore.getId(), this.action.getId(), this.timeCost);
-		MarkovRecord.setState(this.stateBefore.getId(), this.stateBefore);
-		MarkovRecord.setState(this.stateAfter.getId(), this.stateAfter);
-		MarkovRecord.setAction(this.action.getId(), this.action);
 		MarkovRecord.addStateAction(this.stateBefore, this.action, this.priceCost, this.timeCost);
 		MarkovRecord.stateBeforeSet.add(this.stateBefore);
+		
+//		MarkovRecord.setPosibility(this.stateBefore.getId(), this.action.getId(), this.stateAfter.getId(), this.posibility);
+//		MarkovRecord.setPriceCost(this.stateBefore.getId(), this.action.getId(), this.priceCost);
+//		MarkovRecord.setTimeCost(this.stateBefore.getId(), this.action.getId(), this.timeCost);
+//		MarkovRecord.setState(this.stateBefore.getId(), this.stateBefore);
+//		MarkovRecord.setState(this.stateAfter.getId(), this.stateAfter);
+//		MarkovRecord.setAction(this.action.getId(), this.action);
+		
 	}
 	
 	public MarkovRecord clone() {
@@ -199,88 +194,88 @@ public class MarkovRecord {
 	public double getTimeCost() {
 		return timeCost;
 	}
-
-	public static double getPosibility(int i, int a, int j) {
-		final int prime = 31;
-		long result = 1;
-		result = prime * result + i;
-		result = prime * result + a;
-		result = prime * result + j;
-		return MarkovRecord.posibilityMap.get(result);
-	}
-
-	public static void setPosibility(int i, int a, int j, double p) {
-		final int prime = 31;
-		long result = 1;
-		result = prime * result + i;
-		result = prime * result + a;
-		result = prime * result + j;
-		MarkovRecord.posibilityMap.put(result, p);
-	}
-	
-	public static double getPriceCost(int i, int a) {
-		final int prime = 31;
-		long result = 1;
-		result = prime * result + i;
-		result = prime * result + a;
-		return MarkovRecord.priceMap.get(result);
-	}
-
-	public static void setPriceCost(int i, int a, double priceCost) {
-		final int prime = 31;
-		long result = 1;
-		result = prime * result + i;
-		result = prime * result + a;
-		MarkovRecord.priceMap.put(result, priceCost);
-	}
-	
-	public static double getTimeCost(int i, int a) {
-		final int prime = 31;
-		long result = 1;
-		result = prime * result + i;
-		result = prime * result + a;
-		return MarkovRecord.timeMap.get(result);
-	}
-
-	public static void setTimeCost(int i, int a, double timeCost) {
-		final int prime = 31;
-		long result = 1;
-		result = prime * result + i;
-		result = prime * result + a;
-		MarkovRecord.timeMap.put(result, timeCost);
-	}
-	
-	public static double getReward_t(int i, int a) {
-		final int prime = 31;
-		long result = 1;
-		result = prime * result + i;
-		result = prime * result + a;
-		return MarkovRecord.reward_tMap.get(result);
-	}
-
-	public static void setReward_t(int i, int a, double reward) {
-		final int prime = 31;
-		long result = 1;
-		result = prime * result + i;
-		result = prime * result + a;
-		MarkovRecord.reward_tMap.put(result, reward);
-	}
-	
-	public static MarkovAction getAction(long i) {
-		return MarkovRecord.actionMap.get(i);
-	}
-
-	public static MarkovAction setAction(long i, MarkovAction action) {
-		return MarkovRecord.actionMap.put(i, action);
-	}
-	
-	public static MarkovState getState(long i) {
-		return MarkovRecord.stateMap.get(i);
-	}
-
-	public static MarkovState setState(long i, MarkovState state) {
-		return MarkovRecord.stateMap.put(i, state);
-	}
+//
+//	public static double getPosibility(int i, int a, int j) {
+//		final int prime = 31;
+//		long result = 1;
+//		result = prime * result + i;
+//		result = prime * result + a;
+//		result = prime * result + j;
+//		return MarkovRecord.posibilityMap.get(result);
+//	}
+//
+//	public static void setPosibility(int i, int a, int j, double p) {
+//		final int prime = 31;
+//		long result = 1;
+//		result = prime * result + i;
+//		result = prime * result + a;
+//		result = prime * result + j;
+//		MarkovRecord.posibilityMap.put(result, p);
+//	}
+//	
+//	public static double getPriceCost(int i, int a) {
+//		final int prime = 31;
+//		long result = 1;
+//		result = prime * result + i;
+//		result = prime * result + a;
+//		return MarkovRecord.priceMap.get(result);
+//	}
+//
+//	public static void setPriceCost(int i, int a, double priceCost) {
+//		final int prime = 31;
+//		long result = 1;
+//		result = prime * result + i;
+//		result = prime * result + a;
+//		MarkovRecord.priceMap.put(result, priceCost);
+//	}
+//	
+//	public static double getTimeCost(int i, int a) {
+//		final int prime = 31;
+//		long result = 1;
+//		result = prime * result + i;
+//		result = prime * result + a;
+//		return MarkovRecord.timeMap.get(result);
+//	}
+//
+//	public static void setTimeCost(int i, int a, double timeCost) {
+//		final int prime = 31;
+//		long result = 1;
+//		result = prime * result + i;
+//		result = prime * result + a;
+//		MarkovRecord.timeMap.put(result, timeCost);
+//	}
+//	
+//	public static double getReward_t(int i, int a) {
+//		final int prime = 31;
+//		long result = 1;
+//		result = prime * result + i;
+//		result = prime * result + a;
+//		return MarkovRecord.reward_tMap.get(result);
+//	}
+//
+//	public static void setReward_t(int i, int a, double reward) {
+//		final int prime = 31;
+//		long result = 1;
+//		result = prime * result + i;
+//		result = prime * result + a;
+//		MarkovRecord.reward_tMap.put(result, reward);
+//	}
+//	
+//	public static MarkovAction getAction(long i) {
+//		return MarkovRecord.actionMap.get(i);
+//	}
+//
+//	public static MarkovAction setAction(long i, MarkovAction action) {
+//		return MarkovRecord.actionMap.put(i, action);
+//	}
+//	
+//	public static MarkovState getState(long i) {
+//		return MarkovRecord.stateMap.get(i);
+//	}
+//
+//	public static MarkovState setState(long i, MarkovState state) {
+//		return MarkovRecord.stateMap.put(i, state);
+//	}
 	
 	public static boolean hasState(MarkovState state) {
 		return stateList.contains(state);
@@ -294,9 +289,30 @@ public class MarkovRecord {
 	
 	public static MarkovState getState(MarkovState state) {
 		if (stateList.contains(state)) {
-			for (int i = 0; i < stateList.size(); i++) {
+			for (int i = stateList.size()-1; i>=0 ; i--) {
 				if (state.equals(stateList.get(i))) {
 					return stateList.get(i);
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static boolean hasAction(MarkovAction action) {
+		return actionList.contains(action);
+	}
+	
+	public static void addAction(MarkovAction action) {
+		int i = actionList.size();
+		action.setId(i);
+		actionList.add(action);
+	}
+	
+	public static MarkovAction getAction(MarkovAction action) {
+		if (actionList.contains(action)) {
+			for (int i = actionList.size()-1; i >= 0; i--) {
+				if (action.equals(actionList.get(i))) {
+					return actionList.get(i);
 				}
 			}
 		}

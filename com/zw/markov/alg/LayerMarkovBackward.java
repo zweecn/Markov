@@ -21,9 +21,9 @@ public class LayerMarkovBackward {
 		long t1 = System.currentTimeMillis();
 		generateLayerRecords();
 		long t2 = System.currentTimeMillis();
-		initTree();
+//		initTree();
 		long t3 = System.currentTimeMillis();
-		initMarkovInfo();
+//		initMarkovInfo();
 		long t4 = System.currentTimeMillis();
 		
 		System.out.println("Run time, Gen Record :" + (t2-t1));
@@ -169,7 +169,7 @@ public class LayerMarkovBackward {
 	}
 	
 	
-	
+/*
 	private void initMarkovInfo() {
 		resultActions = new ArrayList<String>();
 //		stateArray = new MarkovState[stateSize];
@@ -338,4 +338,5 @@ public class LayerMarkovBackward {
 			return 0;
 		}
 	}
+	*/
 }
