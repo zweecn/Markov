@@ -194,6 +194,88 @@ public class MarkovRecord {
 	public double getTimeCost() {
 		return timeCost;
 	}
+	
+	public static boolean hasState(MarkovState state) {
+		return stateList.contains(state);
+	}
+	
+	public static void addState(MarkovState state) {
+		int i = stateList.size();
+		state.setId(i);
+		stateList.add(state);
+	}
+	
+	public static MarkovState getState(MarkovState state) {
+		if (stateList.contains(state)) {
+			for (int i = stateList.size()-1; i>=0 ; i--) {
+				if (state.equals(stateList.get(i))) {
+					return stateList.get(i);
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static MarkovState getState(int i) {
+		if (i < stateList.size()) {
+			return stateList.get(i);
+		}
+		return null;
+	}
+	
+	public static int getStateSize() {
+		return stateList.size();
+	}
+	
+	public static boolean hasAction(MarkovAction action) {
+		return actionList.contains(action);
+	}
+	
+	public static void addAction(MarkovAction action) {
+		int i = actionList.size();
+		action.setId(i);
+		actionList.add(action);
+	}
+	
+	public static MarkovAction getAction(MarkovAction action) {
+		if (actionList.contains(action)) {
+			for (int i = actionList.size()-1; i >= 0; i--) {
+				if (action.equals(actionList.get(i))) {
+					return actionList.get(i);
+				}
+			}
+		}
+		return null;
+	}
+	
+	public static MarkovAction getAction(int i) {
+		if (i < actionList.size()) {
+			return actionList.get(i);
+		}
+		return null;
+	}
+	
+	public static int getActionSize() {
+		return actionList.size();
+	}
+	
+	public static boolean hasStateBefore(MarkovState state) {
+		return stateBeforeSet.contains(state);
+	}
+	
+	public static boolean hasStateAction(MarkovState state, MarkovAction action) {
+		StateAction sa = new StateAction(state, action);
+		if (stateAction2PriceCostMap.get(sa) == null) {
+			return false;
+		}
+		return true;
+	}
+	
+	public static void addStateAction(MarkovState state, MarkovAction action, double price, double time) {
+		StateAction sa = new StateAction(state, action);
+		stateAction2PriceCostMap.put(sa, price);
+		stateAction2TimeCostMap.put(sa, time);
+	}
 //
 //	public static double getPosibility(int i, int a, int j) {
 //		final int prime = 31;
@@ -277,85 +359,5 @@ public class MarkovRecord {
 //		return MarkovRecord.stateMap.put(i, state);
 //	}
 	
-	public static boolean hasState(MarkovState state) {
-		return stateList.contains(state);
-	}
 	
-	public static void addState(MarkovState state) {
-		int i = stateList.size();
-		state.setId(i);
-		stateList.add(state);
-	}
-	
-	public static MarkovState getState(MarkovState state) {
-		if (stateList.contains(state)) {
-			for (int i = stateList.size()-1; i>=0 ; i--) {
-				if (state.equals(stateList.get(i))) {
-					return stateList.get(i);
-				}
-			}
-		}
-		return null;
-	}
-	
-	public static MarkovState getState(int i) {
-		if (i < stateList.size()) {
-			return stateList.get(i);
-		}
-		return null;
-	}
-	
-	public static int getStateSize() {
-		return stateList.size();
-	}
-	
-	public static boolean hasAction(MarkovAction action) {
-		return actionList.contains(action);
-	}
-	
-	public static void addAction(MarkovAction action) {
-		int i = actionList.size();
-		action.setId(i);
-		actionList.add(action);
-	}
-	
-	public static MarkovAction getAction(MarkovAction action) {
-		if (actionList.contains(action)) {
-			for (int i = actionList.size()-1; i >= 0; i--) {
-				if (action.equals(actionList.get(i))) {
-					return actionList.get(i);
-				}
-			}
-		}
-		return null;
-	}
-	
-	public static MarkovAction getAction(int i) {
-		if (i < actionList.size()) {
-			return actionList.get(i);
-		}
-		return null;
-	}
-	
-	public static int getActionSize() {
-		return actionList.size();
-	}
-	
-	public static boolean hasStateBefore(MarkovState state) {
-		return stateBeforeSet.contains(state);
-	}
-	
-	public static boolean hasStateAction(MarkovState state, MarkovAction action) {
-		StateAction sa = new StateAction(state, action);
-		if (stateAction2PriceCostMap.get(sa) == null) {
-			return false;
-		}
-		return true;
-	}
-	
-	public static void addStateAction(MarkovState state, MarkovAction action, double price, double time) {
-		StateAction sa = new StateAction(state, action);
-		stateAction2PriceCostMap.put(sa, price);
-		stateAction2TimeCostMap.put(sa, time);
-	}
 }
