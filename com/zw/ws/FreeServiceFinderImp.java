@@ -12,7 +12,7 @@ public class FreeServiceFinderImp implements FreeServiceFinder{
 
 
 	public void setServiceUsed(AtomService service) {
-		ActivityFlow.setServiceUsed(service);
+		ActivityFlow.setServiceUsed(oldActivity.getNumber(), service);
 	}
 
 	@Override

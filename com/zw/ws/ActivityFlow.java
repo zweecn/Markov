@@ -344,22 +344,24 @@ public class ActivityFlow {
 		}
 		for (int i = 0; i < ActivityFlow.services.size(); i++) {
 			if (ActivityFlow.services.get(i).isFree()) {
-				ActivityFlow.getStaticActivity(activity.getNumber()).addReplaceCount();
 				return ActivityFlow.services.get(i);
 			}
 		}
 		return null;
 	}
 
-	public static void setServiceUsed(int number) {
+	public static void setServiceUsed(int activityNumber, int serviceNumber) {
 		for (int i = 0; i < ActivityFlow.services.size(); i++) {
-			if (ActivityFlow.services.get(i).getNumber() == number) {
+			if (ActivityFlow.services.get(i).getNumber() == serviceNumber) {
 				ActivityFlow.services.get(i).setFree(false);
 			}
 		}
 	}
 	
-	public static void setServiceUsed(AtomService service) {
+	public static void setServiceUsed(int activityNumber, AtomService service) {
+		if (ActivityFlow.getStaticActivity(activityNumber) != null) {
+			ActivityFlow.getStaticActivity(activityNumber).addReplaceCount();
+		}
 		service.setFree(false);
 	}
 	/*

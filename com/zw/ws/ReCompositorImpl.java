@@ -42,8 +42,8 @@ public class ReCompositorImpl implements ReCompositor{
 				if (replaceService == null) {
 					break;
 				}
-				replaceService.setFree(false);
-				//ActivityFlow.setServiceUsed(replaceService.getNumber());
+//				replaceService.setFree(false);
+				ActivityFlow.setServiceUsed(activity.getNumber(), replaceService);
 				//System.out.println("HRERE");
 				oldNewReplaceServiceMap.put(failedService, replaceService);
 				Activity ac = state.getActivity(activity.getNumber());
