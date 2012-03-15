@@ -176,6 +176,15 @@ public class MarkovRecord {
 				+ String.format("%6.2f", timeCost)  + "] || [Price_cost:" + String.format("%6.1f", priceCost) + "]";
 		return res;
 	}
+	
+	public String toSimpleString() {
+		String res = new String();
+		res += stateBefore.toSimpleString() + " || " + action.toSimpleString() + " || " + stateAfter.toSimpleString()
+				+ " [Posibility: " + String.format("%4.2f", posibility) + "] || [Time_cost: " 
+				+ String.format("%6.2f", timeCost)  + "] || [Price_cost:" + String.format("%6.1f", priceCost) + "]";
+		return res;
+	}
+	
 	public MarkovState getStateBefore() {
 		return stateBefore;
 	}

@@ -6,6 +6,7 @@ public interface MarkovAction {
 	int getOpNumber();
 	MarkovAction clone();
 	String toString();
+	String toSimpleString();
 	int hashCode();
 	boolean equals(Object obj);
 	

@@ -62,6 +62,32 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 		return res;
 	}
 
+	public String toSimpleString() {
+		String res = "";
+		String actionText = "";
+		switch (opNumber) {
+		case Markov.A_NO_ACTION:
+			actionText = "NO_ACTION";
+			break;
+		case Markov.A_TERMINATE:
+			actionText = "TERMINATE";
+			break;
+		case Markov.A_RE_DO:
+			actionText = "RE_DO";
+			break;
+		case Markov.A_REPLACE:
+			actionText = "REPLACE";
+			break;
+		case Markov.A_RE_COMPOSITE:
+			actionText = "RE_COMPOSITE";
+			break;
+		default:
+			break;
+		}
+		res += "[Action: " +  String.format("%3d", getId()) + " " + String.format("%-12s", actionText) 
+				+ "]";
+		return res;
+	}
 
 
 	@Override

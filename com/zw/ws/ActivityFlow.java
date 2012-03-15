@@ -13,34 +13,19 @@ import java.util.Scanner;
 import com.zw.Configs;
 
 public class ActivityFlow {
+	/*
+	 * 
+	 * This is non static method below.
+	 * 
+	 * */
 	public ActivityFlow() {
-//		//System.out.println("Constructor service flow");
-//		readCandidateServices();
-//		//readActivityInfo();
-//		readGraphInfo();
-//		readBlindService();
-//		initPrefixSuffix();
-		
 		initActivities();
 
 	}
 	
-	
-/*
- * 
- * This is non static method below.
- * 
- * */
-	
 	protected List<Activity> activities;
 	
 	private void initActivities() {
-//		System.out.println("ActivityFlow.activitySize=" + ActivityFlow.activitySize);
-//		this.activities = new ArrayList<Activity>(ActivityFlow.activitySize);
-//		for (int i = 0; i < ActivityFlow.activitySize; i++) {
-//			Activity activity = new Activity(i);
-//			activities.add(activity);
-//		}
 		this.activities = new ArrayList<Activity>();
 		for (int i = 0; i < ActivityFlow.activitySize; i++) {
 			this.activities.add(ActivityFlow.staticActivities.get(i).clone());
@@ -149,10 +134,6 @@ public class ActivityFlow {
 		readGraphInfo();
 		readBlindService();
 		initPrefixSuffix();
-//		System.out.println("in static");
-//		for (Activity ac : ActivityFlow.staticActivities) {
-//			System.out.println(ac.getNumber());
-//		}
 	}
 	
 	private static void readCandidateServices() {

@@ -208,6 +208,36 @@ public class MarkovState extends ActivityFlow {
 		return res;
 	}
 
+	public String toSimpleString() {
+		String res = "[State " + String.format("%3d", this.id) + ":";
+		
+		String stateText = "";
+		switch (globalState) {
+		case Markov.S_NORMAL:
+			stateText += "NORMAL";
+			break;
+		case Markov.S_FAILED:
+			stateText += "FAILED";
+			break;
+		case Markov.S_SUCCEED:
+			stateText += "SUCCEED";
+			break;
+		case Markov.S_DELAYED:
+			stateText += "DELAYED";
+			break;
+		case Markov.S_PRICE_UP:
+			stateText += "PRICE_UP";
+			break;
+		default:
+			break;
+		}
+		res = res.trim() + " Global_state=";
+		stateText = String.format("%-7s", stateText);
+		res += stateText;
+		res = res + "]";
+		return res;
+	}
+	
 	public Activity getFaultActivity() {
 		return faultActivity;
 	}
