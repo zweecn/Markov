@@ -27,7 +27,7 @@ public class LayerMarkovBachwardTest {
 		bd.printRecords();
 //		bd.printUtility();
 		System.out.printf("\nThe best is: %.2f\n", bd.getMarkovBestUtility());
-		bd.printMap();
+//		bd.printMap();
 //		System.out.println("The steps are:");
 //		System.out.println(bd.getResultActions().get(0));
 //		for (int i = 0; i < bd.getResultActions().size(); i++) {

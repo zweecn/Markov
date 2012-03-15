@@ -304,6 +304,21 @@ public class ActivityFlow {
 	public static List<Integer> getSuffixActivityNumbers(int i){		
 		return suffixMap.get(i);
 	}
+	
+	public static Activity getStaticActivity(int activityNumber) {
+		if (activityNumber < activitySize) {
+			if (staticActivities.get(activityNumber).getNumber() == activityNumber) {
+				return staticActivities.get(activityNumber);
+			} else {
+				for (int i = 0; i < activitySize; i++) {
+					if (staticActivities.get(i).getNumber() == activityNumber) {
+						return staticActivities.get(i);
+					}
+				}
+			}
+		}
+		return null;
+	}
 
 	// warning...
 	public static AtomService getService(int serviceNumber) {
@@ -320,8 +335,16 @@ public class ActivityFlow {
 	}
 	
 	public static AtomService nextFreeService(Activity activity) {
+		if (activity == null) {
+			return null;
+		} else if (ActivityFlow.getStaticActivity(activity.getNumber()) == null){
+			return null;
+		} else if (ActivityFlow.getStaticActivity(activity.getNumber()).getReplaceCount() >= Configs.MAX_ACTIVITY_REPLACE_COUNT) {
+			return null;
+		}
 		for (int i = 0; i < ActivityFlow.services.size(); i++) {
-			if (ActivityFlow.services.get(i).isFree()) { 
+			if (ActivityFlow.services.get(i).isFree()) {
+				ActivityFlow.getStaticActivity(activity.getNumber()).addReplaceCount();
 				return ActivityFlow.services.get(i);
 			}
 		}
@@ -386,8 +409,4 @@ public class ActivityFlow {
 		}
 		return false;
 	}*/
-
-	
-
-	
 }

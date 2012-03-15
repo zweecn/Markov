@@ -561,18 +561,21 @@ public class LayerMarkovBackward {
 	private double maxUtility(int t, MarkovState i) {
 		TAndState ts = new TAndState(t, i);
 		double res = - Double.MAX_VALUE;
+		MarkovAction resAction = null;
 		for (MarkovAction a : tState2ChildActionMap.get(ts)) {
 			StateTAndAction sta = new StateTAndAction(i, t, a);
 			double reward = stateTAction2ChildStateInfoMap.get(sta).get(0).getPrice();
 			//System.out.println("ACTION=" + a);
 			for (ToStateInfo tsi : stateTAction2ChildStateInfoMap.get(sta)) {
-				reward +=  tsi.getPosibility() * utility[t+1][tsi.getState().getId()];
+				reward +=  Configs.WEAKEN * tsi.getPosibility() * utility[t+1][tsi.getState().getId()];
 			}
 			if (res < reward) {
 				res = reward;
+				resAction = a;
 			}
 		}
 		
+		System.out.println("At t=" + t + " State=" + i.getId() + " Action=" + resAction);
 		return res;
 	}
 	

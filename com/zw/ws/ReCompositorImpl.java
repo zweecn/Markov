@@ -110,7 +110,7 @@ public class ReCompositorImpl implements ReCompositor{
 
 	private static boolean isReplacedRandom() {
 		Random random = new Random();
-		if (random.nextFloat() > Configs.RANDOM_FIND_FREE_SERVICE) {
+		if (random.nextFloat() < Configs.RANDOM_FIND_FREE_SERVICE) {
 			return true;
 		}
 		return false;
