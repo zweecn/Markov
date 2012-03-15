@@ -32,12 +32,14 @@ public class ReCompositorImpl implements ReCompositor{
 		
 		Queue<Activity> queue = new LinkedList<Activity>();
 		queue.offer(failedActivity);
+		double x = 0;
 		while (!queue.isEmpty()) {
 			//System.out.println("queue=" + queue);
 			Activity activity = queue.poll();
 			//System.out.println("activity=" + activity);
 			AtomService failedService = activity.getBlindService();
-			if (isReplacedRandom()) {
+			if (isReplacedRandom(x)) {
+				x += 0.2;
 				AtomService replaceService = ActivityFlow.nextFreeService(activity);
 				if (replaceService == null) {
 					break;
@@ -49,7 +51,6 @@ public class ReCompositorImpl implements ReCompositor{
 				Activity ac = state.getActivity(activity.getNumber());
 				ac.setBlindService(replaceService);
 				ac.setX(0);
-
 			} else {
 				break;
 			}
@@ -108,9 +109,9 @@ public class ReCompositorImpl implements ReCompositor{
 	}
 
 
-	private static boolean isReplacedRandom() {
+	private static boolean isReplacedRandom(double x) {
 		Random random = new Random();
-		if (random.nextFloat() < Configs.RANDOM_FIND_FREE_SERVICE) {
+		if (random.nextFloat() < Configs.RANDOM_FIND_FREE_SERVICE - x) {
 			return true;
 		}
 		return false;

@@ -209,7 +209,7 @@ public class MarkovState extends ActivityFlow {
 	}
 
 	public String toSimpleString() {
-		String res = "[State " + String.format("%3d", this.id) + ":";
+		String res = "[S " + String.format("%3d", this.id) + ":";
 		
 		String stateText = "";
 		switch (globalState) {
@@ -231,7 +231,7 @@ public class MarkovState extends ActivityFlow {
 		default:
 			break;
 		}
-		res = res.trim() + " Global_state=";
+		res = res.trim() + " ";
 		stateText = String.format("%-7s", stateText);
 		res += stateText;
 		res = res + "]";

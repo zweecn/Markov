@@ -84,7 +84,7 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 		default:
 			break;
 		}
-		res += "[Action: " +  String.format("%3d", getId()) + " " + String.format("%-12s", actionText) 
+		res += "[A: " +  String.format("%3d", getId()) + " " + String.format("%-12s", actionText) 
 				+ "]";
 		return res;
 	}

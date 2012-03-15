@@ -457,6 +457,17 @@ public class LayerMarkovBackward {
 		System.out.println();
 	}
 	
+	public void printUtility() {
+		System.out.println("The utility is:");
+		for (int i = 0; i < utility.length; i++) {
+			for (int j = 0; j < utility[i].length; j++) {
+				System.out.printf("%6.1f ", utility[i][j]);
+			}
+			System.out.println();
+		}
+		System.out.println();
+	}
+	
 	private String makeStepString(int t, MarkovAction action, double u) {
 		String res = "At t=" + String.format("%2d", t) + " Action=" + action + " utility=" + String.format("%.2f", u);
 		return res;
@@ -479,10 +490,15 @@ public class LayerMarkovBackward {
 	private void initMarkovInfo() {
 		utility = new double[this.getTsize()][MarkovRecord.getStateSize()];
 		step = new String[this.getTsize() - 1];
+		for (int i = 0; i < this.getTsize(); i++) {
+			for (int j = 0; j < MarkovRecord.getStateSize(); j++) {
+				utility[i][j] = - Double.MAX_VALUE;
+			}
+		}
 		for (int t = getTsize()-1; t >= 0; t--) {
 			for (MarkovState i : t2StateMap.get(t)) {
 				if (!hasChildren(t, i)) {
-					utility[t][i.getId()] = getNReward(i);
+					utility[t][i.getId()] = getNReward(t, i);
 				} else {
 					utility[t][i.getId()] = -Double.MAX_VALUE;
 				}
@@ -492,6 +508,7 @@ public class LayerMarkovBackward {
 	
 	private double maxUtility(int t, MarkovState i) {
 		TAndState ts = new TAndState(t, i);
+//		System.out.println("t="  + t + " ---------------------------------------");
 		double u = - Double.MAX_VALUE;
 //		MarkovAction resAction = null;
 		for (MarkovAction a : tState2ChildActionMap.get(ts)) {
@@ -499,15 +516,19 @@ public class LayerMarkovBackward {
 			double reward = this.getTReward(stateTAction2ChildStateInfoMap.get(sta).get(0).getState(),
 					stateTAction2ChildStateInfoMap.get(sta).get(0).getTime(), 
 					stateTAction2ChildStateInfoMap.get(sta).get(0).getPrice());
+			
 			for (ToStateInfo tsi : stateTAction2ChildStateInfoMap.get(sta)) {
+//				System.out.println(i.getId() + "->" + tsi.getState().getId());
 				reward +=  Configs.WEAKEN * tsi.getPosibility() * utility[t+1][tsi.getState().getId()];
 			}
+//			System.out.println("\nt=" + t + " a=" + a.getId() + " r=" + reward);
 			if (u < reward) {
 				u = reward;
 				//resAction = a;
 				step[t] = this.makeStepString(t, a, u);
 			}
 		}
+//		System.out.println("u=" + u + "\n");
 		return u;
 	}
 	
@@ -527,18 +548,18 @@ public class LayerMarkovBackward {
 	/* 
 	 * This is the reward of terminate state (Leaf of the UTG tree).
 	 * */
-	private double getNReward(MarkovState state) {
+	private double getNReward(int t, MarkovState state) {
 		switch (state.getGlobalState()) {
 		case Markov.S_SUCCEED:
 			return ( 10 );
 		case Markov.S_DELAYED:
-			return ( 10 );
+			return ( - t*10 );
 		case Markov.S_PRICE_UP:
-			return ( 10 );
+			return ( - t*10 );
 		case Markov.S_NORMAL:
-			return ( 10 );
+			return ( - t*10 );
 		case Markov.S_FAILED:
-			return (-12);
+			return ( - t*10 );
 		default:
 			return 0;
 		}	
@@ -548,7 +569,10 @@ public class LayerMarkovBackward {
 	 * This is the reward after do a action.
 	 * */
 	private double getTReward(MarkovState resultState, double time, double cost) {
-		return cost;
+		if (resultState.getGlobalState() == Markov.S_FAILED) {
+			return - 1000;
+		}
+		return -cost * time;
 	}
 	
 	/*
