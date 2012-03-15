@@ -159,6 +159,9 @@ public class ActivityFlow {
 		services = new ArrayList<AtomService>();
 		try {
 			Scanner scanner = new Scanner(new File(Configs.candidateServiceFileName));
+			if (scanner.hasNext()) {
+				scanner.nextLine();
+			}
 			while (scanner.hasNext()) {
 				int serviceNumber = scanner.nextInt();
 				int servicePrice = scanner.nextInt();
@@ -179,9 +182,9 @@ public class ActivityFlow {
 	private static void readGraphInfo() {
 		try {
 			BufferedReader bf = new BufferedReader(new FileReader(Configs.graphFileName));
+			bf.readLine();
 			String line = bf.readLine();
 			activitySize = new Integer(line.trim());
-			
 			if (activitySize > services.size()) {
 				System.err.println("Error code 0x01.\n"  
 						+ "ActivitySize > CandidateServiceSize.\n" 
@@ -192,7 +195,7 @@ public class ActivityFlow {
 			
 			graph = new int[activitySize][activitySize];
 
-			// 这里注意加回来
+			
 			staticActivities = new ArrayList<Activity>(activitySize);
 			for (int i = 0; i < activitySize; i++) {
 				Activity activity = new Activity(i);
@@ -226,6 +229,9 @@ public class ActivityFlow {
 	private static void readBlindService() {
 		try {
 			Scanner scanner = new Scanner(new File(Configs.blindFileName));
+			if (scanner.hasNext()) {
+				scanner.nextLine();
+			}
 			for (int i = 0; i < activitySize; i++) {
 				if (!scanner.hasNext()) {
 					System.err.println("Error code 0x02.\n"  
@@ -269,6 +275,7 @@ public class ActivityFlow {
 
 	public static void printStaticActivityFlow() {
 		System.out.println("The candidate services are:");
+		System.out.println("[Candidate Service: (ServiceNo, Price, Probability, ExecTime)]");
 		for (int i = 0; i < services.size(); i++) {
 			AtomService service = services.get(i);
 			ServiceQoS qos = service.getQos();
@@ -276,13 +283,15 @@ public class ActivityFlow {
 					+ "\t" + qos.getReliability() + "\t" + qos.getExecTime());
 		}
 		System.out.println();
-
+		System.out.println("[Blind Service: (ActivityNo, BlindServiceNumber]");
 		for (int i = 0; i < activitySize; i++) {
 			System.out.println("Activity " + staticActivities.get(i).getNumber() 
 					+ " blind service " + staticActivities.get(i).getBlindService().getNumber());
 		}
 		System.out.println();
-
+		
+		System.out.println("[Graph: First line is NodeCount, Then PrefixNode -> SuffixNode]");
+		System.out.println("Activity size:" + activitySize);
 		for (int i = 0; i < activitySize; i++) {
 			for (int j = 0; j < activitySize; j++) {
 				if (graph[i][j] == 1) {
@@ -290,6 +299,7 @@ public class ActivityFlow {
 				}
 			}
 		}
+		System.out.println();
 	}
 
 

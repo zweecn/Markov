@@ -7,10 +7,10 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.Random;
 
+import com.zw.Configs;
 import com.zw.ws.ActivityFlow;
 
 public class GenerateWebService {
-	private final static String candidateServiceFileName = "E:\\markov_output\\wsinfo.txt";
 	public void generate(int count) {
 		String wsinfo = "";
 		Random random = new Random();
@@ -38,10 +38,11 @@ public class GenerateWebService {
 			wsinfo += "\t" + execTime + "\n";
 		}
 		
-		File wsinfoFile = new File(candidateServiceFileName);
+		File wsinfoFile = new File(Configs.candidateServiceFileName);
 		try {
 			FileWriter wsinfoWriter = new FileWriter(wsinfoFile);
 			System.out.println("The wsinfo is:\n"+ wsinfo);
+			wsinfoWriter.write("[Candidate Service: (ServiceNo, Price, Probability, ExecTime)]\n");
 			wsinfoWriter.write(wsinfo);
 			wsinfoWriter.close();
 		} catch (FileNotFoundException e) {
