@@ -46,11 +46,15 @@ public class MarkovState extends ActivityFlow {
 			}
 		}
 		
-		if (faultActivity == null) {
-			this.faultActivityState = Markov.S_NORMAL;
-		} else if (faultActivity.getX() < 0) {
-			this.faultActivityState = Markov.S_FAILED;
-		}
+//		if (faultActivityState == 0) {
+//			if (faultActivity == null) {
+//				this.faultActivityState = Markov.S_NORMAL;
+//			} else if (faultActivity.getX() < 0) {
+//				this.faultActivityState = Markov.S_FAILED;
+//			}
+//		} else {
+//			this.globalState = faultActivityState;
+//		}
 		
 		if (failed) {
 			this.globalState = Markov.S_FAILED;
@@ -61,14 +65,18 @@ public class MarkovState extends ActivityFlow {
 		if (!finished && !failed) {
 			this.globalState = Markov.S_NORMAL;
 		}
+		if (faultActivityState != Markov.S_NORMAL && globalState == Markov.S_NORMAL) {
+			this.globalState = faultActivityState;
+		}
 		//System.out.println("finished=" + finished + " failed=" + failed);
 	}
 	
 	public MarkovState clone() {
 		MarkovState state = new MarkovState();
 		state.id = this.id;
-		state.faultActivity =  null;
-//		state.faultActivity = (this.faultActivity == null ? null : this.faultActivity.clone());
+//		state.faultActivity =  this.faultActivity;
+		state.faultActivityState = Markov.S_NORMAL;
+		state.faultActivity = (this.faultActivity == null ? null : this.faultActivity.clone());
 		state.activities.clear();
 		for (Activity ac : this.activities) {
 			state.activities.add(ac.clone());

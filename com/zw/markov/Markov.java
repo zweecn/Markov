@@ -16,7 +16,7 @@ public final class Markov extends Object{
 	public static final int MAX_REPLACE_COUNT = 1;
 	public static final int MAX_RECOMPOSITE_COUNT = 1;
 
-	public static final int S_NORMAL = 1;
+	public static final int S_NORMAL = 0;
 	public static final int S_FAILED = 2;
 	public static final int S_SUCCEED = 3;
 	public static final int S_PRICE_UP = 4;
@@ -111,10 +111,14 @@ public final class Markov extends Object{
 	}
 	
 	public static MarkovAction replace(MarkovState state) {
+		//System.out.println("In replace:" + state);
 		FreeServiceFinder freeServiceFinder = new FreeServiceFinderImp();
 		Activity faultActivity = state.getFaultActivity();
+		//System.out.println(faultActivity);
 		int faultServiceNumber = faultActivity.getBlindService().getNumber();
+		//System.out.println("faultServiceNumber="  + faultServiceNumber);
 		AtomService freeService = freeServiceFinder.nextFreeService(faultActivity);
+		//System.out.println("freeService=" + freeService);
 		if (freeService == null) {
 			state = null;
 			return null;
@@ -123,11 +127,14 @@ public final class Markov extends Object{
 		freeServiceFinder.setServiceUsed(freeService);
 		faultActivity.setX(0);
 		state.setActivity(faultActivity);
+		
 		state.init();
 		ReplaceAction action = new ReplaceAction(state.getFaultActivity().getNumber(), 
 				Markov.A_REPLACE, faultServiceNumber,
 				freeService.getNumber());
 		action.setFreeServiceFinder(freeServiceFinder);
+		state.setFaultActivity(null);
+		state.setFaultActivityState(Markov.S_NORMAL);
 //		System.out.println("action=" + action);
 //		System.out.println("acti=" + faultActivity.getBlindService().getNumber());
 //		System.out.println("state=" + state);
@@ -311,8 +318,9 @@ public final class Markov extends Object{
 
 	public static List<MarkovRecord> replaceRecords(MarkovState state) {
 		MarkovState stateAfter = state.clone();
+//		System.out.println("state=" + state);
 		ReplaceAction replaceAction = (ReplaceAction) Markov.replace(stateAfter);
-		
+//		System.out.println("stateAfter=" + stateAfter);
 		if (replaceAction == null || stateAfter == null || stateAfter.isFinished() || MarkovRecord.hasStateAction(stateAfter, replaceAction)) {
 			//System.out.println("---");
 			return null;
@@ -450,20 +458,20 @@ public final class Markov extends Object{
 	}
 
 	public static List<MarkovRecord> getRecords(MarkovState state) {
-		//System.out.println("In getRecords, state=" + state);
+		//System.out.println("In getRecords, state=" + state + " " + state.getFaultActivityState());
 		if (MarkovRecord.hasStateBefore(state)) {
 			return null;
 		}
 		List<MarkovRecord> resultRecords = new ArrayList<MarkovRecord>();
 		
-		if (state.getGlobalState() == Markov.S_NORMAL) {
+		if (state.getGlobalState() == Markov.S_NORMAL ) {
 			List<MarkovRecord> tempRecords = Markov.noActionRecords(state);
 			
 			if (tempRecords != null && !tempRecords.isEmpty()) {
 				resultRecords.addAll(tempRecords);
 			}
-		}
-		if (state.getGlobalState() == Markov.S_DELAYED) {
+		} else if (state.getGlobalState() == Markov.S_DELAYED) {
+			//System.out.println("In delay");
 			List<MarkovRecord> tempRecords = Markov.noActionRecords(state);
 			if (tempRecords != null && !tempRecords.isEmpty()) {
 				resultRecords.addAll(tempRecords);
@@ -480,8 +488,7 @@ public final class Markov extends Object{
 			if (tempRecords != null && !tempRecords.isEmpty()) {
 				resultRecords.addAll(tempRecords);
 			}
-		}
-		if (state.getGlobalState() == Markov.S_PRICE_UP) {
+		} else if (state.getGlobalState() == Markov.S_PRICE_UP) {
 			List<MarkovRecord> tempRecords = Markov.noActionRecords(state);
 			if (tempRecords != null && !tempRecords.isEmpty()) {
 				resultRecords.addAll(tempRecords);
@@ -490,7 +497,9 @@ public final class Markov extends Object{
 			if (tempRecords != null && !tempRecords.isEmpty()) {
 				resultRecords.addAll(tempRecords);
 			}
+			//System.out.println("state1=" + state);
 			tempRecords = Markov.replaceRecords(state);
+			//System.out.println("state2=" + state.getFaultActivity());
 			if (tempRecords != null && !tempRecords.isEmpty()) {
 				resultRecords.addAll(tempRecords);
 			}
@@ -498,14 +507,12 @@ public final class Markov extends Object{
 			if (tempRecords != null && !tempRecords.isEmpty()) {
 				resultRecords.addAll(tempRecords);
 			}
-		}
-		if (state.getGlobalState() == Markov.S_SUCCEED) {
+		} else if (state.getGlobalState() == Markov.S_SUCCEED) {
 			List<MarkovRecord> tempRecords = Markov.noActionRecords(state);
 			if (tempRecords != null && !tempRecords.isEmpty()) {
 				resultRecords.addAll(tempRecords);
 			}
-		}
-		if (state.getGlobalState() == Markov.S_FAILED) {
+		} else if (state.getGlobalState() == Markov.S_FAILED) {
 			List<MarkovRecord> tempRecords = Markov.terminateRecords(state);
 			if (tempRecords != null && !tempRecords.isEmpty()) {
 				resultRecords.addAll(tempRecords);
