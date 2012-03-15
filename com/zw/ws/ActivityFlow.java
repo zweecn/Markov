@@ -181,6 +181,15 @@ public class ActivityFlow {
 			BufferedReader bf = new BufferedReader(new FileReader(Configs.graphFileName));
 			String line = bf.readLine();
 			activitySize = new Integer(line.trim());
+			
+			if (activitySize > services.size()) {
+				System.err.println("Error code 0x01.\n"  
+						+ "ActivitySize > CandidateServiceSize.\n" 
+						+ "Please check the " + Configs.graphFileName + " file and " 
+						+ Configs.candidateServiceFileName + " file.");
+				System.exit(-1);
+			}
+			
 			graph = new int[activitySize][activitySize];
 
 			// 这里注意加回来
@@ -217,7 +226,14 @@ public class ActivityFlow {
 	private static void readBlindService() {
 		try {
 			Scanner scanner = new Scanner(new File(Configs.blindFileName));
-			for (int i = 0; i < activitySize && scanner.hasNext(); i++) {
+			for (int i = 0; i < activitySize; i++) {
+				if (!scanner.hasNext()) {
+					System.err.println("Error code 0x02.\n"  
+							+ "ActivitySize > BlindServiceSize.\n" 
+							+ "Please check the " + Configs.blindFileName + " file and "
+							+ Configs.graphFileName + " file.");
+					System.exit(-1);
+				}
 				int activityNumber = scanner.nextInt();
 				int serviceNumber = scanner.nextInt();
 				services.get(serviceNumber).setFree(false);
@@ -251,7 +267,30 @@ public class ActivityFlow {
 		}
 	}
 
-	
+	public static void printStaticActivityFlow() {
+		System.out.println("The candidate services are:");
+		for (int i = 0; i < services.size(); i++) {
+			AtomService service = services.get(i);
+			ServiceQoS qos = service.getQos();
+			System.out.println("" + service.getNumber() + "\t" + qos.getPrice() 
+					+ "\t" + qos.getReliability() + "\t" + qos.getExecTime());
+		}
+		System.out.println();
+
+		for (int i = 0; i < activitySize; i++) {
+			System.out.println("Activity " + staticActivities.get(i).getNumber() 
+					+ " blind service " + staticActivities.get(i).getBlindService().getNumber());
+		}
+		System.out.println();
+
+		for (int i = 0; i < activitySize; i++) {
+			for (int j = 0; j < activitySize; j++) {
+				if (graph[i][j] == 1) {
+					System.out.println("" + i + " -> " + j);
+				}
+			}
+		}
+	}
 
 
 	/*	@SuppressWarnings("unused")

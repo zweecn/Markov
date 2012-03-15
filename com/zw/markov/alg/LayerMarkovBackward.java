@@ -37,8 +37,6 @@ public class LayerMarkovBackward {
 	private Map<StateTAndAction, List<ToStateInfo>> stateTAction2ChildStateInfoMap;
 	
 	private double[][] utility;
-	private TreeNode[] treeNodeArray;
-	private int treeNodeSize;
 	
 	
 	private class TAndState {
@@ -96,7 +94,7 @@ public class LayerMarkovBackward {
 		}
 		
 	}
-	
+	/*
 	private class TAndAction {
 		public TAndAction(int t, MarkovAction action) {
 			super();
@@ -146,7 +144,7 @@ public class LayerMarkovBackward {
 			return LayerMarkovBackward.this;
 		}
 		
-	}
+	}*/
 	
 	private class ToStateInfo {
 		public ToStateInfo(MarkovState state, double posibility, double price,
@@ -371,17 +369,15 @@ public class LayerMarkovBackward {
 			Set<MarkovAction> actionSetTemp = new HashSet<MarkovAction>();
 			for (MarkovRecord rd : sourceRecord) {
 				queue2.offer(rd.getStateAfter());
-				treeNodeSize++;
 				actionSetTemp.add(rd.getAction());
 			}
-			treeNodeSize += actionSetTemp.size();
 		}
 	}
 
 	private void addToMap(int t, List<MarkovRecord> records) {
 		for (MarkovRecord rd : records) {
-			TAndAction ta = new TAndAction(t, rd.getAction());
-			TAndState ts = new TAndState(t, rd.getStateAfter());
+//			TAndAction ta = new TAndAction(t, rd.getAction());
+//			TAndState ts = new TAndState(t, rd.getStateAfter());
 //			if (tAction2ParentStateMap.get(ta) == null) {
 //				tAction2ParentStateMap.put(ta, rd.getStateBefore());
 //			}
