@@ -9,7 +9,7 @@ public final class Configs {
 	public static final double WEAKEN = 0.5;
 	public static final double TIME_STEP = Double.MAX_VALUE;
 	
-	public static final double RANDOM_FIND_FREE_SERVICE = 0.5;
+	public static final double RANDOM_FIND_FREE_SERVICE = 1.1;
 	public static final int LAYER_SIZE = 10;
 	public static final int MAX_ACTIVITY_REPLACE_COUNT = 2;
 }

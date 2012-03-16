@@ -65,7 +65,10 @@ public class MarkovState extends ActivityFlow {
 		if (!finished && !failed) {
 			this.globalState = Markov.S_NORMAL;
 		}
-		if (faultActivityState != Markov.S_NORMAL && globalState == Markov.S_NORMAL) {
+//		if (faultActivityState != Markov.S_NORMAL && globalState == Markov.S_NORMAL) {
+//			this.globalState = faultActivityState;
+//		}
+		if (faultActivityState != Markov.S_NORMAL) {
 			this.globalState = faultActivityState;
 		}
 		//System.out.println("finished=" + finished + " failed=" + failed);

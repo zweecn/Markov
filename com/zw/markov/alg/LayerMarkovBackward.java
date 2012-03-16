@@ -32,6 +32,7 @@ public class LayerMarkovBackward {
 	//private Map<TAndAction, MarkovState> tAction2ParentStateMap;
 	private Map<TAndState, List<MarkovAction>> tState2ChildActionMap;
 	private Map<StateTAndAction, List<ToStateInfo>> stateTAction2ChildStateInfoMap;
+	private Map<MarkovState, List<MarkovAction>> state2ChildActionMap;
 	
 	private double[][] utility;
 	private String[] step;
@@ -346,6 +347,7 @@ public class LayerMarkovBackward {
 		//tState2ParentActionMap = new HashMap<LayerMarkovBackward.TAndState, MarkovAction>();
 		tState2ChildActionMap = new HashMap<LayerMarkovBackward.TAndState, List<MarkovAction>>();
 		stateTAction2ChildStateInfoMap = new HashMap<LayerMarkovBackward.StateTAndAction, List<ToStateInfo>>();
+		state2ChildActionMap = new HashMap<MarkovState, List<MarkovAction>>();
 		queue2 = new LinkedList<MarkovState>();
 		queue2.offer(state);
 		Set<MarkovState> stateSet = new HashSet<MarkovState>();
@@ -353,7 +355,7 @@ public class LayerMarkovBackward {
 		for (;;) {
 			Set<MarkovState> tempSet = new HashSet<MarkovState>();
 			tempSet.addAll(queue2);
-			t2StateMap.put(allLayerRecords.size(), tempSet);
+			//t2StateMap.put(allLayerRecords.size(), tempSet);
 			queue1 = queue2;
 			queue2 = new LinkedList<MarkovState>();
 			List<MarkovRecord> oneLayerRecords = new ArrayList<MarkovRecord>();
@@ -371,9 +373,35 @@ public class LayerMarkovBackward {
 			addToMap(allLayerRecords.size(), oneLayerRecords);
 			allLayerRecords.add(oneLayerRecords);
 		}
-		
+		extendTree(); //If extend to end, do this.
+		for (int t = 0; t < allLayerRecords.size(); t++) {
+			addToMap(t, allLayerRecords.get(t));
+		}
+		Set<MarkovState> tempSet = new HashSet<MarkovState>();
+		tempSet.add((allLayerRecords.get(0).get(0).getStateBefore()));
+		t2StateMap.put(0, tempSet);
 	}
 
+	private void extendTree() {
+		for (int i = 0; i < allLayerRecords.size()-1; i++) {
+			Set<Integer> frontLayerStateAfterSet = new HashSet<Integer>();
+			for (MarkovRecord rd : allLayerRecords.get(i)) {
+				frontLayerStateAfterSet.add(rd.getStateAfter().getId());
+			}
+			Set<Integer> nextLayerStateBeforeSet = new HashSet<Integer>();
+			for (MarkovRecord rd : allLayerRecords.get(i+1)) {
+				nextLayerStateBeforeSet.add(rd.getStateBefore().getId());
+			}
+			frontLayerStateAfterSet.removeAll(nextLayerStateBeforeSet);
+			if (!frontLayerStateAfterSet.isEmpty()) {
+				for (MarkovRecord rd : allLayerRecords.get(i)) {
+					if (frontLayerStateAfterSet.contains(rd.getStateBefore().getId())) {
+						allLayerRecords.get(i+1).add(rd);
+					}
+				}
+			}
+		}
+	}
 	
 	private void addToRecords(List<MarkovRecord>destRecords, List<MarkovRecord> sourceRecord){
 		if (sourceRecord != null && !sourceRecord.isEmpty() && destRecords != null) {
@@ -387,6 +415,7 @@ public class LayerMarkovBackward {
 	}
 
 	private void addToMap(int t, List<MarkovRecord> records) {
+		Set<MarkovState> tempSet = new HashSet<MarkovState>();
 		for (MarkovRecord rd : records) {
 //			TAndAction ta = new TAndAction(t, rd.getAction());
 //			TAndState ts = new TAndState(t, rd.getStateAfter());
@@ -407,6 +436,24 @@ public class LayerMarkovBackward {
 			}
 			ToStateInfo info = new ToStateInfo(rd.getStateAfter(), rd.getPosibility(), rd.getPriceCost(), rd.getTimeCost());
 			stateTAction2ChildStateInfoMap.get(sta).add(info); //Mark
+			
+			tempSet.add(rd.getStateAfter());
+			if (t2StateMap.get(t+1) == null) {
+				t2StateMap.put(t+1, tempSet);
+			} else {
+				t2StateMap.get(t+1).addAll(tempSet);
+			}
+//			if (state2ChildActionMap.get(rd.getStateBefore()) == null) {
+//				state2ChildActionMap.put(rd.getStateBefore(), new ArrayList<MarkovAction>());
+//			}
+//			state2ChildActionMap.get(rd.getStateBefore()).add(rd.getAction());
+			
+//			for (int i = 0; i < t; i++) {
+//				tsb = new TAndState(i, rd.getStateBefore());
+//				if (tState2ChildActionMap.get(tsb) != null) {
+//					
+//				}
+//			}
 		}
 	}
 	
@@ -482,6 +529,10 @@ public class LayerMarkovBackward {
 		return (tState2ChildActionMap.get(ts) != null);
 	}
 	
+//	private boolean hasChildren(MarkovState state) {
+//		return (state2ChildActionMap.get(state) != null);
+//	}
+	
 	/*
 	 * 
 	 * Below is the main Markov alg.
@@ -494,16 +545,18 @@ public class LayerMarkovBackward {
 			for (int j = 0; j < MarkovRecord.getStateSize(); j++) {
 				utility[i][j] = - Double.MAX_VALUE;
 			}
-		}
+		}		
 		for (int t = getTsize()-1; t >= 0; t--) {
 			for (MarkovState i : t2StateMap.get(t)) {
 				if (!hasChildren(t, i)) {
 					utility[t][i.getId()] = getNReward(t, i);
+					//System.out.println("t=" + t + " state=" + i);
 				} else {
 					utility[t][i.getId()] = -Double.MAX_VALUE;
 				}
 			}
 		}
+		
 	}
 	
 	private double maxUtility(int t, MarkovState i) {
