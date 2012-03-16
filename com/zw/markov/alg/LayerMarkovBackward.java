@@ -28,11 +28,8 @@ public class LayerMarkovBackward {
 	private Queue<MarkovState> queue2;
 	private List<List<MarkovRecord>> allLayerRecords;
 	private Map<Integer, Set<MarkovState>> t2StateMap;
-	//private Map<TAndState, MarkovAction> tState2ParentActionMap;
-	//private Map<TAndAction, MarkovState> tAction2ParentStateMap;
 	private Map<TAndState, List<MarkovAction>> tState2ChildActionMap;
 	private Map<StateTAndAction, List<ToStateInfo>> stateTAction2ChildStateInfoMap;
-	private Map<MarkovState, List<MarkovAction>> state2ChildActionMap;
 	
 	private double[][] utility;
 	private String[] step;
@@ -96,57 +93,6 @@ public class LayerMarkovBackward {
 		}
 		
 	}
-	/*
-	private class TAndAction {
-		public TAndAction(int t, MarkovAction action) {
-			super();
-			this.t = t;
-			this.action = action;
-		}
-		int t;
-		MarkovAction action;
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + getOuterType().hashCode();
-			result = prime * result
-					+ ((action == null) ? 0 : action.hashCode());
-			result = prime * result + t;
-			return result;
-		}
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (!(obj instanceof TAndAction)) {
-				return false;
-			}
-			TAndAction other = (TAndAction) obj;
-			if (!getOuterType().equals(other.getOuterType())) {
-				return false;
-			}
-			if (action == null) {
-				if (other.action != null) {
-					return false;
-				}
-			} else if (!action.equals(other.action)) {
-				return false;
-			}
-			if (t != other.t) {
-				return false;
-			}
-			return true;
-		}
-		private LayerMarkovBackward getOuterType() {
-			return LayerMarkovBackward.this;
-		}
-		
-	}*/
 	
 	private class ToStateInfo {
 		public ToStateInfo(MarkovState state, double posibility, double price,
@@ -343,11 +289,8 @@ public class LayerMarkovBackward {
 	
 	private void generateLayerRecords() {
 		allLayerRecords = new ArrayList<List<MarkovRecord>>();
-		//tAction2ParentStateMap = new HashMap<LayerMarkovBackward.TAndAction, MarkovState>();
-		//tState2ParentActionMap = new HashMap<LayerMarkovBackward.TAndState, MarkovAction>();
 		tState2ChildActionMap = new HashMap<LayerMarkovBackward.TAndState, List<MarkovAction>>();
 		stateTAction2ChildStateInfoMap = new HashMap<LayerMarkovBackward.StateTAndAction, List<ToStateInfo>>();
-		state2ChildActionMap = new HashMap<MarkovState, List<MarkovAction>>();
 		queue2 = new LinkedList<MarkovState>();
 		queue2.offer(state);
 		Set<MarkovState> stateSet = new HashSet<MarkovState>();
@@ -417,14 +360,6 @@ public class LayerMarkovBackward {
 	private void addToMap(int t, List<MarkovRecord> records) {
 		Set<MarkovState> tempSet = new HashSet<MarkovState>();
 		for (MarkovRecord rd : records) {
-//			TAndAction ta = new TAndAction(t, rd.getAction());
-//			TAndState ts = new TAndState(t, rd.getStateAfter());
-//			if (tAction2ParentStateMap.get(ta) == null) {
-//				tAction2ParentStateMap.put(ta, rd.getStateBefore());
-//			}
-//			if (tState2ParentActionMap.get(ts) == null) {
-//				tState2ParentActionMap.put(ts, rd.getAction());
-//			}
 			TAndState tsb = new TAndState(t, rd.getStateBefore());
 			if (tState2ChildActionMap.get(tsb) == null) {
 				tState2ChildActionMap.put(tsb, new ArrayList<MarkovAction>());
@@ -443,17 +378,6 @@ public class LayerMarkovBackward {
 			} else {
 				t2StateMap.get(t+1).addAll(tempSet);
 			}
-//			if (state2ChildActionMap.get(rd.getStateBefore()) == null) {
-//				state2ChildActionMap.put(rd.getStateBefore(), new ArrayList<MarkovAction>());
-//			}
-//			state2ChildActionMap.get(rd.getStateBefore()).add(rd.getAction());
-			
-//			for (int i = 0; i < t; i++) {
-//				tsb = new TAndState(i, rd.getStateBefore());
-//				if (tState2ChildActionMap.get(tsb) != null) {
-//					
-//				}
-//			}
 		}
 	}
 	
@@ -529,9 +453,6 @@ public class LayerMarkovBackward {
 		return (tState2ChildActionMap.get(ts) != null);
 	}
 	
-//	private boolean hasChildren(MarkovState state) {
-//		return (state2ChildActionMap.get(state) != null);
-//	}
 	
 	/*
 	 * 
@@ -550,7 +471,6 @@ public class LayerMarkovBackward {
 			for (MarkovState i : t2StateMap.get(t)) {
 				if (!hasChildren(t, i)) {
 					utility[t][i.getId()] = getNReward(t, i);
-					//System.out.println("t=" + t + " state=" + i);
 				} else {
 					utility[t][i.getId()] = -Double.MAX_VALUE;
 				}
