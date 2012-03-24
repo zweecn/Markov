@@ -486,10 +486,7 @@ public class LayerMarkovBackward {
 //		MarkovAction resAction = null;
 		for (MarkovAction a : tState2ChildActionMap.get(ts)) {
 			StateTAndAction sta = new StateTAndAction(i, t, a);
-			double reward = this.getTReward(stateTAction2ChildStateInfoMap.get(sta).get(0).getState(),
-					stateTAction2ChildStateInfoMap.get(sta).get(0).getTime(), 
-					stateTAction2ChildStateInfoMap.get(sta).get(0).getPrice());
-			
+			double reward = this.getTReward(sta, stateTAction2ChildStateInfoMap.get(sta));
 			for (ToStateInfo tsi : stateTAction2ChildStateInfoMap.get(sta)) {
 //				System.out.println(i.getId() + "->" + tsi.getState().getId());
 				reward +=  Configs.WEAKEN * tsi.getPosibility() * utility[t+1][tsi.getState().getId()];
@@ -541,11 +538,42 @@ public class LayerMarkovBackward {
 	/*
 	 * This is the reward after do a action.
 	 * */
-	private double getTReward(MarkovState resultState, double time, double cost) {
-		if (resultState.getGlobalState() == Markov.S_FAILED) {
-			return - 1000;
+	private double getTReward(StateTAndAction sta, List<ToStateInfo> tsi) {
+		boolean isNormail = false;
+		boolean isSucceed = false;
+		boolean isDelayed = false;
+		boolean isPriceUp = false;
+		boolean isFalied = false;
+		double pNormail = 0;
+		double pSucceed = 0;
+		double pDelayed = 0;
+		double pPriceUp = 0;
+		double pFalied = 0;
+		for (ToStateInfo toStateInfo : tsi) {
+			if (toStateInfo.getState().getGlobalState() == Markov.S_NORMAL) {
+				pNormail = toStateInfo.getPosibility();
+				isNormail = true;
+			}
+			if (toStateInfo.getState().getGlobalState() == Markov.S_SUCCEED) {
+				pSucceed = toStateInfo.getPosibility();
+				isSucceed = true;
+			}
+			if (toStateInfo.getState().getGlobalState() == Markov.S_DELAYED) {
+				pDelayed = toStateInfo.getPosibility();
+				isDelayed = true;
+			}
+			if (toStateInfo.getState().getGlobalState() == Markov.S_PRICE_UP) {
+				pPriceUp = toStateInfo.getPosibility();
+				isPriceUp = true;
+			}
+			if (toStateInfo.getState().getGlobalState() == Markov.S_FAILED) {
+				pFalied = toStateInfo.getPosibility();
+				isFalied = true;
+			}
 		}
-		return -cost * time;
+		
+		return 100 * pSucceed - 10 * pDelayed - 10 * pPriceUp + 10 * pNormail - 100 * pFalied
+				- tsi.get(0).getPrice() - tsi.get(0).getPrice() * 10;
 	}
 	
 	/*
