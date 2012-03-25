@@ -11,8 +11,8 @@ public class LayerMarkovBachwardTest {
 		
 //		ActivityFlow.printStaticActivityFlow();
 		MarkovState state = new MarkovState();
-		state.getActivity(0).setX(1);
-		state.getActivity(1).setX(-1);
+		state.getActivity(0).setX(-1);
+//		state.getActivity(2).setX();
 //		state.setGlobalState(Markov.S_PRICE_UP);
 //		state.setFaultActivity(ActivityFlow.getStaticActivity(1).clone());
 		
@@ -24,6 +24,7 @@ public class LayerMarkovBachwardTest {
 		bd.printRecords();
 //		bd.printSimpleRecords();
 		System.out.printf("The max utility is: %.2f\n", bd.getMarkovBestUtility());
+		System.out.printf("First action cost: %.2f\n", bd.getCurrActionCost());
 		bd.printStep();
 //		bd.printUtility();
 //		bd.printMap();

@@ -33,6 +33,7 @@ public class LayerMarkovBackward {
 	
 	private double[][] utility;
 	private String[] step;
+	private double actionCost;
 	
 	private long generateRecordRunTime;
 	private long initMarkovInfoRunTime;
@@ -316,7 +317,7 @@ public class LayerMarkovBackward {
 			addToMap(allLayerRecords.size(), oneLayerRecords);
 			allLayerRecords.add(oneLayerRecords);
 		}
-		extendTree(); //If extend to end, do this.
+//		extendTree(); //If extend to end, do this.
 		for (int t = 0; t < allLayerRecords.size(); t++) {
 			addToMap(t, allLayerRecords.get(t));
 		}
@@ -481,24 +482,19 @@ public class LayerMarkovBackward {
 	
 	private double maxUtility(int t, MarkovState i) {
 		TAndState ts = new TAndState(t, i);
-//		System.out.println("t="  + t + " ---------------------------------------");
 		double u = - Double.MAX_VALUE;
-//		MarkovAction resAction = null;
 		for (MarkovAction a : tState2ChildActionMap.get(ts)) {
 			StateTAndAction sta = new StateTAndAction(i, t, a);
 			double reward = this.getTReward(sta, stateTAction2ChildStateInfoMap.get(sta));
 			for (ToStateInfo tsi : stateTAction2ChildStateInfoMap.get(sta)) {
-//				System.out.println(i.getId() + "->" + tsi.getState().getId());
 				reward +=  Configs.WEAKEN * tsi.getPosibility() * utility[t+1][tsi.getState().getId()];
 			}
-//			System.out.println("\nt=" + t + " a=" + a.getId() + " r=" + reward);
 			if (u < reward) {
 				u = reward;
-				//resAction = a;
 				step[t] = this.makeStepString(t, a, u);
+				actionCost = stateTAction2ChildStateInfoMap.get(sta).get(0).getPrice();
 			}
 		}
-//		System.out.println("u=" + u + "\n");
 		return u;
 	}
 	
@@ -515,65 +511,38 @@ public class LayerMarkovBackward {
 		return utility[0][0];
 	}	
 	
+	public double getCurrActionCost() {
+		return actionCost;
+	}
+	
 	/* 
 	 * This is the reward of terminate state (Leaf of the UTG tree).
 	 * */
 	private double getNReward(int t, MarkovState state) {
-		switch (state.getGlobalState()) {
-		case Markov.S_SUCCEED:
-			return ( 10 );
-		case Markov.S_DELAYED:
-			return ( - t*10 );
-		case Markov.S_PRICE_UP:
-			return ( - t*10 );
-		case Markov.S_NORMAL:
-			return ( - t*10 );
-		case Markov.S_FAILED:
-			return ( - t*10 );
-		default:
-			return 0;
-		}	
+		if (state.getGlobalState() == Markov.S_FAILED) {
+			return (-10 * (getTsize() - t + 1));
+		}
+		
+//		if (state.getGlobalState() == Markov.S_SUCCEED) {
+//			return (getTsize() - t) * 10;
+//		}
+//		else if (state.getGlobalState() == Markov.S_FAILED) {
+//			return (t + 1) * (-10);
+//		} else if (state.getGlobalState() == Markov.S_NORMAL) {
+//			return (getTsize() - t) * (0);
+//		}
+		//System.out.println("Others=" + state.getGlobalState() + " id=" + state.getId());
+		
+		return 0;
 	}
 	
 	/*
 	 * This is the reward after do a action.
 	 * */
 	private double getTReward(StateTAndAction sta, List<ToStateInfo> tsi) {
-		boolean isNormail = false;
-		boolean isSucceed = false;
-		boolean isDelayed = false;
-		boolean isPriceUp = false;
-		boolean isFalied = false;
-		double pNormail = 0;
-		double pSucceed = 0;
-		double pDelayed = 0;
-		double pPriceUp = 0;
-		double pFalied = 0;
-		for (ToStateInfo toStateInfo : tsi) {
-			if (toStateInfo.getState().getGlobalState() == Markov.S_NORMAL) {
-				pNormail = toStateInfo.getPosibility();
-				isNormail = true;
-			}
-			if (toStateInfo.getState().getGlobalState() == Markov.S_SUCCEED) {
-				pSucceed = toStateInfo.getPosibility();
-				isSucceed = true;
-			}
-			if (toStateInfo.getState().getGlobalState() == Markov.S_DELAYED) {
-				pDelayed = toStateInfo.getPosibility();
-				isDelayed = true;
-			}
-			if (toStateInfo.getState().getGlobalState() == Markov.S_PRICE_UP) {
-				pPriceUp = toStateInfo.getPosibility();
-				isPriceUp = true;
-			}
-			if (toStateInfo.getState().getGlobalState() == Markov.S_FAILED) {
-				pFalied = toStateInfo.getPosibility();
-				isFalied = true;
-			}
-		}
-		
-		return 100 * pSucceed - 10 * pDelayed - 10 * pPriceUp + 10 * pNormail - 100 * pFalied
-				- tsi.get(0).getPrice() - tsi.get(0).getPrice() * 10;
+//		return - tsi.get(0).getPrice() * tsi.get(0).getTime() / 10;
+		return (-1) * (1-tsi.get(0).getPosibility()) * tsi.get(0).getPrice() +
+				tsi.get(0).getTime();
 	}
 	
 	/*

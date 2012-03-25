@@ -17,7 +17,7 @@ public class ServiceQoS {
 		return qoS;
 	}
 
-	public double getPrice() {
+	public int getPrice() {
 		return price;
 	}
 	public void setPrice(int price) {
@@ -29,7 +29,7 @@ public class ServiceQoS {
 	public void setReliability(double reliability) {
 		this.reliability = reliability;
 	}
-	public double getExecTime() {
+	public int getExecTime() {
 		return execTime;
 	}
 	public void setExecTime(int execTime) {

@@ -17,10 +17,7 @@ public class GenerateWebService {
 		DecimalFormat df  = new DecimalFormat("0.00");
 		for (int i = 0; i < count; i++) {
 			wsinfo += i;
-			int price = Math.abs(random.nextInt()) % 1000;
-			if (price < 100) {
-				price *= 10;
-			}
+			int price = Math.abs(random.nextInt()) % 5 + 5;
 			double realiablity = random.nextDouble() % 1;
 			if (realiablity < 0.5) {
 				realiablity += 0.5;
@@ -28,11 +25,7 @@ public class GenerateWebService {
 			if (realiablity < 0.6) {
 				realiablity += 0.1;
 			}
-			int execTime = Math.abs(random.nextInt()) % 100;
-			if (execTime < 50) {
-				execTime += 50;
-			}
-			
+			int execTime = Math.abs(random.nextInt()) % 5 + 5;			
 			wsinfo += "\t" + price;
 			wsinfo += "\t" + df.format(realiablity);
 			wsinfo += "\t" + execTime + "\n";
@@ -53,12 +46,9 @@ public class GenerateWebService {
 	}
 	
 	public static void main(String[] args) {
-//		GenerateWebService gen = new GenerateWebService();
-//		gen.generate(100);
+		GenerateWebService gen = new GenerateWebService();
+		gen.generate(100);
 		ActivityFlow flow = new ActivityFlow();
 		flow.printFlow();
-		
-		//int[][] temp = new int[5][5];
-		//System.out.println(temp.length);
 	}
 }

@@ -39,7 +39,7 @@ public class ReCompositorImpl implements ReCompositor{
 			//System.out.println("activity=" + activity);
 			AtomService failedService = activity.getBlindService();
 			if (isReplacedRandom(x)) {
-				x += 0.2;
+				x += 0.3;
 				AtomService replaceService = ActivityFlow.nextFreeService(activity);
 				if (replaceService == null) {
 					break;
