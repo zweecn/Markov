@@ -21,15 +21,17 @@ public class LayerMarkovBachwardTest {
 		
 		long startTime=System.currentTimeMillis(); 
 		LayerMarkovBackward bd = new LayerMarkovBackward(state);
-		bd.printRecords();
-//		bd.printSimpleRecords();
+//		bd.printRecords();
+		bd.printSimpleRecords();
 		System.out.printf("The max utility is: %.2f\n", bd.getMarkovBestUtility());
 		System.out.printf("First action cost: %.2f\n", bd.getCurrActionCost());
 		bd.printStep();
 //		bd.printUtility();
 //		bd.printMap();
+		System.out.printf("Greedy cost: %.2f |", bd.getGreedyCost());
+		System.out.println("Greedy action is: " + bd.getGreedyAction());
 		long endTime=System.currentTimeMillis();
-		System.out.println("Total RunTime: " 
+		System.out.println("\nTotal RunTime: " 
 				+ (endTime - startTime) + " ms. (include the runtime of print the record and print steps)");
 
 	}

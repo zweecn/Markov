@@ -139,7 +139,7 @@ public class ActivityFlow {
 	private static void readCandidateServices() {
 		services = new ArrayList<AtomService>();
 		try {
-			Scanner scanner = new Scanner(new File(Configs.candidateServiceFileName));
+			Scanner scanner = new Scanner(new File(Configs.CANDIDATE_SERVICE_FILENAME));
 			if (scanner.hasNext()) {
 				scanner.nextLine();
 			}
@@ -162,15 +162,15 @@ public class ActivityFlow {
 
 	private static void readGraphInfo() {
 		try {
-			BufferedReader bf = new BufferedReader(new FileReader(Configs.graphFileName));
+			BufferedReader bf = new BufferedReader(new FileReader(Configs.GRAPH_FILENAME));
 			bf.readLine();
 			String line = bf.readLine();
 			activitySize = new Integer(line.trim());
 			if (activitySize > services.size()) {
 				System.err.println("Error code 0x01.\n"  
 						+ "ActivitySize > CandidateServiceSize.\n" 
-						+ "Please check the " + Configs.graphFileName + " file and " 
-						+ Configs.candidateServiceFileName + " file.");
+						+ "Please check the " + Configs.GRAPH_FILENAME + " file and " 
+						+ Configs.CANDIDATE_SERVICE_FILENAME + " file.");
 				System.exit(-1);
 			}
 			
@@ -209,7 +209,7 @@ public class ActivityFlow {
 	
 	private static void readBlindService() {
 		try {
-			Scanner scanner = new Scanner(new File(Configs.blindFileName));
+			Scanner scanner = new Scanner(new File(Configs.BILIND_FILENAME));
 			if (scanner.hasNext()) {
 				scanner.nextLine();
 			}
@@ -217,8 +217,8 @@ public class ActivityFlow {
 				if (!scanner.hasNext()) {
 					System.err.println("Error code 0x02.\n"  
 							+ "ActivitySize > BlindServiceSize.\n" 
-							+ "Please check the " + Configs.blindFileName + " file and "
-							+ Configs.graphFileName + " file.");
+							+ "Please check the " + Configs.BILIND_FILENAME + " file and "
+							+ Configs.GRAPH_FILENAME + " file.");
 					System.exit(-1);
 				}
 				int activityNumber = scanner.nextInt();

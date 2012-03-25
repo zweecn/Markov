@@ -31,7 +31,7 @@ public class GenerateWebService {
 			wsinfo += "\t" + execTime + "\n";
 		}
 		
-		File wsinfoFile = new File(Configs.candidateServiceFileName);
+		File wsinfoFile = new File(Configs.CANDIDATE_SERVICE_FILENAME);
 		try {
 			FileWriter wsinfoWriter = new FileWriter(wsinfoFile);
 			System.out.println("The wsinfo is:\n"+ wsinfo);

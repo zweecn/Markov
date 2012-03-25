@@ -13,14 +13,7 @@ import com.zw.markov.MarkovState;
 public class LayerMarkovBackward {
 	public LayerMarkovBackward(MarkovState state) {
 		this.state = state;
-		long t1 = System.currentTimeMillis();
-		generateLayerRecords();
-		long t2 = System.currentTimeMillis();
-		initMarkovInfo();
-		long t3 = System.currentTimeMillis();
-		
-		generateRecordRunTime = t2 - t1;
-		initMarkovInfoRunTime = t3 - t2;
+		init();
 	}
 	
 	private MarkovState state;
@@ -34,6 +27,8 @@ public class LayerMarkovBackward {
 	private double[][] utility;
 	private String[] step;
 	private double actionCost;
+	private MarkovAction firstAction;
+	private MarkovState stateNew; 
 	
 	private long generateRecordRunTime;
 	private long initMarkovInfoRunTime;
@@ -246,6 +241,16 @@ public class LayerMarkovBackward {
 		
 	}
 	
+	public void init() {
+		long t1 = System.currentTimeMillis();
+		generateLayerRecords();
+		long t2 = System.currentTimeMillis();
+		initMarkovInfo();
+		long t3 = System.currentTimeMillis();
+		generateRecordRunTime = t2 - t1;
+		initMarkovInfoRunTime = t3 - t2;
+	}
+	
 	public void printRecords() {
 		//System.out.println("records size=" + allLayerRecords.size());
 		System.out.println("\n StateBefore \t Action \t StateAfter \t Posibility \t Time \t Cost");
@@ -297,13 +302,16 @@ public class LayerMarkovBackward {
 		Set<MarkovState> stateSet = new HashSet<MarkovState>();
 		t2StateMap = new HashMap<Integer, Set<MarkovState>>();
 		for (;;) {
+			
 			Set<MarkovState> tempSet = new HashSet<MarkovState>();
 			tempSet.addAll(queue2);
 			//t2StateMap.put(allLayerRecords.size(), tempSet);
 			queue1 = queue2;
 			queue2 = new LinkedList<MarkovState>();
 			List<MarkovRecord> oneLayerRecords = new ArrayList<MarkovRecord>();
+//			System.out.println("In for " + queue1.size());
 			while (!queue1.isEmpty()) {
+				//System.out.println("In while " + queue1.size());
 				state = queue1.poll();
 				if (!stateSet.contains(state)) {
 					stateSet.add(state);
@@ -322,6 +330,7 @@ public class LayerMarkovBackward {
 			addToMap(t, allLayerRecords.get(t));
 		}
 		Set<MarkovState> tempSet = new HashSet<MarkovState>();
+		//printRecords();
 		tempSet.add((allLayerRecords.get(0).get(0).getStateBefore()));
 		t2StateMap.put(0, tempSet);
 	}
@@ -433,7 +442,11 @@ public class LayerMarkovBackward {
 		System.out.println("The utility is:");
 		for (int i = 0; i < utility.length; i++) {
 			for (int j = 0; j < utility[i].length; j++) {
-				System.out.printf("%6.1f ", utility[i][j]);
+				if (utility[i][j] <= -Double.MAX_VALUE) {
+					System.out.printf("%s ", "MIN_VALUE");
+				} else {
+					System.out.printf("%6.1f ", utility[i][j]);
+				}
 			}
 			System.out.println();
 		}
@@ -480,6 +493,18 @@ public class LayerMarkovBackward {
 		
 	}
 	
+	public void runMarkov() {
+		long t1 = System.currentTimeMillis();
+		for (int t = getTsize()-2; t >= 0; t--) {
+			for (MarkovState i : t2StateMap.get(t)) {
+				if (hasChildren(t, i)) {
+					utility[t][i.getId()] = maxUtility(t, i);
+				}
+			}
+		}
+		runMarkovRunTime = System.currentTimeMillis() - t1;
+	}
+	
 	private double maxUtility(int t, MarkovState i) {
 		TAndState ts = new TAndState(t, i);
 		double u = - Double.MAX_VALUE;
@@ -493,21 +518,14 @@ public class LayerMarkovBackward {
 				u = reward;
 				step[t] = this.makeStepString(t, a, u);
 				actionCost = stateTAction2ChildStateInfoMap.get(sta).get(0).getPrice();
+				firstAction = a;
+				stateNew = stateTAction2ChildStateInfoMap.get(sta).get(0).getState();
 			}
 		}
 		return u;
 	}
 	
 	public double getMarkovBestUtility() {
-		long t1 = System.currentTimeMillis();
-		for (int t = getTsize()-2; t >= 0; t--) {
-			for (MarkovState i : t2StateMap.get(t)) {
-				if (hasChildren(t, i)) {
-					utility[t][i.getId()] = maxUtility(t, i);
-				}
-			}
-		}
-		runMarkovRunTime = System.currentTimeMillis() - t1;
 		return utility[0][0];
 	}	
 	
@@ -515,12 +533,23 @@ public class LayerMarkovBackward {
 		return actionCost;
 	}
 	
+	public MarkovAction getAction() {
+		return firstAction;
+	}
+	
+	public MarkovState getStateNew() {
+		if (stateNew != null) {
+			stateNew.init();
+		}
+		return stateNew;
+	}
+	
 	/* 
 	 * This is the reward of terminate state (Leaf of the UTG tree).
 	 * */
 	private double getNReward(int t, MarkovState state) {
 		if (state.getGlobalState() == Markov.S_FAILED) {
-			return (-10 * (getTsize() - t + 1));
+			return (- Configs.FAILED_COST);
 		}
 		
 //		if (state.getGlobalState() == Markov.S_SUCCEED) {
@@ -540,15 +569,39 @@ public class LayerMarkovBackward {
 	 * This is the reward after do a action.
 	 * */
 	private double getTReward(StateTAndAction sta, List<ToStateInfo> tsi) {
-//		return - tsi.get(0).getPrice() * tsi.get(0).getTime() / 10;
-		return (-1) * (1-tsi.get(0).getPosibility()) * tsi.get(0).getPrice() +
-				tsi.get(0).getTime();
+		return (-1) * ((1-tsi.get(0).getPosibility()) * tsi.get(0).getPrice() +
+				tsi.get(0).getTime() * Configs.TIME_DELAY_COST);
 	}
 	
 	/*
 	 * End Markov..
 	 * 
 	 */
+	
+	private double getGreedyReward(MarkovRecord rd) {
+		if (rd.getStateAfter().getGlobalState() == Markov.S_FAILED) {
+			return (- Configs.FAILED_COST);
+		}
+		return -(rd.getPriceCost() + rd.getTimeCost() * Configs.TIME_DELAY_COST);
+	}
+	
+	MarkovAction greedyAction;
+	public double getGreedyCost() {
+		double res = -Double.MAX_VALUE;
+		List<MarkovRecord> records = allLayerRecords.get(0);
+		for (MarkovRecord rd : records) {
+			double temp = getGreedyReward(rd);
+			if (res < temp) {
+				res = temp;
+				greedyAction = rd.getAction();
+			}
+		}
+		return res;
+	}
+	
+	public MarkovAction getGreedyAction() {
+		return greedyAction;
+	}
 }
 
 

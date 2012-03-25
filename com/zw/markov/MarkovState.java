@@ -74,6 +74,27 @@ public class MarkovState extends ActivityFlow {
 		//System.out.println("finished=" + finished + " failed=" + failed);
 	}
 	
+	public MarkovState nextSecond() {
+		if (this.isFinished()) {
+			return null;
+		}
+		if (this.isFailed()) {
+			return null;
+		} 
+		if (nextToDoActivityList.size() == 1) { //Seq
+			AtomService sTemp = this.getActivity(nextToDoActivity.getNumber()).getBlindService();
+			double xAdd = 1.0 / sTemp.getQos().getExecTime();
+			this.getActivity(nextToDoActivity.getNumber()).addX(xAdd);
+		} else { //Ban
+			for (Activity ac : this.nextToDoActivityList) {
+				double xAdd = 1.0 / ac.getBlindService().getQos().getExecTime();
+				this.getActivity(ac.getNumber()).addX(xAdd);
+			}
+		}
+		this.init();
+		return this;
+	}
+	
 	public MarkovState clone() {
 		MarkovState state = new MarkovState();
 		state.id = this.id;

@@ -32,14 +32,14 @@ public class ReCompositorImpl implements ReCompositor{
 		
 		Queue<Activity> queue = new LinkedList<Activity>();
 		queue.offer(failedActivity);
-		double x = 0;
+		double x = 0.2;
 		while (!queue.isEmpty()) {
 			//System.out.println("queue=" + queue);
 			Activity activity = queue.poll();
 			//System.out.println("activity=" + activity);
 			AtomService failedService = activity.getBlindService();
 			if (isReplacedRandom(x)) {
-				x += 0.3;
+				x *= 2;
 				AtomService replaceService = ActivityFlow.nextFreeService(activity);
 				if (replaceService == null) {
 					break;

@@ -24,6 +24,14 @@ public class MarkovRecord {
 	private static Map<StateAction, Double> stateAction2PriceCostMap = new HashMap<MarkovRecord.StateAction, Double>();
 	private static Map<StateAction, Double> stateAction2TimeCostMap = new HashMap<MarkovRecord.StateAction, Double>();
 
+	public static void clear() {
+		stateList.clear();
+		actionList.clear();
+		stateBeforeSet.clear();
+		stateAction2PriceCostMap.clear();
+		stateAction2TimeCostMap.clear();
+	}
+	
 	private static class StateAction {
 		public StateAction(MarkovState state, MarkovAction action) {
 			super();
