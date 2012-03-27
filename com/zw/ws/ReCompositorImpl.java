@@ -16,7 +16,8 @@ public class ReCompositorImpl implements ReCompositor{
 	
 	private Map<AtomService, AtomService> oldNewReplaceServiceMap;
 	private Activity failedActivity;
-	MarkovAction reComAction;
+	private MarkovAction reComAction;
+	private double x = 0.1;
 	
 	@Override
 	public MarkovState recomposite(MarkovState state) {
@@ -32,14 +33,13 @@ public class ReCompositorImpl implements ReCompositor{
 		
 		Queue<Activity> queue = new LinkedList<Activity>();
 		queue.offer(failedActivity);
-		double x = 0.2;
+		
 		while (!queue.isEmpty()) {
 			//System.out.println("queue=" + queue);
 			Activity activity = queue.poll();
 			//System.out.println("activity=" + activity);
 			AtomService failedService = activity.getBlindService();
-			if (isReplacedRandom(x)) {
-				x *= 2;
+			if (isReplacedRandom()) {
 				AtomService replaceService = ActivityFlow.nextFreeService(activity);
 				if (replaceService == null) {
 					break;
@@ -109,10 +109,17 @@ public class ReCompositorImpl implements ReCompositor{
 	}
 
 
-	private static boolean isReplacedRandom(double x) {
+	private boolean isReplacedRandom() {
+		x *= 2;
 		Random random = new Random();
-		if (random.nextFloat() < Configs.RANDOM_FIND_FREE_SERVICE - x) {
-			return true;
+		if (Configs.IS_RECOMPOSITER_RANDOM) {
+			if (random.nextFloat() < Configs.RANDOM_FIND_FREE_SERVICE - x) {
+				return true;
+			}
+		} else {
+			if (x < 1) {
+				return true;
+			}
 		}
 		return false;
 	}

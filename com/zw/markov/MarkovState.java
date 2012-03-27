@@ -59,7 +59,7 @@ public class MarkovState extends ActivityFlow {
 		if (failed) {
 			this.globalState = Markov.S_FAILED;
 		}
-		if (finished && !failed) {
+		if (finished && !failed || (this.activities.get(ActivityFlow.getActivitySize()-1).getX() >= 1)) {
 			this.globalState = Markov.S_SUCCEED;
 		}
 		if (!finished && !failed) {
@@ -68,7 +68,7 @@ public class MarkovState extends ActivityFlow {
 //		if (faultActivityState != Markov.S_NORMAL && globalState == Markov.S_NORMAL) {
 //			this.globalState = faultActivityState;
 //		}
-		if (faultActivityState != Markov.S_NORMAL) {
+		if (faultActivityState != Markov.S_NORMAL && this.globalState != Markov.S_SUCCEED) {
 			this.globalState = faultActivityState;
 		}
 		//System.out.println("finished=" + finished + " failed=" + failed);

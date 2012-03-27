@@ -23,7 +23,8 @@ public class MarkovRecord {
 	private static Set<MarkovState> stateBeforeSet = new HashSet<MarkovState>();
 	private static Map<StateAction, Double> stateAction2PriceCostMap = new HashMap<MarkovRecord.StateAction, Double>();
 	private static Map<StateAction, Double> stateAction2TimeCostMap = new HashMap<MarkovRecord.StateAction, Double>();
-
+	private static int maxLayerSize;
+	
 	public static void clear() {
 		stateList.clear();
 		actionList.clear();
@@ -375,6 +376,14 @@ public class MarkovRecord {
 //	public static MarkovState setState(long i, MarkovState state) {
 //		return MarkovRecord.stateMap.put(i, state);
 //	}
+
+	public static int getMaxLayerSize() {
+		return maxLayerSize;
+	}
+
+	public static void setMaxLayerSize(int maxLayerSize) {
+		MarkovRecord.maxLayerSize = maxLayerSize;
+	}
 	
 	
 }

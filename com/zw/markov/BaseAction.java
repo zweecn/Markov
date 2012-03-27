@@ -88,7 +88,31 @@ public class BaseAction extends AbstractMarkovAction implements MarkovAction{
 				+ "]";
 		return res;
 	}
-
+	
+	@Override
+	public String toFormatString() {
+		String actionText = "";
+		switch (opNumber) {
+		case Markov.A_NO_ACTION:
+			actionText = "NO_ACTION";
+			break;
+		case Markov.A_TERMINATE:
+			actionText = "TERMINATE";
+			break;
+		case Markov.A_RE_DO:
+			actionText = "RE_DO";
+			break;
+		case Markov.A_REPLACE:
+			actionText = "REPLACE";
+			break;
+		case Markov.A_RE_COMPOSITE:
+			actionText = "RE_COMPOSITE";
+			break;
+		default:
+			break;
+		}
+		return String.format("%12s", actionText);
+	}
 
 	@Override
 	public int getId() {

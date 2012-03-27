@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +21,6 @@ public class ActivityFlow {
 	 * */
 	public ActivityFlow() {
 		initActivities();
-
 	}
 	
 	protected List<Activity> activities;
@@ -130,10 +130,25 @@ public class ActivityFlow {
 	private static Map<Integer, List<Integer>> suffixMap;
 
 	static {
+		initStaticActivityFlow();
+	}
+	
+	public static void initStaticActivityFlow() {
 		readCandidateServices();
 		readGraphInfo();
 		readBlindService();
 		initPrefixSuffix();
+	}
+	
+	public static void clearStaticActivityFlow() {
+		staticActivities.clear();
+		services.clear();
+		activitySize = 0;
+		for (int i = 0; i < graph.length; i++) {
+			Arrays.fill(graph[i], 0);
+		}
+		prefixMap.clear();
+		suffixMap.clear();
 	}
 	
 	private static void readCandidateServices() {
@@ -158,7 +173,6 @@ public class ActivityFlow {
 			e.printStackTrace();
 		}
 	}
-
 
 	private static void readGraphInfo() {
 		try {

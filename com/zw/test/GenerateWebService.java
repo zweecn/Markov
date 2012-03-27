@@ -18,13 +18,8 @@ public class GenerateWebService {
 		for (int i = 0; i < count; i++) {
 			wsinfo += i;
 			int price = Math.abs(random.nextInt()) % 5 + 5;
-			double realiablity = random.nextDouble() % 1;
-			if (realiablity < 0.5) {
-				realiablity += 0.5;
-			}
-			if (realiablity < 0.6) {
-				realiablity += 0.1;
-			}
+			double realiablity = (random.nextDouble() % 0.2 + 0.8);
+			
 			int execTime = Math.abs(random.nextInt()) % 5 + 5;			
 			wsinfo += "\t" + price;
 			wsinfo += "\t" + df.format(realiablity);
