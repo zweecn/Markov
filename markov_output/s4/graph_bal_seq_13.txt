@@ -1,0 +1,18 @@
+[Graph: First line is NodeCount, Then PrefixNode -> SuffixNode]
+13
+0 -> 1
+1 -> 2
+2 -> 3
+3 -> 4
+4 -> 5
+5 -> 6
+6 -> 7
+6 -> 8
+6 -> 9
+6 -> 10
+6 -> 11
+7 -> 12
+8 -> 12
+9 -> 12
+10 -> 12
+11 -> 12

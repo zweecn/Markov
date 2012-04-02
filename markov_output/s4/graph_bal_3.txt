@@ -1,0 +1,4 @@
+[Graph: First line is NodeCount, Then PrefixNode -> SuffixNode]
+3
+0 -> 1
+1 -> 2
