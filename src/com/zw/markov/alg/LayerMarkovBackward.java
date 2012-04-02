@@ -5,13 +5,10 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import com.zw.Configs;
-import com.zw.markov.BaseAction;
 import com.zw.markov.Markov;
 import com.zw.markov.MarkovAction;
 import com.zw.markov.MarkovRecord;
 import com.zw.markov.MarkovState;
-import com.zw.ws.Activity;
-import com.zw.ws.ActivityFlow;
 
 public class LayerMarkovBackward {
 	private MarkovState greedyState;
@@ -34,7 +31,7 @@ public class LayerMarkovBackward {
 	private String[] step;
 	private double actionCost;
 	private double actionTimeCost;
-	private double posibility;
+//	private double posibility;
 	
 	private MarkovAction firstAction;
 	private MarkovState stateNew; 
@@ -425,7 +422,6 @@ public class LayerMarkovBackward {
 			while (!queue1.isEmpty()) {
 				state = queue1.poll();
 				if (!stateSet.contains(state)) {
-					
 					stateSet.add(state);
 					List<MarkovRecord> records = Markov.getRecords(state);
 //					System.out.println(records);
@@ -582,7 +578,7 @@ public class LayerMarkovBackward {
 				step[t] = this.makeStepString(t, a, u);
 				actionCost = stateTAction2ChildStateInfoMap.get(sta).get(0).getPrice();
 				actionTimeCost = stateTAction2ChildStateInfoMap.get(sta).get(0).getTime();
-				posibility = stateTAction2ChildStateInfoMap.get(sta).get(0).getPosibility();
+//				posibility = stateTAction2ChildStateInfoMap.get(sta).get(0).getPosibility();
 				firstAction = a;
 				stateNew = stateTAction2ChildStateInfoMap.get(sta).get(0).getState();
 			}

@@ -1,9 +1,7 @@
 package com.zw.test;
 
-import com.zw.markov.MarkovRecord;
 import com.zw.markov.MarkovState;
 import com.zw.markov.alg.LayerMarkovBackward;
-import com.zw.ws.ActivityFlow;
 
 public class LayerMarkovBachwardTest {
 	public static void main(String[] args) {

@@ -11,16 +11,17 @@ import com.zw.Configs;
 import com.zw.ws.ActivityFlow;
 
 public class GenerateWebService {
-	public void generate(int count) {
+	public static void generate(int count, int minPrice, int maxPrice, 
+										   int minTime, int maxTime,
+										   double minProbability, double maxProbability) {
 		String wsinfo = "";
 		Random random = new Random();
 		DecimalFormat df  = new DecimalFormat("0.00");
 		for (int i = 0; i < count; i++) {
 			wsinfo += i;
-			int price = Math.abs(random.nextInt()) % 100 ;
-			double realiablity = (random.nextDouble() % 1.0);
-			
-			int execTime = Math.abs(random.nextInt()) % 10;			
+			int price =  Math.abs(random.nextInt()) % (maxPrice-minPrice) + minPrice;
+			double realiablity = (random.nextDouble() % (maxProbability-minProbability) + minProbability);
+			int execTime = Math.abs(random.nextInt()) % (maxTime-minTime) + minTime;
 			wsinfo += "\t" + price;
 			wsinfo += "\t" + df.format(realiablity);
 			wsinfo += "\t" + execTime + "\n";
@@ -40,9 +41,9 @@ public class GenerateWebService {
 		}
 	}
 	
+	
 	public static void main(String[] args) {
-		GenerateWebService gen = new GenerateWebService();
-		gen.generate(100);
+		GenerateWebService.generate(100, 5, 15, 5, 10, 0.1, 0.9);
 		ActivityFlow flow = new ActivityFlow();
 		flow.printFlow();
 	}

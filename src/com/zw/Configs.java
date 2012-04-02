@@ -4,10 +4,10 @@ public final class Configs {
 	/*
 	 * Web service filename.
 	 * */
-	public final static String 	CANDIDATE_SERVICE_FILENAME = "markov_output\\s1\\wsinfo.txt";
-	public final static String 	BILIND_FILENAME = "markov_output\\s1\\blind.txt";
-	public static String 		GRAPH_FILENAME = "markov_output\\s1\\graph.txt";
-	public final static String 	LOG_FILE_NAME = "markov_output\\s1\\markov_log.txt";
+	public static String 	CANDIDATE_SERVICE_FILENAME = "markov_output\\service\\wsinfo.txt";
+	public static String 	BILIND_FILENAME = "markov_output\\service\\blind.txt";
+	public static String 	GRAPH_FILENAME = "markov_output\\service\\graph.txt";
+	public static String 	LOG_FILE_NAME = "markov_output\\service\\markov_log.txt";
 
 	public static final String[] GRAPH_FILENAME_S = {
 		"markov_output\\graph.txt",
@@ -28,22 +28,22 @@ public final class Configs {
 	/*
 	 * Weaken and random fault.
 	 * */
-	public static final double 	WEAKEN = 1;
-	public static final double 	RANDOM_FAULT =  0.5;  //0.5 is good for test1.;
-	public static final long 	SLEEP_SECONDS = 1000;
+	public static double 	WEAKEN = 1;
+	public static double 	RANDOM_FAULT =  0.5;  //0.5 is good for test1.;
+	public static long 		SLEEP_SECONDS = 1000;
 	/*
 	 * Random of find service
 	 * */
-	public static final double 	RANDOM_FIND_FREE_SERVICE = 1.1;
-	public static final int 	MAX_ACTIVITY_REPLACE_COUNT = 3;
-	public static final boolean IS_RECOMPOSITER_RANDOM = false;
+	public static double 	RANDOM_FIND_FREE_SERVICE = 1.1;
+	public static int 		MAX_ACTIVITY_REPLACE_COUNT = 3;
+	public static boolean 	IS_RECOMPOSITER_RANDOM = false;
 
 	/*
 	 * Reward configure.
 	 * */
-	public static double 	PUNISHMENT_FAILED = 1; //600 is good for test1
-	public static final double 	PUNISHMENT_PER_SECOND = 2; //2 is good for test1
-	public static final double 	AWARD_SUCCEED = 10;
+	public static double 	PUNISHMENT_FAILED = 100; //600 is good for test1
+	public static double 	PUNISHMENT_PER_SECOND = 1; //2 is good for test1
+	public static double 	AWARD_SUCCEED = 10;
 
 	/*
 	 * Plan of reward
@@ -56,10 +56,9 @@ public final class Configs {
 	/* 
 	 * Extend? or ReduceLayer?
 	 * */
-	public static final boolean IS_EXTEND_TREE = false;
 	public static int 			REDUCE_LAYER_SIZE = -1; 
-
-
+	public static final boolean IS_EXTEND_TREE = false;
+	
 	/* 0 will show normail exec.
 	 * 1 will do test 1
 	 * 2 will do test 2

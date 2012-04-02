@@ -137,7 +137,8 @@ public class ActivityFlow {
 	public static void initStaticActivityFlow() {
 		readCandidateServices();
 		readGraphInfo();
-		readBlindService();
+//		readBlindService();
+		initBlindService();
 		initPrefixSuffix();
 		initTotalPriceCost();
 	}
@@ -230,6 +231,15 @@ public class ActivityFlow {
 		}
 	}
 	
+	private static void initBlindService() {
+		for (int i = 0; i < activitySize; i++) {
+			staticActivities.get(i).setBlindService(services.get(i));
+			staticActivities.get(i).setPredictTimeCost(services.get(i).getQos().getExecTime());
+			staticActivities.get(i).setPredictPriceCost(services.get(i).getQos().getPrice());
+		}
+	}
+	
+	@SuppressWarnings("unused")
 	private static void readBlindService() {
 		try {
 			Scanner scanner = new Scanner(new File(Configs.BILIND_FILENAME));
@@ -247,15 +257,26 @@ public class ActivityFlow {
 				int activityNumber = scanner.nextInt();
 				int serviceNumber = scanner.nextInt();
 				services.get(serviceNumber).setFree(false);
-				staticActivities.get(activityNumber).setBlindService(services.get(serviceNumber));
-				staticActivities.get(activityNumber).setPredictTimeCost(services.get(serviceNumber).getQos().getExecTime());
-				staticActivities.get(activityNumber).setPredictPriceCost(services.get(serviceNumber).getQos().getPrice());
+				if (hasActivity(activityNumber)) {
+					staticActivities.get(activityNumber).setBlindService(services.get(serviceNumber));
+					staticActivities.get(activityNumber).setPredictTimeCost(services.get(serviceNumber).getQos().getExecTime());
+					staticActivities.get(activityNumber).setPredictPriceCost(services.get(serviceNumber).getQos().getPrice());
+				}				
 			}
 
 			scanner.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	private static boolean hasActivity(int activityNumber) {
+		for (Activity a : staticActivities) {
+			if (a.getNumber() == activityNumber) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private static void initPrefixSuffix() {
@@ -392,7 +413,8 @@ public class ActivityFlow {
 			return null;
 		} else if (ActivityFlow.getStaticActivity(activity.getNumber()) == null){
 			return null;
-		} else if (ActivityFlow.getStaticActivity(activity.getNumber()).getReplaceCount() >= Configs.MAX_ACTIVITY_REPLACE_COUNT) {
+		} 
+		else if (ActivityFlow.getStaticActivity(activity.getNumber()).getReplaceCount() >= Configs.MAX_ACTIVITY_REPLACE_COUNT) {
 			return null;
 		}
 		for (int i = 0; i < ActivityFlow.services.size(); i++) {

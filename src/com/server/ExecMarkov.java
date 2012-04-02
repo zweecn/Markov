@@ -370,6 +370,7 @@ public class ExecMarkov {
 		printTest1_1("% Markov Result", test1MarkovActionSeqs, 0);
 	}
 	
+	@SuppressWarnings("unused")
 	private void test1() {
 		System.out.println("Start...Probability of fault=" + Configs.RANDOM_FAULT);
 		MarkovState state = new MarkovState();

@@ -4,14 +4,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.zw.Configs;
 import com.zw.markov.Markov;
 import com.zw.markov.MarkovRecord;
 import com.zw.markov.MarkovState;
@@ -20,8 +19,25 @@ import com.zw.markov.alg.*;
 
 public class Test2 {
 	public Test2() {
+		reInitConfigs();
 		init();
 	}
+	
+	private void reInitConfigs() {
+		Configs.CANDIDATE_SERVICE_FILENAME = Configs.CANDIDATE_SERVICE_FILENAME.replace("service", "s2");
+		Configs.BILIND_FILENAME = Configs.BILIND_FILENAME.replace("service", "s2");
+		Configs.LOG_FILE_NAME = Configs.LOG_FILE_NAME.replace("service", "s2");
+		Configs.GRAPH_FILENAME = Configs.GRAPH_FILENAME.replace("service", "s2");
+		Configs.WEAKEN = 1;
+		Configs.RANDOM_FAULT =  0.5;  //0.5 is good for test1.;
+		Configs.PUNISHMENT_FAILED = 600; //600 is good for test1
+		Configs.PUNISHMENT_PER_SECOND = 2; //2 is good for test1
+		if (IS_GENERATE_NEW_SERVICE) {
+			GenerateWebService.generate(100, 1, 50, 1, 10, 0.1, 0.9);
+		}
+	}
+	
+	private static final boolean IS_GENERATE_NEW_SERVICE = false;
 	
 	public static final String[] OUTPUT_FILE = {
 		"markov_output\\test2\\0markov.txt",
@@ -32,14 +48,15 @@ public class Test2 {
 	};
 	
 	public static final int reduceLayerTestCount = 5;
-	private int[] time = new int[reduceLayerTestCount];
+	private int[] xPosTime = new int[reduceLayerTestCount];
 	@SuppressWarnings("unchecked")
 	private Map<Integer, ActionSequence>[] i2seqMaps = new Map[reduceLayerTestCount];
+	@SuppressWarnings("unchecked")
 	private List<MarkovSecquence>[] markovSecquenceArray = new List[reduceLayerTestCount];
 	
 	private void init() {
 		for (int i = 0; i < reduceLayerTestCount; i++) {
-			time[i] = 0;
+			xPosTime[i] = 0;
 			i2seqMaps[i] = new HashMap<Integer, ActionSequence>();
 			markovSecquenceArray[i] = new ArrayList<MarkovSecquence>();
 		}
@@ -65,7 +82,7 @@ public class Test2 {
 		ActionSequence seq = new ActionSequence(bd.getAction().getOpNumber(), bd.getAction().toFormatString(), 
 				bd.getCurrActionCost(), bd.getCurrActionTimeCost(), bd.getCurrActionReward());
 		i2seqMaps[0].put(t, seq);
-		time[0]++;
+		xPosTime[0]++;
 		
 		for (int i = 1; i < stateTemp.length; i++) {
 			stateTemp[i] = state.clone();
@@ -82,7 +99,7 @@ public class Test2 {
 			ActionSequence seqi = new ActionSequence(bd.getAction().getOpNumber(), bd.getAction().toFormatString(), 
 					bd.getCurrActionCost(), bd.getCurrActionTimeCost(), bd.getCurrActionReward());
 			i2seqMaps[i].put(t, seqi);
-			time[i]++;
+			xPosTime[i]++;
 		}
 		
 		return stateTemp;
@@ -129,7 +146,7 @@ public class Test2 {
 				markovState.init();
 			}
 		} while (true);
-		time[reduceLayerSize] = i + 1;
+		xPosTime[reduceLayerSize] = i + 1;
 	}
 	
 	private void printMap() {
@@ -170,6 +187,7 @@ public class Test2 {
 	}
 	
 	public static void runReduceLayerTest() {
+		Configs.PUNISHMENT_FAILED = ActivityFlow.getTotalPriceCost() ;
 		Test2 test2 = new Test2();
 		MarkovState state = new MarkovState();
 		state.getNextToDoActivity().setX(- 1.0 / state.getNextToDoActivity().getBlindService().getQos().getExecTime());

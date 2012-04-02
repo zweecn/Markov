@@ -103,6 +103,22 @@ public class Test {
 		return stateTemp;
 	}
 	
+	public static long markovRecovery(MarkovState state) {
+		Test.clearMarkovRecordAndActivityFlow();
+		state.setId(0);
+		state.init();
+		
+		MarkovState stateTemp = state.clone();
+		stateTemp.init();
+		
+		LayerMarkovBackward bd = new LayerMarkovBackward(state);
+		long t1 = System.currentTimeMillis();
+		bd.runMarkov();
+		long t2 = System.currentTimeMillis();
+		
+		return t2 - t1;
+	}
+	
 	public static MarkovState markovRecovery(int t, MarkovState state, Map<Integer, ActionSequence> i2markovActionMap) {
 		Test.clearMarkovRecordAndActivityFlow();
 		state.setId(0);

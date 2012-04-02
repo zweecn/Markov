@@ -7,20 +7,40 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import com.zw.Configs;
 import com.zw.markov.*;
 import com.zw.markov.alg.LayerMarkovBackward;
 import com.zw.ws.ActivityFlow;
 
 public class Test1 {
+	
 	public Test1() {
+		reInitConfigs();
 		i2markovActionMap = new HashMap<Integer, ActionSequence>();
 		i2greedyActionMap = new HashMap<Integer, ActionSequence>();
 	}
 	
-	public static final String MARKOV_OUTPUT_FILE = "markov_output\\test1\\mout.txt";
-	public static final String GREEDY_OUTPUT_FILE = "markov_output\\test1\\gout.txt";
-	public static final String MARKOV_ACTION_FILE = "markov_output\\test1\\m_action.txt";
-	public static final String GREEDY_ACTION_FILE = "markov_output\\test1\\g_action.txt";
+	private void reInitConfigs() {
+		Configs.CANDIDATE_SERVICE_FILENAME = Configs.CANDIDATE_SERVICE_FILENAME.replace("service", "s1");
+		Configs.BILIND_FILENAME = Configs.BILIND_FILENAME.replace("service", "s1");
+		Configs.LOG_FILE_NAME = Configs.LOG_FILE_NAME.replace("service", "s1");
+		Configs.GRAPH_FILENAME = Configs.GRAPH_FILENAME.replace("service", "s1");
+		Configs.WEAKEN = 1;
+		Configs.RANDOM_FAULT =  0.5;  //0.5 is good for test1.;
+		Configs.PUNISHMENT_FAILED = 600; //600 is good for test1
+		Configs.PUNISHMENT_PER_SECOND = 2; //2 is good for test1
+		if (IS_GENERATE_NEW_SERVICE) {
+			GenerateWebService.generate(100, 1, 50, 1, 10, 0.1, 0.9);
+		}
+	}
+	
+	private static final boolean IS_GENERATE_NEW_SERVICE = true;
+	
+	private static final String MARKOV_OUTPUT_FILE = "markov_output\\test1\\mout.txt";
+	private static final String GREEDY_OUTPUT_FILE = "markov_output\\test1\\gout.txt";
+	private static final String MARKOV_ACTION_FILE = "markov_output\\test1\\m_action.txt";
+	private static final String GREEDY_ACTION_FILE = "markov_output\\test1\\g_action.txt";
 	
 	private Map<Integer, ActionSequence> i2markovActionMap;
 	private Map<Integer, ActionSequence> i2greedyActionMap;
